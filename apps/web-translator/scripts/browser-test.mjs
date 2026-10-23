@@ -4,6 +4,8 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import assert from "node:assert/strict";
 import path from "node:path";
+import { installAudioFixture } from "./audio-fixture.mjs";
+import { testMetadata } from "./test-metadata.mjs";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
@@ -21,7 +23,7 @@ execFileSync("ffmpeg", [
   "-i",
   "flite=text='The blue bicycle is next to the house.':voice=slt",
   "-af",
-  "apad=pad_dur=5",
+  "apad=pad_dur=2",
   "-ar",
   "48000",
   "-ac",
@@ -33,8 +35,11 @@ execFileSync("ffmpeg", [
 const base = process.env.TEST_URL || "http://127.0.0.1:5180/";
 const origin = new URL(base).origin;
 const report = {
+  ...testMetadata(),
   engine: "Real ONNX models / WASM / Chromium",
   translations: [],
+  audioRuns: [],
+  tts: "NIEPRZETESTOWANE — brak potwierdzonego odsłuchu lokalnego głosu",
   checks: [],
   externalRequests: [],
   pageErrors: [],
@@ -46,10 +51,10 @@ const browser = await chromium.launch({
   args: [
     "--no-sandbox",
     "--use-fake-device-for-media-stream",
-    `--use-file-for-fake-audio-capture=${audio}`,
   ],
   env: { ...process.env, HOME: "/tmp/medpartners-browser-tests" },
 });
+report.browser = browser.version();
 const context = await browser.newContext({
   permissions: ["microphone"],
   viewport: { width: 390, height: 844 },
@@ -64,6 +69,7 @@ context.on("request", (request) => {
     weightRequests++;
 });
 const page = await context.newPage();
+await installAudioFixture(page, audio);
 page.on("pageerror", (error) => report.pageErrors.push(error.message));
 page.on("console", (message) => {
   if (message.type() === "error")
@@ -136,6 +142,16 @@ async function translate(from, to, input, expected, offline = false) {
   await stop();
 }
 
+const routes = [
+  ["en", "nl", "The blue bicycle is next to the house.", /fiets/i],
+  ["nl", "en", "De blauwe fiets staat naast het huis.", /bicycle|bike/i],
+  ["pl", "en", "Niebieski rower stoi obok domu.", /bicycle|bike/i],
+  ["en", "pl", "The blue bicycle is next to the house.", /rower/i],
+  ["pl", "nl", "Niebieski rower stoi obok domu.", /fiets/i],
+  ["nl", "pl", "De blauwe fiets staat naast het huis.", /rower/i],
+];
+const normalize = (text) => text.toLowerCase().replace(/[.,!?]/g, "").replace(/\s+/g, " ").trim();
+
 try {
   await page.goto(base);
   await ready();
@@ -157,42 +173,12 @@ try {
     0,
   );
   await page.locator(".text-mode summary").click();
-  await translate(
-    "en",
-    "nl",
-    "The blue bicycle is next to the house.",
-    /fiets/i,
-  );
-  await translate(
-    "nl",
-    "en",
-    "De blauwe fiets staat naast het huis.",
-    /bicycle|bike/i,
-  );
-  await translate(
-    "pl",
-    "en",
-    "Niebieski rower stoi obok domu.",
-    /bicycle|bike/i,
-  );
-  await translate(
-    "en",
-    "pl",
-    "The blue bicycle is next to the house.",
-    /rower/i,
-  );
-  await translate("pl", "nl", "Niebieski rower stoi obok domu.", /fiets/i);
-  await translate(
-    "nl",
-    "pl",
-    "De blauwe fiets staat naast het huis.",
-    /rower/i,
-  );
+  for (const args of routes) await translate(...args);
   report.checks.push(
     "All six real translation routes produced the expected object, including both English pivots.",
   );
   const before = weightRequests;
-  await translate("en", "nl", "The bicycle is blue.", /fiets/i);
+  for (const args of routes) await translate(...args);
   assert.equal(
     weightRequests,
     before,
@@ -202,44 +188,70 @@ try {
     "Repeated translation reuses verified CacheStorage model files.",
   );
 
-  // Chromium fake media supplies a locally synthesized fictional WAV to real getUserMedia.
+  // Three consecutive native permission + real MediaStream/VAD/ASR/MT runs.
+  // A controlled WebAudio source is started only after the production VAD start
+  // has resolved and the application has enabled the microphone track.
   await selectPair("en", "nl");
-  const count = await page.locator(".entry").count();
-  await page.locator("#start").click();
-  await page.waitForFunction(
-    ({ count }) => {
-      const rows = document.querySelectorAll(".entry");
-      return (
-        (rows.length > count &&
-          rows[rows.length - 1].querySelector(".translated").textContent !==
-            "Tłumaczę…") ||
-        !document.querySelector("#error").hidden
-      );
-    },
-    { count },
-    { timeout: 180_000 },
-  );
-  assert.equal(
-    await page.locator("#error").isVisible(),
-    false,
-    await page.locator("#error").textContent(),
-  );
-  const transcript = await page.locator(".entry .original").last().innerText();
-  const spokenTranslation = await page
-    .locator(".entry .translated")
-    .last()
-    .innerText();
-  assert.match(transcript, /bicycle|bike/i);
-  assert.match(spokenTranslation, /fiets/i);
-  report.checks.push(
-    `Real microphone API → Silero VAD → Whisper → Opus-MT: ${transcript} / ${spokenTranslation}`,
-  );
+  for (let run = 1; run <= 3; run++) {
+    const count = await page.locator(".entry").count();
+    const began = Date.now();
+    await page.locator("#start").click();
+    await page.waitForFunction(() =>
+      document.querySelector("#status").dataset.phase === "listening" &&
+      window.__qaAudio?.stream.getAudioTracks()[0].enabled,
+      null, { timeout: 180_000 });
+    const readyMs = Date.now() - began;
+    const fixture = await page.evaluate(() => window.__qaAudio.play());
+    const played = Date.now();
+    await page.waitForFunction(
+      ({ count }) => {
+        const rows = document.querySelectorAll(".entry");
+        return (
+          (rows.length > count &&
+            rows[rows.length - 1].querySelector(".translated").textContent !==
+              "Tłumaczę…") ||
+          !document.querySelector("#error").hidden
+        );
+      },
+      { count },
+      { timeout: 180_000 },
+    );
+    assert.equal(
+      await page.locator("#error").isVisible(),
+      false,
+      await page.locator("#error").textContent(),
+    );
+    const transcript = await page.locator(".entry .original").last().innerText();
+    const spokenTranslation = await page
+      .locator(".entry .translated")
+      .last()
+      .innerText();
+    assert.equal(normalize(transcript), "the blue bicycle is next to the house");
+    assert.equal(normalize(spokenTranslation), "de blauwe fiets ligt naast het huis");
+    assert.equal(fixture.nativeCalls, run);
+    const audioRun = { run, readyMs, resultAfterPlayMs: Date.now() - played,
+      totalMs: Date.now() - began, transcript, translation: spokenTranslation,
+      timing: await page.locator(".timing").last().innerText(), fixture };
+    report.audioRuns.push(audioRun);
+    console.log(`PASS audio ${run}/3: ${JSON.stringify(audioRun)}`);
+    await stop();
+    await page.waitForFunction(() => window.__qaAudio.stopped &&
+      window.__qaAudio.microphone.getTracks().every(t => t.readyState === "ended"));
+  }
+  report.checks.push("Three consecutive readiness-synchronized audio runs recognize the entire sentence; native capture released after Stop.");
   report.voices = await page.evaluate(() =>
     speechSynthesis
       .getVoices()
       .map((v) => ({ lang: v.lang, local: v.localService })),
   );
+  // Stop during an actual VAD utterance; no transcript may arrive afterwards.
+  await page.locator("#start").click();
+  await page.waitForFunction(() => document.querySelector("#status").dataset.phase === "listening");
+  await page.evaluate(() => window.__qaAudio.play());
+  await page.waitForFunction(() => document.querySelector("#status").dataset.phase === "speech");
   await stop();
+  await page.waitForFunction(() => window.__qaAudio.stopped &&
+    window.__qaAudio.microphone.getTracks().every(t => t.readyState === "ended"));
   const stoppedCount = await page.locator(".entry").count();
   await page.waitForTimeout(1200);
   assert.equal(await page.locator(".entry").count(), stoppedCount);
@@ -253,15 +265,9 @@ try {
   await page.reload();
   await ready();
   await page.locator(".text-mode summary").click();
-  await translate(
-    "pl",
-    "nl",
-    "Niebieski rower stoi obok domu.",
-    /fiets/i,
-    true,
-  );
+  for (const args of routes) await translate(...args, true);
   report.checks.push(
-    "Offline reload and real pivot translation use the saved application and models.",
+    "Offline reload and all six real translation routes use the saved application and models.",
   );
   await page.locator("#clear").click();
   assert.equal(await page.locator(".entry").count(), 0);
@@ -304,7 +310,7 @@ try {
 } finally {
   await writeFile(
     path.join(output, "browser-results.json"),
-    JSON.stringify(report, null, 2),
+    JSON.stringify({ ...report, completedAt: new Date().toISOString() }, null, 2),
   );
   await browser.close();
 }

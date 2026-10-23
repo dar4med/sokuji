@@ -66,6 +66,7 @@ W drugim terminalu:
 cd /workspace/sokuji/apps/web-translator
 npm run test:browser
 npm run test:preview
+npm run test:csp
 # Pełny tor tekstowy i głosowy przez prefiks proxy, również bez końcowego ukośnika:
 FULL_PREVIEW_TEST=1 npm run test:preview
 ```
@@ -73,6 +74,12 @@ FULL_PREVIEW_TEST=1 npm run test:preview
 `CHROMIUM_PATH` może wskazać inną instalację Chromium, a `TEST_URL` inny serwer testowy. Test domyślnie używa portu 5180 i `/usr/bin/chromium`.
 
 `test:preview` korzysta z działającego serwera 5180 (opcjonalnie `PREVIEW_UPSTREAM`) przez rzeczywiste lokalne proxy HTTP. Sprawdza CSS, JS, CSP, service workera, błędy i timeouty uruchomienia, odzyskanie działania po błędzie, ramkę blokującą mikrofon z rzeczywistym MT oraz pobranie i SHA-256 wszystkich modeli. Nie steruje panelem Codex; wynik odtwarza warunki proxy/ramki w Chromium, co nie potwierdza konfiguracji zintegrowanego panelu.
+
+`test:browser` sprawdza wszystkie 6 kierunków online, ponownie bez pobierania wag oraz offline. Audio ma 3 kolejne przebiegi z pełną asercją zdania: natywne `getUserMedia` sprawdza zgodę, a kontrolowany strumień WebAudio uruchamia fikcyjny WAV dopiero po gotowości VAD i włączeniu ścieżki mikrofonu. Nie jest to fizyczny mikrofon ani pomiar odsłuchu TTS; ASR/MT są rzeczywiste. Nie ma arbitralnego preroll ani zapętlonego pliku biegnącego podczas przygotowania. Raporty zawierają SHA źródeł, flagę zmian roboczych i daty. `test:csp` uruchamia tymczasowy dev i sprawdza style oraz blokowanie niezaufanego inline w dev/preview. Dev otrzymuje nonce stylów osobny dla każdego żądania HTML; build/preview nie otrzymuje tego wyjątku.
+
+Pobieranie modeli ma limit **30 s bezczynności** na oczekiwanie na nagłówki i kolejne porcje danych, nie na łączny czas pliku. Postęp odnawia limit. Timeout anuluje transfer, zwraca komunikat i pozwala ponowić akcję; do cache trafiają wyłącznie całe pliki po SHA-256. Poprawne wcześniejsze pliki pozostają dostępne. Testy logiki obejmują rzeczywisty zatrzymany strumień lokalnego HTTP, anulowanie, ponowienie, postęp i niepoprawną sumę.
+
+Plan fizycznej akceptacji i testowego HTTPS: [MOBILE_ACCEPTANCE.md](MOBILE_ACCEPTANCE.md). Ocena konkretnych advisory i otwarte ryzyko sharp: [SECURITY_REVIEW.md](SECURITY_REVIEW.md).
 
 Pierwsze przygotowanie wymaga Internetu. Modele pobiera skrypt budowania, nie serwer tłumaczeń. Wymagane domeny: `huggingface.co`, a przy przekierowaniach duże pliki z `us.aws.cdn.hf.co` lub innego jawnie dopuszczonego hosta dystrybucji HF. Nie wyłączaj TLS ani weryfikacji sum.
 
@@ -111,7 +118,7 @@ Biblioteki:
 - [Transformers.js](https://github.com/huggingface/transformers.js) **3.8.1**, Apache-2.0.
 - [ONNX Runtime Web](https://github.com/microsoft/onnxruntime) **1.22.0**, MIT; jawny wariant CPU/WASM.
 - [vad-web](https://github.com/ricky0123/vad) **0.0.30**, ISC; model [Silero VAD](https://github.com/snakers4/silero-vad) MIT.
-- Vite **8.1.5**, MIT; TypeScript **5.8.3**, Apache-2.0.
+- Vite **8.3.5**, MIT; TypeScript **5.8.3**, Apache-2.0.
 - Narzędzia konwersji: ONNX **1.18.0**, ONNX Runtime **1.22.1**, SentencePiece **0.2.1**, Apache-2.0 / MIT / Apache-2.0.
 
 Wydanie zawiera `notices.txt`, pełne teksty głównych licencji i notices zależności. Przy nowych modelach wymagane jest ponowne sprawdzenie ich kart. Nie dodano modeli NC, NLLB, głosów Piper ani usług chmurowych.

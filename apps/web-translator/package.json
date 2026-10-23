@@ -12,7 +12,8 @@
     "models": ".tools/model-tools/bin/python scripts/prepare-models.py",
     "test": "node --experimental-strip-types --test tests/*.node.ts",
     "test:browser": "node scripts/browser-test.mjs",
-    "test:preview": "node scripts/preview-test.mjs"
+    "test:preview": "node scripts/preview-test.mjs",
+    "test:csp": "node scripts/csp-test.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "3.8.1",
@@ -23,7 +24,7 @@
     "@types/node": "24.0.0",
     "playwright": "1.62.1",
     "typescript": "5.8.3",
-    "vite": "8.1.5"
+    "vite": "8.3.5"
   },
   "overrides": {
     "onnxruntime-node": "npm:empty-npm-package@1.0.0",

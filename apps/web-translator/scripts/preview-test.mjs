@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import { chromium } from "playwright";
+import { testMetadata } from "./test-metadata.mjs";
 
 const root = new URL("../", import.meta.url);
 const output = new URL("test-results/", root);
@@ -45,7 +46,7 @@ const server = http.createServer((request, response) => {
 await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
 const base = origin + mount;
-const report = { upstream, proxy: base, checks: [], models: [], passed: false };
+const report = { ...testMetadata(), upstream, proxy: base, checks: [], models: [], passed: false };
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
   args: ["--no-sandbox"],

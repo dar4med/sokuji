@@ -84,9 +84,9 @@ function state(next: Phase, text?: string) {
   phase = next;
   const labels: Record<Phase, string> = {
     idle: "Gotowe, kiedy Ty jesteś.",
-    preparing: "Przygotowuję lokalny silnik…",
+    preparing: "Przygotowuję lokalny silnik. Zaczekaj na „Słucham”, zanim zaczniesz mówić.",
     listening: audioMode
-      ? "Słucham. Możesz mówić."
+      ? "Słucham. Teraz możesz mówić."
       : "Tryb tekstowy. Wpisz wiadomość poniżej.",
     speech: "Słyszę Cię. Zakończ zdanie i zrób krótką pauzę.",
     recognizing: "Rozpoznaję wypowiedź na urządzeniu…",

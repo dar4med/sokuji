@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -38,6 +38,21 @@ export default defineConfig({
   build: { target: "es2022", sourcemap: false },
   worker: { format: "es" },
   plugins: [
+    {
+      name: "dev-style-nonce",
+      transformIndexHtml: {
+        order: "pre",
+        handler(html, context) {
+          if (!context.server) return html;
+          // Vite's CSS/HMR client reads this meta nonce. New value per HTML response;
+          // no nonce or relaxed directive is emitted by the production build.
+          const nonce = randomBytes(24).toString("base64");
+          return html
+            .replace("style-src 'self'", `style-src 'self' 'nonce-${nonce}'`)
+            .replace("<!--APP_STARTUP-->", `<meta property="csp-nonce" nonce="${nonce}"><!--APP_STARTUP-->`);
+        },
+      },
+    },
     {
       name: "preview-startup",
       transformIndexHtml: {
