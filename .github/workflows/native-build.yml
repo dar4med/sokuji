@@ -23,7 +23,9 @@ env:
   SK_TEST_TTS_MOSS_DIR: ${{ github.workspace }}/native/build/models/tts/moss-tts-nano
 
 jobs:
+  # Fork safety: inherited jobs must not run during the translator artifact gate.
   build:
+    if: github.repository != 'dar4med/sokuji'
     strategy:
       fail-fast: false
       matrix:
@@ -168,7 +170,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    if: startsWith(github.ref, 'refs/tags/native-v')
+    if: github.repository != 'dar4med/sokuji' && startsWith(github.ref, 'refs/tags/native-v')
     needs: build
     runs-on: ubuntu-latest
     permissions:

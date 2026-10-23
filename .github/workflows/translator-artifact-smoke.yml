@@ -2,11 +2,12 @@ name: Translator artifact delivery smoke
 
 # This gate generates only a public, nonsensitive TXT and its checksum.
 # Enabling Actions for this fork also enables the existing workflows.
-# A push updating PR #1 can trigger build.yml independently of these filters.
-# The initial preparation commit uses [skip ci]; that skips this push too.
-# Do not make a subsequent triggering push until the coordinator has resolved
-# that overlap. New workflow_dispatch files may need default-branch registration;
-# do not change main to bypass that restriction.
+# Inherited jobs on this PR branch have repository guards that skip this fork.
+# main still has unguarded workflows: do not push main or release tags.
+# Preparation commits use [skip ci]; that skips this push too. After authorized
+# fork activation, a change to this file without [skip ci] triggers this gate.
+# workflow_dispatch may need default-branch registration; do not change main
+# to bypass that restriction.
 on:
   workflow_dispatch:
   push:
