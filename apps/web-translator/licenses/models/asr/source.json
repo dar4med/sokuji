@@ -1,0 +1,7 @@
+{
+  "repo": "Xenova/whisper-tiny",
+  "revision": "5332fcc35e32a33b86612b9a57a89be7906102b1",
+  "base": "openai/whisper-tiny",
+  "baseRevision": "169d4a4341b33bc18d8881c4b69c2e104e1cc0af",
+  "license": "apache-2.0"
+}

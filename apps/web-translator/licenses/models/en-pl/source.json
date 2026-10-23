@@ -1,0 +1,7 @@
+{
+  "repo": "TigreGotico/opus-mt-en-pl-onnx",
+  "revision": "22ac61d6f7a5e58e0e2d0671a5dcff91b9c66f54",
+  "base": "Helsinki-NLP/opus-mt-en-sla",
+  "baseRevision": "0bc26914f2f82c3dd5b235e420aa2c711a5ed3d8",
+  "license": "apache-2.0"
+}

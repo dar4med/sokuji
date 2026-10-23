@@ -1,0 +1,32 @@
+{
+  "name": "med-partners-web-translator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5180 --strictPort",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 5180 --strictPort",
+    "assets": "node scripts/copy-assets.mjs",
+    "models": ".tools/model-tools/bin/python scripts/prepare-models.py",
+    "test": "node --experimental-strip-types --test tests/*.node.ts",
+    "test:browser": "node scripts/browser-test.mjs",
+    "test:preview": "node scripts/preview-test.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "3.8.1",
+    "@ricky0123/vad-web": "0.0.30",
+    "onnxruntime-web": "1.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.0.0",
+    "playwright": "1.62.1",
+    "typescript": "5.8.3",
+    "vite": "8.1.5"
+  },
+  "overrides": {
+    "onnxruntime-node": "npm:empty-npm-package@1.0.0",
+    "onnxruntime-web": "1.22.0"
+  }
+}
