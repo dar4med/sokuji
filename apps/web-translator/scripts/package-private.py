@@ -21,9 +21,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output-dir', type=Path, required=True)
     args = parser.parse_args()
-    sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    sha = json.loads((ROOT / 'test-results/auth-results.json').read_text())['sourceSha']
     if subprocess.check_output(['git', 'status', '--porcelain', '--untracked-files=normal', '--', '.'], cwd=ROOT, text=True).strip():
         raise ValueError('Commit sources before packaging; dirty source is not a tested SHA')
+    changed = subprocess.check_output(['git', 'diff', '--name-only', sha, head], cwd=ROOT, text=True).splitlines()
+    if any(not name.startswith('apps/web-translator/') or not name.endswith('.md') for name in changed):
+        raise ValueError('Only prototype documentation may differ from the tested SHA')
     reports = {}
     tested_payload = None
     for name in ['auth-results.json', 'auth-prefix-browser-results.json', 'auth-root-browser-results.json', 'csp-results.json']:
@@ -79,7 +83,7 @@ Required settings (not active directives):
 No credentials, hash file or imaginary active AuthUserFile path are included.
 Do not modify WordPress/root .htaccess, databases or permissions.
 ''')
-    source = {'sourceSha': sha, 'base': './', 'publication': 'BLOCKED; separate approval and real hosting protection required',
+    source = {'sourceSha': sha, 'documentationSha': head, 'base': './', 'publication': 'BLOCKED until real directory-limited access and HTTPS Basic Auth are verified',
               'modelsLockSha256': digest(ROOT / 'models.lock.json'), 'reports': reports,
               'delivery': 'Local archive; this does not establish a downloadable attachment or deployment'}
     (target / 'SOURCE.json').write_text(json.dumps(source, indent=2) + '\n')

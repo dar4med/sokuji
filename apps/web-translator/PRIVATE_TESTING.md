@@ -1,6 +1,6 @@
 # Prywatny pakiet testowy — etap 3, bez wdrożenia
 
-Status: przygotowanie lokalne. Nie utworzono subdomeny, konta, DNS, HTTPS ani wdrożenia. Pakiet wymaga osobnego zatwierdzenia publikacji. Aktualne wyniki/SHA są w TEST_REPORT.md; ten dokument opisuje wymagania, nie potwierdza hostingu.
+Status: przygotowanie lokalne. Nie utworzono subdomeny, konta, DNS, HTTPS ani wdrożenia. Właściciel zatwierdził prywatne testowe wdrożenie WYŁĄCZNIE w `https://ai.lekarz.nl/translator-test/`. Publikacja jest wstrzymana do uzyskania bezpiecznego dostępu ograniczonego do katalogu i poprawnej ochrony HTTPS Basic Auth. Aktualne wyniki/SHA są w TEST_REPORT.md; ten dokument opisuje wymagania, nie potwierdza hostingu.
 
 ## Warianty i granica bezpieczeństwa
 
@@ -11,7 +11,7 @@ Ten sam build **base `./`** jest przeznaczony zarówno do `/translator-test/`, j
 | `ai.lekarz.nl/translator-test/` obok WP | Wspólny origin: skrypty WP mogą czytać CacheStorage i wykonywać żądania w przeglądarce testera; root SW może kontrolować pierwsze wejście. Wspólne cookies według ich Path/Domain oraz storage quota. Hasło katalogu nie izoluje od WP. Nazwy cache i guard SW zapobiegają przypadkowym kolizjom, nie tworzą bariery przed wrogim JS. | Około 30–60 min konfiguracji/weryfikacji po uzyskaniu autoryzowanego dostępu; blokada przy konflikcie WP/SW, bez samowolnych zmian root. |
 | Proponowane `translator-test.lekarz.nl`, osobny document root | Osobny origin izoluje DOM/CacheStorage/rejestracje SW od `ai.lekarz.nl`. Nadal wspólny hosting/OS/konto i możliwe cookies `Domain=.lekarz.nl`; sprawdzić zakres cookies. Nie jest to sandbox całego hostingu. | Około 45–90 min ustawień/vhost/certyfikatu i weryfikacji, plus nieprzewidywalny czas DNS/TLS. Wymaga osobnej decyzji i potwierdzenia możliwości w obecnym planie. |
 
-Rekomendacja dla fikcyjnych testów: **osobna subdomena i document root na istniejącym hostingu**, jeśli plan udostępnia je bez dodatkowej opłaty. Nie zakładamy tego jako potwierdzonego faktu ani nie tworzymy subdomeny. Wariant katalogowy jest możliwy po świadomej ocenie współdzielenia originu, w dedykowanym profilu testera, bez logowania do WP i wyłącznie z fikcyjnymi danymi. Sam dedykowany profil nie usuwa zagrożenia skryptów/SW tego originu. Brak dostępu/DNS w jednym środowisku nie rozstrzyga globalnego DNS.
+**Wybrany przez właściciela wariant to `ai.lekarz.nl/translator-test/` dla fikcyjnych testów.** Współdzielenie originu jest znanym ograniczeniem, nie samoistnym blokerem. Tabela porównuje warianty; osobna subdomena nie jest wymagana do kontynuacji i nie będzie tworzona. Dedykowany profil testera ogranicza mieszanie sesji, lecz nie izoluje skryptów/SW tego originu. Wdrożenie zatrzymuje konkretny konflikt z istniejącą stroną, brak ochrony lub brak ograniczonego dostępu; nie sam wybór katalogu. Brak dostępu/DNS w jednym środowisku nie rozstrzyga globalnego DNS.
 
 ## Uwierzytelnienie i cache
 
@@ -33,13 +33,13 @@ npm run test:auth
 python3 scripts/package-private.py --output-dir /workspace/artifacts/sokuji-stage3
 ```
 
-Pakowanie NIE buduje i NIE pobiera modeli. Wymaga czystych źródeł oraz świeżych raportów Basic Auth obu wariantów i CSP dla danego SHA; weryfikuje modele i hashe, blokadę publikacji i CSP. Archiwum zawiera `payload/` (statyczny dist z modelami/WASM/VAD/notices/licencjami/kartami), dokumentację, szablon ochrony bez aktywnych ścieżek i `SOURCE.json`, `MANIFEST.json` (rozmiary/SHA-256 wszystkich pozostałych plików). Oddzielny `.sha256` identyfikuje archiwum. Automatyczne wyodrębnienie potwierdza komplet i sumy plików.
+Pakowanie NIE buduje i NIE pobiera modeli. Wymaga czystych źródeł oraz świeżych raportów Basic Auth obu wariantów i CSP dla danego SHA; późniejszy head może różnić się wyłącznie dokumentacją prototypu, co jest zapisywane oddzielnie; weryfikuje modele i hashe, blokadę publikacji i CSP. Archiwum zawiera `payload/` (statyczny dist z modelami/WASM/VAD/notices/licencjami/kartami), dokumentację, szablon ochrony bez aktywnych ścieżek i `SOURCE.json`, `MANIFEST.json` (rozmiary/SHA-256 wszystkich pozostałych plików). Oddzielny `.sha256` identyfikuje archiwum. Automatyczne wyodrębnienie potwierdza komplet i sumy plików.
 
 Nie zawiera node_modules, Python, źródeł aplikacji/testów, nagrań, sekretów ani ZIP wewnątrz payloadu. Nie umieszczać archiwum w Git/Release. Lokalny plik w workspace nie jest dowodem dostępności pobrania przez właściciela. Jeśli interfejs nie daje natywnego transferu/załącznika, zgłosić blokadę dostawy i zachować plik; nie zakładać usługi w obejściu.
 
 ## Ochrona hostingowa — obowiązkowa oddzielna konfiguracja
 
-Wygenerowany `payload/.htaccess` ma **`Require all denied`**: domyślnie blokuje publikację. Nie usuwać tej blokady przed osobnym zatwierdzeniem i przygotowaniem rzeczywistego dostępu. W archiwum jest wyłącznie nieaktywny szablon `hosting/BASIC_AUTH.template.txt`; nie zawiera fikcyjnej aktywnej ścieżki AuthUserFile ani loginu/hasła. Administrator musi użyć udokumentowanej ochrony katalogu hostingu lub rzeczywistego pliku hashy poza WWW i zastąpić blokadę sprawdzonymi dyrektywami. Nie dokładać `Require valid-user` obok `Require all denied` bez ustalenia semantyki Apache — taki zestaw może nie stanowić blokady.
+Wygenerowany `payload/.htaccess` ma **`Require all denied`**: domyślnie blokuje publikację. Nie usuwać tej blokady przed przygotowaniem rzeczywistego ograniczonego dostępu i sprawdzeniem ochrony; zatwierdzenie właściciela dotyczy wyłącznie wskazanego katalogu. W archiwum jest wyłącznie nieaktywny szablon `hosting/BASIC_AUTH.template.txt`; nie zawiera fikcyjnej aktywnej ścieżki AuthUserFile ani loginu/hasła. Administrator musi użyć udokumentowanej ochrony katalogu hostingu lub rzeczywistego pliku hashy poza WWW i zastąpić blokadę sprawdzonymi dyrektywami. Nie dokładać `Require valid-user` obok `Require all denied` bez ustalenia semantyki Apache — taki zestaw może nie stanowić blokady.
 
 Pozostałe dyrektywy brać z **wygenerowanego** `.htaccess`: hash startup musi odpowiadać HTML, zachować CSP bez unsafe-inline/unsafe-eval, COOP same-origin, COEP require-corp, CORP same-origin, nosniff i no-referrer. Oba silniki ustawiają jeden wątek, lecz dostarczony plik runtime `simd-threaded` tworzy pamięć shared; nie stwierdzono, że można bez regresji usunąć COOP/COEP. Żadnych globalnych nagłówków WP. `Service-Worker-Allowed: /` nie jest potrzebne; domyślny zakres katalogu wystarcza.
 

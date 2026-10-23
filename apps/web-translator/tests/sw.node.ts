@@ -9,7 +9,7 @@ test("SW guard rejects POST, foreign origin and out-of-scope navigation before r
     URL, encodeURIComponent,
     self: { location: new URL("https://example.test/translator-test/sw.js"),
       addEventListener: (type: string, fn: Function) => { handlers[type] = fn; } },
-    caches: { open: async () => ({ match: async () => undefined }) },
+    caches: { match: async () => undefined },
     fetch: async () => new Response("network"),
   });
   for (const [method, url] of [["POST", "https://example.test/translator-test/"],

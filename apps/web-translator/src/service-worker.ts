@@ -12,10 +12,11 @@ self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET' || url.origin !== self.location.origin || !url.pathname.startsWith(scope)) return;
   if (new URL(event.request.url).pathname.startsWith(scope + 'models/')) {
-    event.respondWith(caches.open(names.models).then(cache => cache.match(event.request, { ignoreVary: true })).then(hit => hit || fetch(event.request)));
+    event.respondWith(caches.match(event.request, { cacheName: names.models, ignoreVary: true }).then(hit => hit || fetch(event.request)));
     return;
   }
-  event.respondWith(caches.open(CACHE).then(cache => cache.match(event.request, { ignoreVary: true })).then(hit => hit || (event.request.mode === 'navigate' ? caches.open(CACHE).then(cache => cache.match('./index.html', { ignoreVary: true })) : null)).then(hit => hit || fetch(event.request)));
+  // Read without open(): an old in-flight worker must not recreate a deleted shell.
+  event.respondWith(caches.match(event.request, { cacheName: CACHE, ignoreVary: true }).then(hit => hit || (event.request.mode === 'navigate' ? caches.match(new URL('./index.html', self.location.href).href, { cacheName: CACHE, ignoreVary: true }) : null)).then(hit => hit || fetch(event.request)));
 });
 `;
 }

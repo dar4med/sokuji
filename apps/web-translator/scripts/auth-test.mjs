@@ -153,7 +153,11 @@ try {
   check('Delete models removes only this installation; other directory, WordPress and legacy caches preserved');
   const before = keys.filter(k => k.startsWith(names.shellPrefix));
   state.update = true;
-  await page.evaluate(async () => { await (await navigator.serviceWorker.getRegistration()).update(); });
+  await page.evaluate(async () => {
+    const changed = new Promise(resolve => navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true }));
+    await (await navigator.serviceWorker.getRegistration()).update();
+    await changed;
+  });
   await page.waitForFunction(async ({ prefix, before }) => {
     const keys = await caches.keys();
     return keys.some(k => k.startsWith(prefix) && k.endsWith('-local-update')) && before.every(k => !keys.includes(k));
