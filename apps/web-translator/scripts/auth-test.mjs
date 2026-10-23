@@ -144,9 +144,11 @@ try {
   await page.evaluate(async name => (await caches.open(name)).put('/own-fixture', new Response('own')), names.models);
   await page.locator('#delete-models').evaluate(el => el.closest('details').open = true);
   await page.locator('#delete-models').click();
-  await page.waitForFunction(async name => !(await caches.keys()).includes(name), names.models);
+  // pairChanged() may immediately reopen the now-empty cache to display size.
+  await page.waitForFunction(async name => !(await (await caches.open(name)).match('/own-fixture')), names.models);
   keys = await page.evaluate(() => caches.keys());
-  assert.ok(!keys.includes(names.models)); for (const name of preserved.filter(n => !n.endsWith('shell-control'))) assert.ok(keys.includes(name), name);
+  assert.equal(await page.evaluate(async name => (await (await caches.open(name)).keys()).length, names.models), 0);
+  for (const name of preserved.filter(n => !n.endsWith('shell-control'))) assert.ok(keys.includes(name), name);
   const otherModels = 'medpartners-v2-%2Fother%2F-models'; assert.ok(keys.includes(otherModels));
   check('Delete models removes only this installation; other directory, WordPress and legacy caches preserved');
   const before = keys.filter(k => k.startsWith(names.shellPrefix));
