@@ -105,6 +105,15 @@ async function suite(base, prefix, label) {
   assert.equal(result.passed, true); assert.equal(result.translations.length, 18); assert.equal(result.audioRuns.length, 3);
   report.variants.push({ prefix, origin: new URL(base).origin, report: label + '-results.json', translations: 18, audio: 3 });
 }
+// Playwright 1.62's waitForFunction treats a Promise as truthy before awaiting
+// its value. Storage predicates are async: poll their resolved boolean in Node.
+async function waitForStorage(page, predicate, argument) {
+  const deadline = Date.now() + 15_000;
+  while (!await page.evaluate(predicate, argument)) {
+    assert.ok(Date.now() < deadline, 'Timed out waiting for actual CacheStorage state');
+    await new Promise(resolve => setTimeout(resolve, 25));
+  }
+}
 try {
   browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', args: ['--no-sandbox'], env: { ...process.env, HOME: '/tmp/medpartners-auth-tests' } });
   const { base, origin, state } = await serve('/translator-test/');
@@ -145,7 +154,7 @@ try {
   await page.locator('#delete-models').evaluate(el => el.closest('details').open = true);
   await page.locator('#delete-models').click();
   // pairChanged() may immediately reopen the now-empty cache to display size.
-  await page.waitForFunction(async name => !(await (await caches.open(name)).match('/own-fixture')), names.models);
+  await waitForStorage(page, async name => !(await (await caches.open(name)).match('/own-fixture')), names.models);
   keys = await page.evaluate(() => caches.keys());
   assert.equal(await page.evaluate(async name => (await (await caches.open(name)).keys()).length, names.models), 0);
   for (const name of preserved.filter(n => !n.endsWith('shell-control'))) assert.ok(keys.includes(name), name);
@@ -158,12 +167,12 @@ try {
     await (await navigator.serviceWorker.getRegistration()).update();
     await changed;
   });
-  await page.waitForFunction(async ({ prefix, before }) => {
+  await waitForStorage(page, async ({ prefix, before }) => {
     const keys = await caches.keys();
     return keys.some(k => k.startsWith(prefix) && k.endsWith('-local-update')) && before.every(k => !keys.includes(k));
   }, { prefix: names.shellPrefix, before });
   keys = await page.evaluate(() => caches.keys());
-  for (const name of before) assert.ok(!keys.includes(name));
+  for (const name of before) assert.ok(!keys.includes(name), JSON.stringify({ before, after: keys, unexpected: name }));
   for (const name of ['wordpress-control', 'medpartners-models-v1', 'medpartners-shell-legacy', otherModels]) assert.ok(keys.includes(name));
   check('Real SW update/activation deletes only old own shell, preserves unrelated caches');
   state.update = false;
