@@ -16,14 +16,28 @@ const port = reserve.address().port;
 await new Promise(resolve => reserve.close(resolve));
 const dev = spawn(process.execPath, [fileURLToPath(new URL("node_modules/vite/bin/vite.js", root)),
   "--host", "127.0.0.1", "--port", String(port), "--strictPort"], { cwd: root });
+let devLog = "";
+let devFailure;
+const capture = data => { devLog = (devLog + data.toString()).slice(-16_000); };
+dev.stdout.on("data", capture);
+dev.stderr.on("data", capture);
+dev.once("error", error => { devFailure = error; });
+dev.once("exit", code => { devFailure = new Error(`Vite exited ${code}`); });
 let browser;
 try {
-  await new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error("Vite startup timeout")), 20_000);
-    dev.once("error", reject);
-    dev.once("exit", code => { clearTimeout(timer); reject(new Error(`Vite exited ${code}`)); });
-    dev.stdout.on("data", data => { if (data.toString().includes("Local:")) { clearTimeout(timer); resolve(); } });
-  });
+  // CI may suppress Vite's banner. Readiness is a real HTTP response, not a
+  // stdout substring; the browser below still verifies every CSP/nonce claim.
+  const deadline = Date.now() + 20_000;
+  for (;;) {
+    if (devFailure) throw devFailure;
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/`, { signal: AbortSignal.timeout(1_000) });
+      await response.arrayBuffer();
+      if (response.status === 200) break;
+    } catch { /* Server not ready yet; keep the bounded startup deadline. */ }
+    if (Date.now() >= deadline) throw new Error("Vite HTTP startup timeout (20 seconds)");
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
   browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
     args: ["--no-sandbox"], env: { ...process.env, HOME: "/tmp/medpartners-csp-tests" } });
   for (const [mode, url] of [["dev", `http://127.0.0.1:${port}/`],
@@ -74,7 +88,9 @@ try {
   report.passed = true;
 } catch (error) {
   report.error = error.stack || String(error);
+  report.devLog = devLog;
   console.error(report.error);
+  console.error("Vite stdout/stderr:\n" + devLog);
   process.exitCode = 1;
 } finally {
   await browser?.close();
