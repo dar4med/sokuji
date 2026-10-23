@@ -79,7 +79,9 @@ FULL_PREVIEW_TEST=1 npm run test:preview
 
 Pobieranie modeli ma limit **30 s bezczynności** na oczekiwanie na nagłówki i kolejne porcje danych, nie na łączny czas pliku. Postęp odnawia limit. Timeout anuluje transfer, zwraca komunikat i pozwala ponowić akcję; do cache trafiają wyłącznie całe pliki po SHA-256. Poprawne wcześniejsze pliki pozostają dostępne. Testy logiki obejmują rzeczywisty zatrzymany strumień lokalnego HTTP, anulowanie, ponowienie, postęp i niepoprawną sumę.
 
-Plan fizycznej akceptacji i testowego HTTPS: [MOBILE_ACCEPTANCE.md](MOBILE_ACCEPTANCE.md). Ocena konkretnych advisory i otwarte ryzyko sharp: [SECURITY_REVIEW.md](SECURITY_REVIEW.md).
+Plan fizycznej akceptacji i wymagania przyszłego testowego HTTPS: [MOBILE_ACCEPTANCE.md](MOBILE_ACCEPTANCE.md). Ocena advisory i jawnego wyjątku sharp: [SECURITY_REVIEW.md](SECURITY_REVIEW.md).
+
+Etap 2 przypina `sharp 0.35.5` wyłącznie pod `@huggingface/transformers@3.8.1`. Wersja jest poza upstreamowym `^0.34.1`; zakres użycia Node 24 i zgodność sprawdzono, nie przyjęto jej automatycznie. Trzy advisory sharp były propagowane na dwa pakiety npm. Test RGB/RGBA i tokenizera sprawdza ścieżkę Node, pełna regresja sprawdza przeglądarkę; szczegóły i ograniczenia w SECURITY_REVIEW. Nie migrowano Transformers v4 i nie dodano modeli. Automatyczne audio podaje syntetyczny WAV przez zastępczy MediaStream WebAudio po natywnym `getUserMedia` fake-device — nie jest dowodem fizycznego E2E ani odsłuchu.
 
 Pierwsze przygotowanie wymaga Internetu. Modele pobiera skrypt budowania, nie serwer tłumaczeń. Wymagane domeny: `huggingface.co`, a przy przekierowaniach duże pliki z `us.aws.cdn.hf.co` lub innego jawnie dopuszczonego hosta dystrybucji HF. Nie wyłączaj TLS ani weryfikacji sum.
 

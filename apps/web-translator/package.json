@@ -28,6 +28,9 @@
   },
   "overrides": {
     "onnxruntime-node": "npm:empty-npm-package@1.0.0",
-    "onnxruntime-web": "1.22.0"
+    "onnxruntime-web": "1.22.0",
+    "@huggingface/transformers@3.8.1": {
+      "sharp": "0.35.5"
+    }
   }
 }

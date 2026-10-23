@@ -138,6 +138,19 @@ async function translate(from, to, input, expected, offline = false) {
     wallMs: Date.now() - began,
     offline,
   });
+  // An audible voice is not available in this headless environment. Verify the
+  // promised fallback UI once, without reporting an audible TTS test as PASS.
+  if (!report.noLocalVoiceCheck &&
+      await page.evaluate(() => speechSynthesis.getVoices().length === 0)) {
+    await page.waitForFunction(() => document.querySelector("#status").dataset.phase === "listening",
+      null, { timeout: 10000 });
+    const warning = await page.locator("#warning").innerText();
+    assert.match(warning, /Brak lokalnego głosu/);
+    assert.equal(await page.locator("#typed").isEnabled(), true);
+    assert.equal(await page.locator(".translated").last().innerText(), translated);
+    report.noLocalVoiceCheck = { warning, textPreserved: true, textInputEnabled: true,
+      audibleTTS: "NIEPRZETESTOWANE" };
+  }
   console.log(`PASS ${from}→${to}${offline ? " offline" : ""}: ${translated}`);
   await stop();
 }

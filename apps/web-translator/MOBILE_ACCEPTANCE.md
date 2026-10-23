@@ -2,7 +2,23 @@
 
 Status: **plan, nie wyniki**. Do wykonania przez koordynatora/testerów po udostępnieniu zatwierdzonego prywatnego HTTPS. Bez danych pacjentów. TTS i urządzenie bez rzeczywistego odsłuchu oznaczać **NIEPRZETESTOWANE**, nie PASS.
 
-## Przygotowanie i HTTPS
+## Co wykonano automatycznie, a czego nie
+
+Automatyzacja desktopowego Chromium obejmuje techniczną regresję 6 kierunków MT, kontrolowany strumień WAV/WebAudio → VAD → Whisper → MT **wyłącznie EN→NL**, cache/offline, Stop i odmowę zgody przeglądarki. Nie korzysta z fizycznego mikrofonu: natywne `getUserMedia` dostaje fake-device, a jego sygnał jest wyciszony i zastąpiony sterowanym strumieniem. Nie dowodzi kalibracji mikrofonu, zachowania systemu telefonu, ASR PL/NL, odsłuchu ani poprawności językowej.
+
+| Bramka fizyczna | Android/Chrome | iPhone/Safari |
+|---|---|---|
+| Pełna semantyka 6 kierunków tekstu | NIEPRZETESTOWANE | NIEPRZETESTOWANE |
+| ASR osobno PL, NL i EN + 6 kierunków rozmowy | NIEPRZETESTOWANE | NIEPRZETESTOWANE |
+| Lokalny TTS PL, NL, EN + rzeczywisty odsłuch offline | NIEPRZETESTOWANE | NIEPRZETESTOWANE |
+| Brak głosu: komunikat i działający tekst | NIEPRZETESTOWANE | NIEPRZETESTOWANE |
+| Pobranie, brak miejsca, RAM/opóźnienia, przerwania, Stop, PWA/cache i prywatność | NIEPRZETESTOWANE | NIEPRZETESTOWANE |
+
+Zielony test desktopowy nie zmienia żadnej z tych komórek. Wyniki i daty z konkretnego SHA wpisuje tester dopiero po próbie. Brak CI GitHub pozostaje osobnym otwartym ograniczeniem, nie PASS.
+
+## Wymagania do późniejszego przygotowania i prywatnego HTTPS
+
+To wymagania i przyszła procedura, **nie polecenie utworzenia środowiska w etapie 2**. Nie utworzono HTTPS, tunelu ani nowej usługi i nie przyjęto kosztów. Tymczasowy loopback HTTP do automatycznej regresji nie jest udostępnieniem aplikacji testerom telefonów.
 
 1. Zapisać testowany SHA, datę, model telefonu, OS, wersję Chrome Android / Safari iOS, wolne miejsce, dostępne lokalne głosy i typ połączenia. Włączyć tryb oszczędzania danych tylko w osobnym scenariuszu. Warto uwzględnić średni Android z 4 GB RAM i starszy wspierany iPhone oraz nowsze urządzenia; nie jest to deklaracja minimalnego RAM.
 2. W przygotowanym środowisku z istniejącymi zależnościami/modelami wykonać `npm run build`, `python3 scripts/verify-models.py --directory dist`, `npm run preview` (port 5180). Nie publikować dev ani źródeł. Nie kopiować `.tools`, tokenów ani `node_modules`.
@@ -22,16 +38,18 @@ W każdym kierunku **PL→NL, NL→PL, PL→EN, EN→PL, NL→EN, EN→NL** uży
 
 Nie traktować słowa `rower/fiets/bicycle` jako wystarczającego dowodu. Człowiek ocenia całą treść, negację, ilości, jednostki i zmianę znaczenia. Znany wynik `stoi → ligt` pozostaje błędem semantycznym mimo przejścia regresji technicznej. Dla każdej próbki zapisać osobno poprawność ASR oraz MT, źródło/oryginał, wynik i ocenę; stosować wyłącznie fikcyjne dane. Żadna zgubiona negacja/liczba/jednostka w zbiorze akceptacyjnym nie może zostać przemilczana jako PASS. Progi jakości i akceptacji ustala koordynator z osobą dwujęzyczną, nie sam test regex.
 
+Wymagane zachowanie informacji: `nie` nie znika i nie zmienia zakresu; `nie dwie, tylko trzy` pozostaje wyborem trzech; `250 ml` nie staje się `250 l`, `2,5 kg` nie staje się `25 kg`; godziny 14:30/14:00 nie zamieniają ról. Zmiana przecinka na kropkę dziesiętną jest dopuszczalna, gdy wartość pozostaje ta sama w języku docelowym. Utrata, zamiana lub dopisanie tych informacji = **FAIL konkretnej próbki** i otwarta bramka semantyczna. Poprawne brzmienie tłumaczeń referencyjnych zatwierdza człowiek dwujęzyczny, a nie model oceniany sam przez siebie.
+
 ## Kolejność i bramki — osobno dla obu platform
 
 | Etap | Próba | Dowód/warunek |
 |---|---|---|
 | 1. Tekst | Najpierw bez mikrofonu: wszystkie 6 kierunków, poprawki wpisanego tekstu, ponowienie | Widoczny oryginał i pełne tłumaczenie, ocena semantyczna. Nie wysyła treści na serwer. |
-| 2. Pierwsze pobranie | Izolowany profil/cache, Wi-Fi, następnie przerwanie transferu i ponowienie | Postęp, brak danych przez 30 s daje czytelny błąd; poprawne pliki zostają, częściowe nie stają się modelem; ponowienie odzyskuje działanie i weryfikuje SHA. |
+| 2. Pierwsze pobranie | Izolowany profil/cache, Wi-Fi, następnie przerwanie transferu i ponowienie | PL↔NL z ASR: 514 438 880 B wag, dodatkowo aplikacja/runtime/cache; to nie jest deklaracja RAM ani całkowitego miejsca. Postęp, brak danych przez 30 s daje czytelny błąd; poprawne pliki zostają, częściowe nie stają się modelem; ponowienie odzyskuje działanie i weryfikuje SHA. |
 | 3. Brak miejsca | Izolowana testowa quota/profil; nie zapełniać prywatnego telefonu | Czytelny błąd i możliwość powrotu. Nie twierdzić, że quota API zawsze dokładnie przewiduje limit iOS. |
-| 4. Mikrofon | Zgoda, odmowa i ponowne otwarcie ustawień; potem 6 kierunków po 3 wypowiedzi | Mówić dopiero przy „Słucham”. Początek/koniec zdania nie ginie, VAD wykrywa pauzę; kierunek zmieniany ręcznie. Porównać ciszę i umiarkowany hałas. |
+| 4. Mikrofon | Zgoda, odmowa i ponowne otwarcie ustawień; ASR osobno PL/NL/EN, potem 6 kierunków po 3 wypowiedzi | Mówić dopiero przy „Słucham”. Cała transkrypcja zachowuje negacje/liczby/jednostki przed oceną MT. Początek/koniec zdania nie ginie, VAD wykrywa pauzę; kierunek zmieniany ręcznie. Porównać ciszę i umiarkowany hałas. |
 | 5. Stop | W przygotowaniu, w czasie mowy i podczas obliczeń; potem ponowny Start | Stan bezczynny, zwolniony mikrofon, brak późnych wierszy/odczytu, nowa sesja działa. |
-| 6. Lokalny TTS | Każdy docelowy język, automatyczny odczyt i „Odczytaj”; potem bez Internetu | Rzeczywisty odsłuch na głośniku, poprawny język, brak sprzężenia do mikrofonu. Zapisać nazwę i `localService`; brak głosu/odsłuchu = NIEPRZETESTOWANE. Samo zdarzenie `onend` nie wystarcza. |
+| 6. Lokalny TTS | Każdy docelowy język **PL, NL, EN**, automatyczny odczyt i „Odczytaj”; potem bez Internetu | Rzeczywisty odsłuch na głośniku, poprawny język, brak sprzężenia do mikrofonu. Zapisać nazwę i `localService`; brak głosu/odsłuchu = NIEPRZETESTOWANE. Osobno sprawdzić, że brak głosu daje czytelny komunikat, zachowuje tłumaczenie i pozwala dalej pisać; to może dać PASS fallbacku, ale nie odczytu. Samo `onend` nie wystarcza. |
 | 7. Offline | Po zapisaniu wszystkich pakietów włączyć tryb samolotowy, przeładować stronę/PWA i wykonać 6 kierunków | Rzeczywiste nowe tłumaczenia i lokalny odsłuch; brak zależności od sieci. Nowy niepobrany pakiet ma czytelne ograniczenie. |
 | 8. Pamięć/czas | Zimny i ciepły start; krótka sesja ≥10 tur i kilka długości zdania, do 20 s | Czasy gotowości, ASR, MT, odczytu; p50/p95 z próbek, awarie i nagrzewanie. RAM mierzyć dostępnym narzędziem; brak crash nie jest pomiarem RAM. Brak narzędzia oznaczyć „niezmierzone”. |
 | 9. Przerwania | Tło, blokada ekranu, utrata sieci, połączenie telefoniczne; opcjonalnie Bluetooth | Brak samoczynnego nieoczekiwanego nagrywania/odczytu; jasny stan i ponowne uruchomienie. Nie zakładać ciągłego działania w tle. |
