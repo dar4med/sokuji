@@ -1,5 +1,51 @@
 # Wyniki prototypu — 23 października 2026
 
+## Aktualne wyniki — etap 1
+
+**Testowany commit kodu: `24820238b8da7c26f2bd297d1024404f4204eec8`.** Raporty przeglądarkowe zawierają `sourceSha` z tą wartością i `sourceDirty: false`. Bieżący pełny przebieg Chromium: **23.10.2026, 12:05:13–12:06:22 UTC**; poprzedzały go build/logika i kontrola CSP (12:04 UTC). Późniejszy commit tego raportu zmienia wyłącznie dokumentację wyników; nie należy mylić jego SHA z SHA testowanego kodu.
+
+| Bramka | Aktualny wynik |
+|---|---|
+| `npm test` | **16/16 PASS**; w tym 2 nowe testy pobierania z rzeczywistym lokalnym HTTP |
+| `npm run build` | **PASS**, TypeScript + Vite **8.3.5** |
+| `python3 scripts/verify-models.py --directory dist` | **PASS**, 34 artefakty / 514 438 880 B, długości/SHA-256 i manifest zgodne z lockiem |
+| `npm run test:csp` | **PASS**, style dev i preview; świeży nonce dev na każde żądanie, blokowanie niezaufanego inline JS/CSS w obu trybach, bez produkcyjnego `unsafe-inline`/`unsafe-eval` i bez nonce dev w buildzie |
+| `FULL_PREVIEW_TEST=1 npm run test:preview` | **PASS**, prefiksy proxy, błędy/timeouty startu i ponowienie, ramka blokująca mikrofon z działającym MT, HTTP/SHA-256 34 modeli oraz pełna seria poniżej |
+| Rzeczywisty MT | **18/18 PASS**: wszystkie 6 kierunków online, ponownie z cache bez pobrania wag i wszystkie 6 po przeładowaniu offline |
+| VAD → Whisper → MT | **3/3 kolejne PASS** po synchronizacji, pełna asercja zdania, bez automatycznych ponowień nieudanych prób |
+| Stop i uprawnienia | **PASS**: Stop podczas mowy bez późnych wierszy, zwolnienie natywnych ścieżek, odmowa mikrofonu z czytelnym błędem; testy logiki obejmują też spóźnione ASR i brak wznowienia po Stop |
+| Prywatność w przebiegu | 0 zewnętrznych originów, 0 nieobsłużonych błędów strony, historia usuwalna; bez danych pacjentów |
+| Lokalny TTS / fizyczne urządzenia | **NIEPRZETESTOWANE** — `voices: []`, brak rzeczywistego odsłuchu oraz fizycznego Androida/iPhone’a |
+| `npm audit` | **NIEZALICZONY jako clean**: po poprawce Vite pozostały 2 pakiety high w łańcuchu Transformers.js → sharp; ocena w [SECURITY_REVIEW.md](SECURITY_REVIEW.md) |
+
+### Trzy kolejne próby audio — osobne czasy i wyniki
+
+| Próba | Start → gotowość | Start WAV → wynik MT | Łącznie | Pełny tekst ASR | Pełne tłumaczenie |
+|---|---:|---:|---:|---|---|
+| 1 | 2,022 s | 6,259 s | 8,284 s | The blue bicycle is next to the house. | De blauwe fiets ligt naast het huis. |
+| 2 | 1,433 s | 6,143 s | 7,580 s | The blue bicycle is next to the house. | De blauwe fiets ligt naast het huis. |
+| 3 | 1,488 s | 5,974 s | 7,463 s | The blue bicycle is next to the house. | De blauwe fiets ligt naast het huis. |
+
+ASR/MT raportowane przez aplikację odpowiednio: 2,0/0,9 s, 1,9/0,9 s i 1,9/0,7 s (wartości zaokrąglone). Czasy od WAV obejmują także wypowiedź i decyzję VAD; nie są czasem samego modelu ani benchmarkiem telefonu.
+
+Chromiumowy plik fake-device wcześniej biegł od otwarcia `getUserMedia`, również gdy aplikacja wyciszała ścieżkę podczas inicjalizacji. Audyt bazy `488a23ea2f2522182ec04335679f942824742317` zakończył pełną serię FAIL z transkrypcją `to the house.`. Preroll 20 s pomógł w diagnozie, ale **nie jest używany w nowym teście**.
+
+Nowy [scripts/audio-fixture.mjs](scripts/audio-fixture.mjs) wywołuje natywne `getUserMedia` dla zgody/natywnego przechwytywania, wycisza natywny fake-input i podaje fikcyjny WAV przez rzeczywisty strumień WebAudio. Źródło jest jednorazowe i nie rusza przed `listening`, włączoną żywą ścieżką i działającym AudioContext. Stan `listening` w aplikacji następuje po oczekiwaniu na `capture.start()`/VAD. Wszystkie 3 raporty potwierdzają `phaseAtPlay: listening`, `trackEnabled: true`, `contextState: running` i osobne wywołania natywnego API 1/2/3. ASR i MT nie są przechwytywane ani zastępowane. Asercja porównuje całe zdanie po normalizacji wielkości liter/interpunkcji, zamiast samego słowa bicycle/fiets.
+
+To kontrolowany test integracyjny MediaStream/VAD/ASR/MT z rzeczywistym sprawdzeniem zgody przez API; **nie test fizycznego mikrofonu ani akustyki telefonu**. UI przypomina, by zaczekać na „Słucham”. Wynik holenderski pozostaje znanym przypadkiem do ludzkiej oceny semantyki, nie zatwierdzonym tłumaczeniem medycznym.
+
+### Timeout, poprawki i granice weryfikacji
+
+- Pobranie ma **30 s bezczynności** przy oczekiwaniu na nagłówki/porcje, odnawiane przez postęp; nie limituje całkowitego czasu transferu. Abort przerywa odczyt, a cache otrzymuje wyłącznie cały plik po SHA-256.
+- Test rzeczywistego HTTP zatrzymuje odpowiedź po 4 bajtach: skrócony testowy limit 100 ms anuluje połączenie, cache pozostaje pusty, ponowienie pobiera całość i przechodzi SHA. Drugi test potwierdza transfer dłuższy od limitu dzięki postępowi, anulowanie przez użytkownika i odrzucenie błędnej sumy. Nie jest to 30-sekundowy test wymuszonej awarii UI na telefonie — ten scenariusz pozostaje w planie fizycznym.
+- Dev CSS korzysta z nonce stylów osobnego dla każdej odpowiedzi HTML; build/preview pozostaje restrykcyjny. Vite 8.1.5 → 8.3.5 usuwa jego zgłoszenia npm. Nie migrowano Transformers do v4 ani nie wymuszano niezgodnego sharp.
+- Modele, języki i architektura produkcyjnego toru inferencji pozostają bez rozszerzeń. UK/RU/ES są osobnym etapem.
+- Plan akceptacji fizycznej: [MOBILE_ACCEPTANCE.md](MOBILE_ACCEPTANCE.md), wraz z testowym HTTPS poza domenami produkcyjnymi. Nie utworzono endpointu, płatnego środowiska ani wdrożenia. Odsłuch TTS, ASR PL/NL, RAM i semantyka wymagają dalszych dowodów.
+
+Surowe bieżące wyniki są ignorowane przez Git: `test-results/stage1-validation.log`, `browser-results.json`, `preview-results.json`, `csp-results.json`, `stage1-npm-audit.json`. Odtwarzalne polecenia są w README; przed uznaniem nowego przebiegu należy sprawdzić SHA, `sourceDirty` i `passed`. Poniższa część dokumentu jest **historią wcześniejszego stanu**, a nie dodatkowym aktualnym przebiegiem.
+
+## Historia — baza `488a23ea2f2522182ec04335679f942824742317`
+
 Gałąź: `feature/voice-translator-mvp`. Testy w chmurowym środowisku Codex, Linux, Node 24, systemowy Chromium 154, CPU/WASM. Nie wykonywano wdrożenia ani testów fizycznych telefonów.
 
 ## Wynik funkcjonalny
