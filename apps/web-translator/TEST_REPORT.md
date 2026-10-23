@@ -1,6 +1,78 @@
 # Wyniki prototypu — 23 października 2026
 
-## Aktualne wyniki — etap 2
+## Aktualne wyniki — etap 3: prywatny pakiet i lokalne Basic Auth
+
+**Testowany SHA kodu/builda: `6532e6406b9291de0712dadd4b78435dab57d5c1`**, czyste źródła (`sourceDirty: false` we wszystkich pięciu raportach). Pełny lokalny test Basic Auth **23.10.2026 14:03:29–14:06:01 UTC**. CSP 14:05:25–14:05:31; równolegle osobna regresja podglądu od 14:05:31. Późniejsze zmiany dotyczą wyłącznie dokumentacji prototypu; pakowanie weryfikuje tę różnicę i SHA wszystkich bajtów payloadu względem testu.
+
+Właściciel zatwierdził prywatne wdrożenie testowe **wyłącznie `https://ai.lekarz.nl/translator-test/`**, na istniejącym hostingu i dla fikcyjnych danych. **Nie wykonano uploadu ani konfiguracji hostingu.** Brakuje bezpiecznego dostępu ograniczonego do katalogu i zweryfikowanej ochrony HTTPS Basic Auth. Samo współdzielenie originu z WP, opisane w PRIVATE_TESTING.md, nie jest blokerem przyjętego wariantu. Bez zmian DNS/WP/DB/kont/main/Actions/uprawnień, płatnych API lub nowych narzędzi/modeli.
+
+### Poprawki i zakres
+
+- `src/installation.ts`, `src/cache.ts`: kanoniczna baza własnego originu z końcowym `/`, bez userinfo/query/hash; bez obcych originów, dot-segments, kodowanego traversal i nieprawidłowych ścieżek. Wszystkie wybrane URL sprawdzane przed pobieraniem. Zweryfikowane żądania mają **credentials same-origin i redirect error**. Bez haseł/Authorization w aplikacji, SHA-256 i timeout bezczynności nadal obowiązują; częściowy plik nie staje się poprawnym cache.
+- `src/service-worker.ts`: guard GET/origin/path przed respondWith, fallback we własnym katalogu. Shell i modele mają nazwy per zakodowana ścieżka instalacji, spójne z main/worker/downloaderem. Aktywacja sprząta tylko własny stary shell; przycisk usuwa tylko własne modele. Legacy i WP pozostają nietknięte. Odczyt SW używa caches.match bez open, aby nie tworzyć ponownie usuniętego shella.
+- `public/.htaccess`: **domyślna blokada publikacji Require all denied**, wygenerowany hash CSP, zachowane COOP/COEP, CORP same-origin, MIME WASM/MJS, nosniff, noindex i private/no-store. Noindex nie jest kontrolą dostępu; nagłówki cache nie odwołują jawnego Cache API.
+- `scripts/copy-assets.mjs`, `scripts/package-private.py`: dołączone notices/licencje/karty; archiwum poza Git, manifest rozmiarów/SHA i kontrola wyodrębnienia. Pakowanie nie pobiera modeli ani nie wysyła plików. Szablon ochrony jest nieaktywny, bez fikcyjnej aktywnej ścieżki lub poświadczeń. Publikacja wymaga rzeczywistej ochrony przygotowanej przez administratora.
+
+### Bieżące wyniki lokalne
+
+| Bramka | Wynik |
+|---|---|
+| npm test | **20/20 PASS**, w tym timeout/progress/cancel/SHA, granice bazy/path i rzeczywisty HTTP redirect bez wejścia w target, guard SW dla POST/obcego originu/obcej ścieżki/nawigacji |
+| TypeScript/Vite build | **PASS**, przenośny base `./` |
+| Integralność | **34 artefakty / 514 438 880 B**, SHA i manifest zgodne z lockiem; uwierzytelnione rzeczywiste HTTP pobrało i sprawdziło wszystkie 34 |
+| Basic Auth anonimowo | **401** dla index, JS, SW i artefaktu katalogu modelu; bez publicznego wyjątku dla modeli |
+| Browser downloader | **PASS**: zatrzymane po 4 B HTTP, anulowanie i udane ponowienie/SHA, zły hash bez cache; odmowa manifest/path/base/userinfo/cross-origin i redirect; brak żądania do obcego targetu |
+| Rzeczywiste MT w chronionym `/translator-test/` | **18/18 technicznych PASS**: 6 online + 6 reuse bez pobrania wag + 6 offline |
+| Ten sam pakiet na osobnym lokalnym originie `/` | **18/18 technicznych PASS**, analogiczna seria; bez osobnego builda. Łącznie 36 MT, 6 audio. |
+| Audio | **3 kolejne pełne rozpoznania w każdym wariancie**, bez automatycznych ponowień porażek; kontrolowane WebAudio/WAV, rzeczywiste VAD/Whisper/MT |
+| Cache/WP/druga instalacja | **PASS**: kontrolne cache WP, legacy i modeli drugiego katalogu zachowane przy aktywacji/usuwaniu modeli; rzeczywista druga rejestracja SW; zewnętrzne GET/POST/nawigacja bez fallbacku aplikacji |
+| Aktualizacja SW | **PASS**: kontrolowana nowa wersja SW instaluje się/przejmuje klienta i usuwa tylko poprzedni shell własnego katalogu, zachowując inne cache |
+| Odebranie dostępu sieciowego | **PASS ograniczenia**: po wyłączeniu dostępu prawidłowe wcześniej poświadczenia otrzymują 401; następnie przeładowanie offline i wszystkie 6 kierunków nadal działają z lokalnej kopii, w obu wariantach. **Brak zdalnego revoke cache potwierdzony.** |
+| Stop/odmowa mikrofonu/fallback TTS | **PASS** w obu wariantach; brak późnych wierszy, zakończone fake-track, czytelny błąd zgody, komunikat braku głosu i zachowane pole/tekst |
+| CSP/dev/preview/proxy | **PASS**, świeży nonce tylko dev, blokada obcego inline JS/CSS, produkcyjne CSP bez unsafe-inline/unsafe-eval; prefiksy z/bez slash, awarie/timeouts startu i ponowienie, rzeczywisty MT przy blokadzie mikrofonu iframe |
+| Fizyczne telefony / odsłuch / semantyka | **NIEPRZETESTOWANE**. Voices=[]; techniczny PASS nie zatwierdza błędu `stoi → ligt`. |
+| Hosting/TLS/FTPS/Apache-LiteSpeed | **NIEPRZETESTOWANE**. Lokalny Node nie wykonuje .htaccess, nie weryfikuje infrastruktury WP ani dostępności ai.lekarz.nl. |
+| CI / npm audit | Nie uruchamiano CI ani ponownego audytu npm. Nie przenosić historycznego audit 0 na ocenę całego produktu. |
+
+Podczas QA generowane są efemeryczne dane Basic Auth wyłącznie w pamięci lokalnego harnessu, niewpisywane do raportów, repo ani pakietu. Negatywne HTTP używa małej syntetycznej zawartości do testu integralności, **nie zastępuje ASR/MT**. Rzeczywiste inferencje korzystają z istniejących przypiętych wag.
+
+### Audio — dokładne czasy
+
+Każdy przebieg rozpoznał **The blue bicycle is next to the house.** i przetłumaczył **De blauwe fiets ligt naast het huis.** Pełne asercje po normalizacji zachowane.
+
+| Lokalizacja | Próba | Start→gotowość | WAV→MT | Łącznie |
+|---|---:|---:|---:|---:|
+| /translator-test/ | 1 | 2,210 s | 6,508 s | 8,720 s |
+| /translator-test/ | 2 | 1,789 s | 6,643 s | 8,434 s |
+| /translator-test/ | 3 | 1,485 s | 6,050 s | 7,536 s |
+| Osobny origin / | 1 | 1,963 s | 6,596 s | 8,563 s |
+| Osobny origin / | 2 | 2,072 s | 6,808 s | 8,882 s |
+| Osobny origin / | 3 | 1,441 s | 5,927 s | 7,370 s |
+
+W obu wariantach nativeCalls 1/2/3, phaseAtPlay listening, trackEnabled true, AudioContext running. Natywne getUserMedia używa fake-device i zgody nadanej programowo przez Playwright; jego wyciszony sygnał zastępuje strumień WebAudio/WAV dopiero po gotowości VAD. Helper opakowuje Stop i zwalnia fake-input. **Nie jest to fizyczny E2E, test systemowego okna zgody ani odsłuch.** Pomiary chmurowego Chromium z równoległym QA nie są benchmarkiem telefonu.
+
+### Dowody i historia prób etapu 3
+
+Wszystkie poniższe pliki w ignorowanym `test-results/` mają sourceSha `6532e640...` i raporty passed true/sourceDirty false:
+
+| Dowód | SHA-256 |
+|---|---|
+| auth-results.json (w tym SHA/rozmiary wszystkich 70 plików payloadu) | 3f248df5775112571eb3d2b41596c130c1de85716e62f249ef5b91554e140387 |
+| auth-prefix-browser-results.json | 6040757343e74bf11b0953a17bc083c12fad68c37079cc31167cb9cbf501b608 |
+| auth-root-browser-results.json | 11ceb9403d73a01f54ee55951b3adbee201d19aa796bd2ee175b855d80dc092d |
+| csp-results.json | d45b70d1854ed9eec9930117911503da59f3d31f21bd8859c556215af913de45 |
+| preview-results.json | 2c6d8244d17d3c87ac2e2e50e91ea07d7f2cce89a7c5b72e3e2671a9a079ef6b |
+| stage3-validation.log | 7adf433ed2109e8ccaef6b424d42b43b0012e0543a648952c1de55e251120fd7 |
+
+Payload obu wariantów identyczny: **70 plików / 529 488 950 B**, wraz z 34 artefaktami modeli; niezmienność bajtów sprawdzona przed i po obu seriach. Archiwum, jego hash, manifest oraz wynik wyodrębnienia będą odnotowane po pakowaniu; nie są dowodem przesłania na hosting ani dostępnego załącznika.
+
+Wcześniejsze próby nie były PASS pełnej serii: 8239ea80 zatrzymało się na zbyt mocnej asercji nieistnienia cache (UI legalnie otwiera pusty cache); 584c74c9/93186fd8 na przedwczesnym odczycie stanu aktualizacji. Odczyt kodu Playwright 1.62 wykazał, że waitForFunction traktuje zwrócony Promise jako truthy, zanim pozna jego boolean; zastąpiono to ograniczonym pollingiem rzeczywiście rozwiązanej wartości CacheStorage i oczekiwaniem controllerchange. Pełny MT/audio wykonano dopiero po przejściu tych bramek w 6532e640. Logi wcześniejszych prób pozostają lokalne; nie ukrywają nieudanego audio ani automatycznych retry.
+
+Instrukcja dostępu katalogowego FTPS, preflight i rollback bez Clear-Site-Data/WP: **PRIVATE_TESTING.md**. Fizyczna akceptacja: **MOBILE_ACCEPTANCE.md**. Brak ograniczonego dostępu zatrzymuje upload, nie kod/testy/pakiet. Nie ma podstaw do twierdzenia, że katalog jest osobnym originem.
+
+---
+
+## Historia — etap 2
 
 **Testowany commit kodu i zależności: `23c1a7af34c28f996213c62ddccdf978717e730e`.** `sourceDirty: false` w trzech raportach przeglądarkowych. Kontrole CSP: **23.10.2026, 12:51:38–12:51:42 UTC**; pełna seria Chromium przez proxy: **12:52:29–12:53:42 UTC**, poprzedzona buildem/logiką i kontrolami uruchamiania. Późniejszy commit raportu zmienia wyłącznie ten plik; testowanym SHA pozostaje powyższy commit.
 

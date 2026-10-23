@@ -45,7 +45,15 @@ Pozostałe dyrektywy brać z **wygenerowanego** `.htaccess`: hash startup musi o
 
 SFTP wymaga SSH; według przekazanej dokumentacji dhosting nie ma dodatkowych kont SSH — nie obiecujemy ograniczonego konta SFTP. Minimum dostępu: istniejący panel/klient uwierzytelniony samodzielnie przez właściciela. Alternatywnie konto katalogowe FTP + szyfrowane FTPS z weryfikacją certyfikatu, **wyłącznie jeśli oba warunki potwierdzi dokumentacja/operator**. Nie podawać haseł/kluczy w czacie i nie tworzyć kont w ramach tego etapu. Możliwości kont FTP/FTPS nie zostały tutaj potwierdzone.
 
-## Preflight przed osobno zatwierdzoną publikacją
+## Przekazanie do zatwierdzonego katalogu przez ograniczony FTPS
+
+Cel zatwierdzony przez właściciela: `https://ai.lekarz.nl/translator-test/`. Koordynator organizuje dostęp; nie znamy jeszcze hosta/portu ani mapowania katalogu FTPS i nie zgadujemy ich. Preferowane jest konto rzeczywiście ograniczone do tego katalogu, jeśli operator potwierdzi możliwość takiej konfiguracji. FTPS musi szyfrować kanał sterujący i dane oraz weryfikować certyfikat; nie używać zwykłego FTP ani dostępu SSH do całego konta. Właściciel wpisuje poświadczenia sam w zatwierdzonym kliencie/bezpiecznym mechanizmie dostępu, bez haseł w czacie.
+
+Po otrzymaniu dostępu i potwierdzeniu mapowania przesyła się **zawartość `payload/`**, w tym ukryty `.htaccess`, bez dodatkowego poziomu `payload/` w adresie. Nie przesyłać ZIP do WWW i nie instalować rozpakowywacza PHP, wtyczki WP ani nowych usług. Dokumentacja, SOURCE i MANIFEST służą do przeglądu/weryfikacji i nie muszą trafiać do WWW. Ochrona musi działać przed udostępnieniem plików: początkowo pozostaje deny-all, a administrator przygotowuje rzeczywiste Basic Auth. Nie nadpisywać istniejącego sprawdzonego `.htaccess` bez połączenia jego ochrony z wygenerowanym CSP; finalna konfiguracja hostingu różni się od blokady w archiwum i wymaga osobnego zapisu/przeglądu. Nie kopiować pliku hashy haseł do katalogu.
+
+Porównać pliki z MANIFEST.json; jeśli FTPS/hosting nie udostępnia wiarygodnych sum, zweryfikować pobrane uwierzytelnione statyczne pliki przez HTTPS. Root WordPressa i baza pozostają poza operacją. Sam brak dostępu nie blokuje przygotowania pakietu, ale uniemożliwia publikację.
+
+## Preflight przed publikacją w zatwierdzonym katalogu
 
 1. Potwierdzić rzeczywisty document root/katalog, brak konfliktu plików/SW WP i własność dostępu. Zabezpieczyć kopię wyłącznie dotychczasowej zawartości celu. Sprawdzić limit miejsca (pakiet ~0,53 GB plus kopia/podmiana), transfer i warunki istniejącego planu; brak nowego hostingu nie gwarantuje nieograniczonego transferu.
 2. Potwierdzić moduły/AllowOverride i działanie dyrektyw na dhosting (możliwy LiteSpeed/proxy). Lokalny Node **nie wykonuje `.htaccess`** i nie jest dowodem tej zgodności. HTTP ma przekierowywać na prawidłowy HTTPS przed challenge; nie wysyłać Basic przez HTTP i nie omijać błędów TLS.
