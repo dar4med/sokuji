@@ -1,5 +1,6 @@
 name: Translator artifact delivery smoke
 
+# Registration probe: only this small artifact gate is intended to execute.
 # This gate generates only a public, nonsensitive TXT and its checksum.
 # Enabling Actions for this fork also enables the existing workflows.
 # Inherited jobs on this PR branch have repository guards that skip this fork.
