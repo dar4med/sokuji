@@ -1,0 +1,7 @@
+Narzędzie dodatkowe, nie część zweryfikowanego payloadu ani ZIP.
+Biblioteka: bcryptjs 3.0.2, BSD-3-Clause.
+Źródło: https://registry.npmjs.org/bcryptjs/3.0.2
+Tarball: https://registry.npmjs.org/bcryptjs/-/bcryptjs-3.0.2.tgz
+npm integrity sprawdzone: sha512-k38b3XOZKv60C4E2hVsXTolJWfkGRMbILBIe2IBITXciy5bOsTKot5kDrf3ZfufQtQOUN5mXceUEpU1rTl9Uog==
+Oczekiwany SHA-256 wejściowego payload/.htaccess: a54708f4e6b4b2c26f937fcc845cf4a76b6a874a0ee4c6e34eb471cd944fd971
+Narzędzie nie potwierdza ścieżki/obsługi hasha na dhosting, nie loguje się i nie wysyła danych.

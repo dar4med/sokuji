@@ -5,6 +5,7 @@ Run with .tools/model-tools/bin/python scripts/prepare-models.py.
 EN→PL requires a tokenizer conversion and dynamic quantization (no training).
 """
 import concurrent.futures
+import argparse
 import hashlib
 import json
 import os
@@ -75,7 +76,7 @@ def download(spec, metadata, filename, destination):
     temporary.replace(destination)
 
 
-def convert_polish_tokenizer(folder, destination):
+def convert_polish_tokenizer(folder, destination, write_fixtures=True):
     """Preserve Marian's shared token IDs, using source SentencePiece scores.
 
     Target-only pieces remain in the decoder vocabulary but cannot win source
@@ -100,7 +101,10 @@ def convert_polish_tokenizer(folder, destination):
     write_json(destination / "tokenizer.json", tokenizer)
     sentences = ["Hello, how are you today?", "I would like a glass of water.", "The blue bicycle is next to the house.", "This is a fictional test, number 42."]
     fixtures = [{"text": ">>pol<< " + text, "ids": [vocab[">>pol<<"]] + [vocab.get(piece, vocab["<unk>"]) for piece in processor.encode(text, out_type=str)] + [vocab["</s>"]]} for text in sentences]
-    write_json(ROOT / "tests/tokenizer-fixtures.json", fixtures)
+    if write_fixtures:
+        write_json(ROOT / "tests/tokenizer-fixtures.json", fixtures)
+    elif fixtures != json.loads((ROOT / "tests/tokenizer-fixtures.json").read_text()):
+        raise RuntimeError("Tokenizer fixture IDs differ from the reviewed fixtures")
 
 
 def prepare(spec):
@@ -153,8 +157,69 @@ def prepare(spec):
     return dict(**spec, license=license_id, prefix=">>pol<< " if spec["id"] == "en-pl" else "", files=records)
 
 
+def prepare_locked():
+    """Reproduce the reviewed lock without refreshing models, cards or licenses."""
+    lock_file = ROOT / "models.lock.json"
+    original = lock_file.read_bytes()
+    lock = json.loads(original)
+    for model in lock["models"]:
+        spec = next(s for s in SPECS if s["id"] == model["id"])
+        if any(spec[key] != model[key] for key in spec) or len(model["revision"]) != 40:
+            raise RuntimeError("Lock differs from the pinned model recipe")
+        destination = PUBLIC / "models" / model["id"]
+        destination.mkdir(parents=True, exist_ok=True)
+        derived = {"tokenizer.json", *GRAPHS} if model["id"] == "en-pl" else set()
+        for artifact in model["files"]:
+            relative = artifact["path"]
+            target = destination / relative
+            if target.is_file() and target.stat().st_size == artifact["bytes"] and digest(target) == artifact["sha256"]:
+                continue
+            if relative in derived:
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            temporary = target.with_name(target.name + ".part")
+            url = f"https://huggingface.co/{model['repo']}/resolve/{model['revision']}/{relative}"
+            print(f"Locked download: {model['id']}/{relative}", flush=True)
+            try:
+                with urllib.request.urlopen(url, timeout=120) as response, temporary.open("wb") as output:
+                    shutil.copyfileobj(response, output, 1024 * 1024)
+                if temporary.stat().st_size != artifact["bytes"] or digest(temporary) != artifact["sha256"]:
+                    raise RuntimeError(f"Locked SHA-256/size mismatch: {model['id']}/{relative}")
+                temporary.replace(target)
+            finally:
+                temporary.unlink(missing_ok=True)
+        if derived and any(not (destination / f["path"]).is_file() or digest(destination / f["path"]) != f["sha256"]
+                           for f in model["files"] if f["path"] in derived):
+            # Original full-precision inputs are pinned to the same revision;
+            # metadata supplies LFS SHA-256 / Git blob IDs for those inputs.
+            metadata = json.loads(read(f"https://huggingface.co/api/models/{spec['repo']}/revision/{spec['revision']}?blobs=true"))
+            folder = WORK / "en-pl"
+            for filename in ["source.spm", "vocab.json", "encoder_model.onnx", "decoder_model_merged.onnx"]:
+                download(spec, metadata, filename, folder / filename)
+            convert_polish_tokenizer(folder, destination, write_fixtures=False)
+            from onnxruntime.quantization import quantize_dynamic, QuantType
+            for source, target in [("encoder_model.onnx", GRAPHS[0]), ("decoder_model_merged.onnx", GRAPHS[1])]:
+                (destination / target).parent.mkdir(exist_ok=True)
+                quantize_dynamic(str(folder / source), str(destination / target), weight_type=QuantType.QUInt8,
+                                 per_channel=False, extra_options={"EnableSubgraph": True, "MatMulConstBOnly": True})
+        for artifact in model["files"]:
+            target = destination / artifact["path"]
+            if target.stat().st_size != artifact["bytes"] or digest(target) != artifact["sha256"]:
+                raise RuntimeError(f"Reproduced model differs from reviewed lock: {model['id']}/{artifact['path']}")
+    if lock_file.read_bytes() != original:
+        raise RuntimeError("The reviewed model lock must not change")
+    (PUBLIC / "models-manifest.json").write_bytes(original)
+    print("All 34 locked artifacts reproduced; no model/card/license revision refreshed.", flush=True)
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--locked", action="store_true", help="Reproduce models.lock.json without updating it or license cards")
+    args = parser.parse_args()
     os.environ.setdefault("OMP_NUM_THREADS", "2")
+    if args.locked:
+        prepare_locked()
+        raise SystemExit(0)
     models = [prepare(spec) for spec in SPECS]
     manifest = {"version": 1, "models": models}
     write_json(ROOT / "models.lock.json", manifest)
