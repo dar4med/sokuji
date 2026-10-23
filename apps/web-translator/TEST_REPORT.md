@@ -64,7 +64,14 @@ Wszystkie poniższe pliki w ignorowanym `test-results/` mają sourceSha `6532e64
 | preview-results.json | 2c6d8244d17d3c87ac2e2e50e91ea07d7f2cce89a7c5b72e3e2671a9a079ef6b |
 | stage3-validation.log | 7adf433ed2109e8ccaef6b424d42b43b0012e0543a648952c1de55e251120fd7 |
 
-Payload obu wariantów identyczny: **70 plików / 529 488 950 B**, wraz z 34 artefaktami modeli; niezmienność bajtów sprawdzona przed i po obu seriach. Archiwum, jego hash, manifest oraz wynik wyodrębnienia będą odnotowane po pakowaniu; nie są dowodem przesłania na hosting ani dostępnego załącznika.
+Payload obu wariantów identyczny: **70 plików / 529 488 950 B**, wraz z 34 artefaktami modeli; niezmienność bajtów sprawdzona przed i po obu seriach. Pakiet z testowanego SHA, z dokumentacją `afdc28190`, przygotowano i zweryfikowano lokalnie:
+
+- ZIP: `translator-private-6532e6406b92.zip`, **331201715 B**.
+- SHA-256 ZIP: `028bc2b4ac237e9cec904becbdbdf62c208f4986187c19f2de3b48102984ad36`.
+- SHA-256 MANIFEST.json: `5ac6929cc65d0e0f07842a11f4f0a88a97b924e7446c1b8249b589fa2244a401`; [pełna lista plików i sum](PACKAGE_MANIFEST.md).
+- **74/74 pliki po wyodrębnieniu**, poprawny ZIP CRC, wszystkie długości/SHA; 34 modele ponownie zweryfikowane względem locka. Bez node_modules/Python/źródeł aplikacji/sekretów/nagrań. Payload ma deny-all i wygenerowany hash CSP.
+- Archiwum, sidecar SHA, manifest JSON i delivery JSON zachowane w `/workspace/artifacts/sokuji-stage3/`. **Brak natywnego transferu/załącznika w tej sesji**; `/mnt/data` nie istnieje. Nie przedstawiamy workspace jako potwierdzonego linku pobrania, nie opublikowano Release/usługi w obejściu.
+- Cel zatwierdzony: `https://ai.lekarz.nl/translator-test/`. Nie wykonano uploadu. Brakuje dostępu ograniczonego do katalogu i rzeczywistej ochrony; instrukcja FTPS/bezpiecznego przekazania jest w PRIVATE_TESTING.md.
 
 Wcześniejsze próby nie były PASS pełnej serii: 8239ea80 zatrzymało się na zbyt mocnej asercji nieistnienia cache (UI legalnie otwiera pusty cache); 584c74c9/93186fd8 na przedwczesnym odczycie stanu aktualizacji. Odczyt kodu Playwright 1.62 wykazał, że waitForFunction traktuje zwrócony Promise jako truthy, zanim pozna jego boolean; zastąpiono to ograniczonym pollingiem rzeczywiście rozwiązanej wartości CacheStorage i oczekiwaniem controllerchange. Pełny MT/audio wykonano dopiero po przejściu tych bramek w 6532e640. Logi wcześniejszych prób pozostają lokalne; nie ukrywają nieudanego audio ani automatycznych retry.
 
