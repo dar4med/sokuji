@@ -4,6 +4,7 @@ name: Translator private static package
 # 0 GB / 0.5 GB on 2026-10-23. Do not rerun after a successful upload without
 # checking remaining shared allowance / expiration of the previous artifact.
 # Upload only the precompressed ZIP and small extras, never dist/ or payload/.
+# CSP readiness uses HTTP, including when CI suppresses Vite's startup banner.
 on:
   workflow_dispatch:
   push:
