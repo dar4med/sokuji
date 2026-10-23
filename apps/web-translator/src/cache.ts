@@ -1,12 +1,18 @@
 import type { Artifact, Model } from "./core.ts";
-export const MODEL_CACHE = "medpartners-models-v1";
+import { installationBase, modelCacheName, modelPath } from "./installation.ts";
+export { modelCacheName } from "./installation.ts";
 export const MODEL_DOWNLOAD_IDLE_MS = 30_000;
 const hex = (buffer: ArrayBuffer) =>
   [...new Uint8Array(buffer)]
     .map((x) => x.toString(16).padStart(2, "0"))
     .join("");
-export const artifactUrl = (base: string, model: Model, file: Artifact) =>
-  new URL(`models/${model.id}/${file.path}`, base).href;
+export function artifactUrl(base: string, model: Model, file: Artifact): string {
+  const verified = installationBase(base);
+  const url = new URL(modelPath(model.id, file.path), verified);
+  if (url.origin !== verified.origin || !url.pathname.startsWith(verified.pathname + "models/"))
+    throw new Error("Plik modelu poza katalogiem aplikacji.");
+  return url.href;
+}
 
 export async function verifyArtifact(
   buffer: ArrayBuffer,
@@ -54,7 +60,7 @@ async function downloadArtifact(
   arm();
   try {
     const fetched = await Promise.race([fetch(url, {
-      signal: controller.signal, credentials: "omit", cache: "no-store",
+      signal: controller.signal, credentials: "same-origin", redirect: "error", cache: "no-store",
     }), interrupted]);
     if (!fetched.ok || !fetched.body)
       throw new Error(`Nie można pobrać ${file.path} (HTTP ${fetched.status}).`);
@@ -102,7 +108,10 @@ export async function prepareModels(
     throw new Error(
       "Przeglądarka nie udostępnia pamięci modeli. Otwórz aplikację przez HTTPS poza trybem prywatnym.",
     );
-  const cache = await caches.open(MODEL_CACHE);
+  // Validate the entire selection before any cache access or authenticated request.
+  installationBase(base);
+  for (const model of models) for (const file of model.files) artifactUrl(base, model, file);
+  const cache = await caches.open(modelCacheName(base));
   const total = models.reduce(
     (n, m) => n + m.files.reduce((s, f) => s + f.bytes, 0),
     0,
@@ -149,7 +158,7 @@ export async function cachedBytes(
   models: Model[],
 ): Promise<number> {
   if (!("caches" in globalThis)) return 0;
-  const cache = await caches.open(MODEL_CACHE);
+  const cache = await caches.open(modelCacheName(base));
   let bytes = 0;
   for (const model of models)
     for (const file of model.files) {

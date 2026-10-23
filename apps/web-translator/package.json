@@ -13,6 +13,8 @@
     "test": "node --experimental-strip-types --test tests/*.node.ts",
     "test:browser": "node scripts/browser-test.mjs",
     "test:preview": "node scripts/preview-test.mjs",
+    "test:auth": "node scripts/auth-test.mjs",
+    "package:private": "python3 scripts/package-private.py",
     "test:csp": "node scripts/csp-test.mjs"
   },
   "dependencies": {

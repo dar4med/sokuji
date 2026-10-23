@@ -5,6 +5,7 @@ public/runtime/
 public/vad/
 public/models-manifest.json
 public/notices.txt
+public/licenses/
 test-results/
 .tools/
 .model-work/

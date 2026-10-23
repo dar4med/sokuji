@@ -125,6 +125,12 @@ Biblioteki:
 
 Wydanie zawiera `notices.txt`, pełne teksty głównych licencji i notices zależności. Przy nowych modelach wymagane jest ponowne sprawdzenie ich kart. Nie dodano modeli NC, NLLB, głosów Piper ani usług chmurowych.
 
+## Pakiet prywatnych testów (etap 3)
+
+[PRIVATE_TESTING.md](PRIVATE_TESTING.md) opisuje przenośny build `base: ./`, lokalny test Basic Auth obu lokalizacji, izolację cache i różnicę katalog/origin. `npm run test:auth` używa istniejących modeli/narzędzi i generuje tylko lokalne, efemeryczne dane dostępu; nie wykonuje `.htaccess`. `npm run package:private -- --output-dir /workspace/artifacts/sokuji-stage3` pakuje czysty, przetestowany SHA bez wysyłania.
+
+**Dystrybucyjny `.htaccess` ma blokadę `Require all denied`.** Pakiet pozostaje niedostępny na Apache/LiteSpeed do osobno zatwierdzonej rzeczywistej ochrony katalogu HTTPS Basic Auth; nie usuwać blokady bez konfiguracji i preflight. Basic Auth nie odwołuje kopii offline. Nie zmieniać WordPressa/root konfiguracji.
+
 ## Prywatność i odczyt
 
 Przeglądarka łączy się wyłącznie z własnym originem po pliki statyczne. Nie ma endpointu wysyłającego audio lub tekst, kont, trackerów ani analityki. CSP ogranicza połączenia do własnego originu i lokalnych blobów. Historia do 50 wypowiedzi pozostaje tylko w pamięci karty; „Wyczyść historię” kończy ewentualną sesję i usuwa wpisy. Nagrania są przekazywane do workera jako bufor i nie są zapisywane.

@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 import { env, pipeline } from "@huggingface/transformers";
-import { MODEL_CACHE, artifactUrl } from "./cache.ts";
+import { modelCacheName, artifactUrl } from "./cache.ts";
 import { LANGUAGES, route, type Lang, type Model } from "./core.ts";
 
 type Pipe = { dispose(): Promise<void> } & ((
@@ -25,7 +25,7 @@ async function initialize(base: string, catalog: Model[], speech: boolean) {
   env.localModelPath = new URL("models/", base).href;
   env.useBrowserCache = false;
   env.useCustomCache = true;
-  const cache = await caches.open(MODEL_CACHE);
+  const cache = await caches.open(modelCacheName(base));
   const allowed = new Set(
     models.flatMap((m) => m.files.map((f) => artifactUrl(base, m, f))),
   );

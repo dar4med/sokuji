@@ -1,3 +1,4 @@
+import { modelPath } from "./installation.ts";
 export type Lang = "pl" | "nl" | "en";
 export const LANGUAGES: Record<
   Lang,
@@ -74,16 +75,19 @@ export function validateManifest(value: unknown): Manifest {
     )
       throw new Error("Nieprawidłowy katalog modeli.");
     ids.add(model.id);
+    const paths = new Set<string>();
     for (const f of model.files) {
+      modelPath(model.id, f.path);
       if (
         !/^[a-zA-Z0-9_./-]+$/.test(f.path) ||
         f.path.startsWith("/") ||
         f.path.split("/").includes("..") ||
         !/^[a-f0-9]{64}$/.test(f.sha256) ||
         !Number.isSafeInteger(f.bytes) ||
-        f.bytes <= 0
+        f.bytes <= 0 || paths.has(f.path)
       )
         throw new Error("Nieprawidłowy plik modelu.");
+      paths.add(f.path);
     }
   }
   return candidate;

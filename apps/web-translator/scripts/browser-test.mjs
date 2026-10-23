@@ -34,6 +34,9 @@ execFileSync("ffmpeg", [
 ]);
 const base = process.env.TEST_URL || "http://127.0.0.1:5180/";
 const origin = new URL(base).origin;
+// Only local QA injects ephemeral credentials; never recorded or packaged.
+const httpCredentials = process.env.QA_HTTP_AUTH ? JSON.parse(process.env.QA_HTTP_AUTH) : undefined;
+const label = process.env.QA_REPORT_LABEL || "browser";
 const report = {
   ...testMetadata(),
   engine: "Real ONNX models / WASM / Chromium",
@@ -56,6 +59,7 @@ const browser = await chromium.launch({
 });
 report.browser = browser.version();
 const context = await browser.newContext({
+  httpCredentials,
   permissions: ["microphone"],
   viewport: { width: 390, height: 844 },
 });
@@ -274,6 +278,11 @@ try {
 
   await page.evaluate(() => navigator.serviceWorker.ready);
   await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+  if (process.env.QA_AUTH_CONTROL_BASE) {
+    assert.equal((await context.request.post(process.env.QA_AUTH_CONTROL_BASE + "revoke")).status(), 200);
+    assert.equal((await context.request.get(base)).status(), 401);
+    report.checks.push("Network Basic Auth revoked: authenticated network request returns 401; subsequent offline test uses the retained local copy.");
+  }
   await context.setOffline(true);
   await page.reload();
   await ready();
@@ -286,9 +295,11 @@ try {
   assert.equal(await page.locator(".entry").count(), 0);
   report.checks.push("Local session history can be erased.");
   await context.setOffline(false);
+  if (process.env.QA_AUTH_CONTROL_BASE)
+    assert.equal((await context.request.post(process.env.QA_AUTH_CONTROL_BASE + "restore")).status(), 200);
 
   // No microphone permission is granted in this separate context.
-  const denied = await browser.newContext();
+  const denied = await browser.newContext({ httpCredentials });
   const deniedPage = await denied.newPage();
   await deniedPage.goto(base);
   await deniedPage.waitForFunction(
@@ -322,7 +333,7 @@ try {
   process.exitCode = 1;
 } finally {
   await writeFile(
-    path.join(output, "browser-results.json"),
+    path.join(output, `${label}-results.json`),
     JSON.stringify({ ...report, completedAt: new Date().toISOString() }, null, 2),
   );
   await browser.close();

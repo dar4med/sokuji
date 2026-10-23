@@ -4,6 +4,7 @@ import { readdir, readFile, writeFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { serviceWorkerSource } from "./src/service-worker.ts";
 
 const startup = readFileSync(new URL("./scripts/startup.js", import.meta.url), "utf8");
 const startupHash = createHash("sha256").update(startup).digest("base64");
@@ -86,20 +87,7 @@ export default defineConfig({
         for (const file of files.sort())
           hash.update(await readFile(path.join(directory, file)));
         const version = hash.digest("hex").slice(0, 16);
-        const source = `const CACHE = 'medpartners-shell-${version}';
-const FILES = ${JSON.stringify(files.map((f) => "./" + f))};
-self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting())));
-self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('medpartners-shell-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin) return;
-  const scope = new URL('./', self.location.href).pathname;
-  if (new URL(event.request.url).pathname.startsWith(scope + 'models/')) {
-    event.respondWith(caches.open('medpartners-models-v1').then(cache => cache.match(event.request, { ignoreVary: true })).then(hit => hit || fetch(event.request)));
-    return;
-  }
-  event.respondWith(caches.open(CACHE).then(cache => cache.match(event.request, { ignoreVary: true })).then(hit => hit || (event.request.mode === 'navigate' ? caches.open(CACHE).then(cache => cache.match('./index.html', { ignoreVary: true })) : null)).then(hit => hit || fetch(event.request)));
-});
-`;
+        const source = serviceWorkerSource(version, files);
         await writeFile(path.join(directory, "sw.js"), source);
       },
     },

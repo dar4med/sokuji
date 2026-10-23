@@ -2,6 +2,8 @@ import { cp, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 const root = fileURLToPath(new URL("../", import.meta.url));
+await cp(path.join(root, "licenses"), path.join(root, "public/licenses"), { recursive: true });
+await cp(path.join(root, "LICENSE"), path.join(root, "public/licenses/APPLICATION-MIT.txt"));
 await mkdir(path.join(root, "public/runtime"), { recursive: true });
 await mkdir(path.join(root, "public/vad"), { recursive: true });
 for (const file of await readdir(

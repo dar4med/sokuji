@@ -1,14 +1,18 @@
-Options -Indexes
+# PUBLICATION LOCK: replace ONLY after real directory-level HTTPS Basic Auth
+# has been configured and verified. See PRIVATE_TESTING.md. No credentials here.
+Require all denied
+Options -Indexes -MultiViews
+DirectoryIndex index.html
 AddType application/wasm .wasm
 AddType application/javascript .mjs
 <IfModule mod_headers.c>
   Header always set Cross-Origin-Opener-Policy "same-origin"
   Header always set Cross-Origin-Embedder-Policy "require-corp"
+  Header always set Cross-Origin-Resource-Policy "same-origin"
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "no-referrer"
+  Header always set X-Robots-Tag "noindex, nofollow, noarchive"
+  Header always set Cache-Control "private, no-store"
   Header always set Permissions-Policy "microphone=(self), camera=(), geolocation=()"
   Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' blob:; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"
-  <FilesMatch "^(sw\.js|index\.html|models-manifest\.json)$">
-    Header set Cache-Control "no-cache"
-  </FilesMatch>
 </IfModule>

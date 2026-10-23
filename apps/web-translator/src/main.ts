@@ -10,7 +10,7 @@ import {
   type Manifest,
   type Model,
 } from "./core.ts";
-import { cachedBytes, MODEL_CACHE, prepareModels } from "./cache.ts";
+import { cachedBytes, modelCacheName, prepareModels } from "./cache.ts";
 import { LocalEngine } from "./engine.ts";
 import {
   Conversation,
@@ -412,7 +412,7 @@ el("clear").addEventListener("click", async () => {
 });
 el("delete-models").addEventListener("click", async () => {
   if (conversation.active) return;
-  await caches.delete(MODEL_CACHE);
+  await caches.delete(modelCacheName(base));
   await pairChanged();
   el("status").textContent = "Pobrane modele zostały usunięte.";
 });

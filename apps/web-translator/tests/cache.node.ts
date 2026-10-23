@@ -1,9 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { prepareModels, verifyArtifact } from "../src/cache.ts";
+import { prepareModels, verifyArtifact, artifactUrl, modelCacheName } from "../src/cache.ts";
 import { createServer } from "node:http";
 import { once } from "node:events";
 import { createHash } from "node:crypto";
+import { installationBase, cacheNamesForPath } from "../src/installation.ts";
 import type { Model } from "../src/core.ts";
 
 test("model integrity checks accept only exact SHA-256 and length", async () => {
@@ -50,6 +51,7 @@ test("a stalled HTTP body is cancelled, no partial cache is saved, retry verifie
   await once(server, "listening");
   const address = server.address() as { port: number };
   const base = `http://127.0.0.1:${address.port}/`;
+  Object.defineProperty(globalThis, "location", { configurable: true, value: { origin: new URL(base).origin } });
   try {
     let partial = 0;
     await assert.rejects(prepareModels(base, models, new AbortController().signal,
@@ -63,6 +65,7 @@ test("a stalled HTTP body is cancelled, no partial cache is saved, retry verifie
     const result = saved.values().next().value!;
     await verifyArtifact(await result.arrayBuffer(), file);
   } finally {
+    delete (globalThis as any).location;
     if (original) Object.defineProperty(globalThis, "caches", original);
     else delete (globalThis as any).caches;
     server.closeAllConnections();
@@ -94,6 +97,7 @@ test("download deadline resets on real progress; user cancellation and bad SHA n
   server.listen(0, "127.0.0.1");
   await once(server, "listening");
   const base = `http://127.0.0.1:${(server.address() as { port: number }).port}/`;
+  Object.defineProperty(globalThis, "location", { configurable: true, value: { origin: new URL(base).origin } });
   try {
     // Transfer takes ~480 ms, longer than 250 ms, but each chunk makes progress.
     await prepareModels(base, models, new AbortController().signal, () => {}, 250);
@@ -108,9 +112,65 @@ test("download deadline resets on real progress; user cancellation and bad SHA n
       () => {}, 250), /Nieprawidłowy plik/);
     assert.equal(saved.size, 0);
   } finally {
+    delete (globalThis as any).location;
     if (original) Object.defineProperty(globalThis, "caches", original);
     else delete (globalThis as any).caches;
     server.closeAllConnections();
     await new Promise<void>(resolve => server.close(() => resolve()));
+  }
+});
+
+test("installation rejects foreign origin/userinfo/noncanonical base and path escapes", () => {
+  Object.defineProperty(globalThis, "location", { configurable: true, value: { origin: "https://example.test" } });
+  try {
+    const base = "https://example.test/translator-test/";
+    assert.equal(installationBase(base).href, base);
+    for (const bad of ["https://other.test/translator-test/", "https://name:secret@example.test/translator-test/",
+      "https://example.test/translator-test", base + "?x=1", base + "#x", base + "../", "https://example.test/%74ranslator-test/"])
+      assert.throws(() => installationBase(bad), /baza/);
+    const file = { path: "onnx/model.onnx", bytes: 1, sha256: "0".repeat(64) };
+    const model = { id: "asr", files: [file] } as Model;
+    assert.equal(artifactUrl(base, model, file), base + "models/asr/onnx/model.onnx");
+    for (const path of ["../escape", "/escape", "//other.test/file", "a/../../file", "%2e%2e/file", "a\\file", "a//b", "a/./b", "a?x", "a#x", "https://other.test/file"])
+      assert.throws(() => artifactUrl(base, model, { ...file, path }), /ścieżka/);
+    assert.throws(() => artifactUrl(base, { ...model, id: "../escape" }, file), /ścieżka/);
+    assert.notEqual(modelCacheName(base), modelCacheName("https://example.test/other/"));
+    assert.notEqual(cacheNamesForPath("/").shellPrefix, cacheNamesForPath("/translator-test/").shellPrefix);
+  } finally { delete (globalThis as any).location; }
+});
+
+test("model fetch uses same-origin credentials and denies HTTP redirects before the target", async () => {
+  let targetHits = 0;
+  const server = createServer((request, response) => {
+    if (request.url === "/translator-test/models/asr/model.onnx") {
+      response.writeHead(302, { Location: "/outside" }); response.end();
+    } else { targetHits++; response.end("must not be requested"); }
+  });
+  server.listen(0, "127.0.0.1"); await once(server, "listening");
+  const base = `http://127.0.0.1:${(server.address() as { port: number }).port}/translator-test/`;
+  Object.defineProperty(globalThis, "location", { configurable: true, value: { origin: new URL(base).origin } });
+  const oldCaches = Object.getOwnPropertyDescriptor(globalThis, "caches");
+  let puts = 0;
+  Object.defineProperty(globalThis, "caches", { configurable: true, value: { open: async () => ({
+    match: async () => undefined, put: async () => { puts++; },
+  }) } });
+  const nativeFetch = globalThis.fetch;
+  globalThis.fetch = async (url, options) => {
+    assert.equal(options?.credentials, "same-origin");
+    assert.equal(options?.redirect, "error");
+    return nativeFetch(url, options);
+  };
+  try {
+    const file = { path: "model.onnx", bytes: 1, sha256: "0".repeat(64) };
+    await assert.rejects(prepareModels(base, [{ id: "asr", files: [file] }] as Model[],
+      new AbortController().signal, () => {}, 1000), /fetch failed/);
+    assert.equal(targetHits, 0); assert.equal(puts, 0);
+    await assert.rejects(prepareModels(base, [{ id: "asr", files: [{ ...file, path: "../escape" }] }] as Model[],
+      new AbortController().signal, () => {}), /ścieżka/);
+  } finally {
+    globalThis.fetch = nativeFetch;
+    delete (globalThis as any).location;
+    if (oldCaches) Object.defineProperty(globalThis, "caches", oldCaches); else delete (globalThis as any).caches;
+    server.closeAllConnections(); await new Promise<void>(resolve => server.close(() => resolve()));
   }
 });
