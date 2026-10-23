@@ -49,6 +49,8 @@ def main():
             handle.write(file, file.name)
     manifest = json.loads(Path(summary['manifest']).read_text())
     old_names = set(re.findall(r'^\| `([^`]+)` \|', (ROOT / 'PACKAGE_MANIFEST.md').read_text(), re.M))
+    # The historical table excludes the self-describing manifest's own hash.
+    old_names.add('MANIFEST.json')
     actual_names = set(manifest['files']) | {'MANIFEST.json'}
     difference = {'added': sorted(actual_names - old_names), 'removed': sorted(old_names - actual_names)}
     reports = {}
@@ -69,9 +71,15 @@ def main():
     total = sum(f.stat().st_size for f in target.iterdir())
     if total >= 350_000_000:
         raise ValueError('Upload blocked: compressed delivery exceeds the confirmed 350 MB safety envelope')
-    print(json.dumps({'sourceSha': summary['sourceSha'], 'files': summary['files'], 'deliveryBytes': total,
-                      'zipBytes': archive.stat().st_size, 'zipSha256': digest(archive),
-                      'fileListDifference': difference, 'extractionVerified': True}, indent=2))
+    evidence = {'sourceSha': summary['sourceSha'], 'files': summary['files'], 'deliveryBytes': total,
+                'zipName': archive.name, 'zipBytes': archive.stat().st_size, 'zipSha256': digest(archive),
+                'helperBytes': (target / 'konfigurator-basic-auth-offline.zip').stat().st_size,
+                'helperSha256': digest(target / 'konfigurator-basic-auth-offline.zip'),
+                'fileListDifference': difference, 'extractionVerified': True}
+    print(json.dumps(evidence, indent=2))
+    if os.environ.get('GITHUB_ACTIONS') == 'true':
+        # Readable through the checks API even where signed log URLs are blocked.
+        print('::notice title=Verified deployment ZIP::' + json.dumps(evidence))
 
 
 if __name__ == '__main__':

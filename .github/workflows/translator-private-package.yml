@@ -90,7 +90,7 @@ jobs:
       - name: Logic, real browser Basic Auth and portable payload, CSP, offline helper
         run: |
           set -euo pipefail
-          npm test
+          python3 scripts/ci-run.py npm test
           npm run preview > "$RUNNER_TEMP/translator-preview.log" 2>&1 &
           translator_preview_pid=$!
           trap 'kill "$translator_preview_pid" 2>/dev/null || true' EXIT
@@ -99,9 +99,9 @@ jobs:
             sleep 1
           done
           curl --fail --silent http://127.0.0.1:5180/ > /dev/null
-          npm run test:csp
-          npm run test:auth
-          node scripts/delivery-helper-test.mjs
+          python3 scripts/ci-run.py npm run test:csp
+          python3 scripts/ci-run.py npm run test:auth
+          python3 scripts/ci-run.py node scripts/delivery-helper-test.mjs
           git diff --exit-code
 
       - name: Package verified payload and verify complete ZIP extraction and SHA-256
