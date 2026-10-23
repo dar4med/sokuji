@@ -1,6 +1,77 @@
 # Wyniki prototypu — 23 października 2026
 
-## Aktualne wyniki — etap 1
+## Aktualne wyniki — etap 2
+
+**Testowany commit kodu i zależności: `23c1a7af34c28f996213c62ddccdf978717e730e`.** `sourceDirty: false` w trzech raportach przeglądarkowych. Kontrole CSP: **23.10.2026, 12:51:38–12:51:42 UTC**; pełna seria Chromium przez proxy: **12:52:29–12:53:42 UTC**, poprzedzona buildem/logiką i kontrolami uruchamiania. Późniejszy commit raportu zmienia wyłącznie ten plik; testowanym SHA pozostaje powyższy commit.
+
+Na początku etapu GitHub potwierdził head PR #1 `e80f07afd9c215b04bb222ed698c2dca9a25e946`, Draft/open. Porównanie `24820238b8da7c26f2bd297d1024404f4204eec8..e80f07afd9c215b04bb222ed698c2dca9a25e946` obejmowało **wyłącznie `apps/web-translator/TEST_REPORT.md`**. Sprawdzono historyczne logi i asercje trzech prób, bez ich ponawiania przed zmianą zależności. Po aktualizacji sharp wykonano poniższą pełną regresję na czystym SHA.
+
+### Zmiana i osiągalność sharp
+
+`@huggingface/transformers@3.8.1 → sharp@0.34.5` dawał **2 pakiety high, ale 3 odrębne advisory**: [GHSA-f88m-g3jw-g9cj](https://github.com/advisories/GHSA-f88m-g3jw-g9cj), [GHSA-rgj7-g3m4-5g8c](https://github.com/advisories/GHSA-rgj7-g3m4-5g8c), [GHSA-wq5f-xc86-pv6w](https://github.com/advisories/GHSA-wq5f-xc86-pv6w). Zakresy to odpowiednio `<0.35.0`, `<0.35.4`, `<0.35.5`. Transformers dziedziczył zgłoszenie przez sharp; nie był drugim niezależnym dekoderem.
+
+Wąski override do **sharp 0.35.5** obejmuje wyłącznie dokładnego rodzica Transformers 3.8.1 ([package.json](package.json)). **Jest poza deklarowanym zakresem upstream `^0.34.1`**: jawny wyjątek sprawdzony testami, nie gwarancja kompatybilności upstream ani zwykła aktualizacja semver. Sprawdzono oficjalne advisory/release notes, wymagania Node i używane API. Nie migrowano Transformers do v4, nie usunięto locka i nie użyto `audit fix --force`. Szczegóły i ograniczenia: [SECURITY_REVIEW.md](SECURITY_REVIEW.md).
+
+Zimny import Node Transformers rzeczywiście ładuje natywny sharp, także w istniejącym teście tokenizera; nie należy pisać, że sharp nigdy nie jest ładowany. Przygotowanie modeli jest w Pythonie, kopiowanie zasobów nie dekoduje obrazów, a Vite rozwiązuje export przeglądarkowy. Aplikacja WWW nie przyjmuje obrazów i nie zawiera natywnych dekoderów sharp/libvips. Po zmianie wszystkie pliki JS/CSS/WASM/VAD i HTML były **bajtowo identyczne** z bazą etapu 2; z 15 plików innych niż wagi zmieniły się jedynie `notices.txt` i hash cache w `sw.js`. Osobno potwierdzono SHA wag. Nowy test sprawdza rzeczywisty Node `RawImage` (dekodowanie własnego RGB/RGBA PNG i resize), bez nieufnych obrazów.
+
+### Bieżące bramki automatyczne
+
+| Bramka | Wynik dla `23c1a7a` |
+|---|---|
+| `npm test` | **17/17 PASS**, w tym nowy test zgodności sharp/RawImage i istniejące znaczące testy zatrzymanego HTTP, ponowienia, SHA i Stop |
+| `npm run build` | **PASS**, TypeScript + Vite 8.3.5 |
+| `python3 scripts/verify-models.py --directory dist` | **PASS**: 34 artefakty / 514 438 880 B, długości i SHA-256 zgodne z lockiem |
+| `npm run test:csp` | **PASS**: dev ma style i świeży nonce na żądanie; dev/preview blokują obce inline JS/CSS; brak produkcyjnego `unsafe-inline`/`unsafe-eval` i nonce dev |
+| `FULL_PREVIEW_TEST=1 npm run test:preview` | **PASS**, prefiksy proxy z/bez `/`, odzyskanie po awariach/timeoutach startu, HTTP/SHA wszystkich modeli, rzeczywisty MT przy zablokowanym mikrofonie iframe |
+| Rzeczywisty MT PL–NL–EN | **18/18 technicznych PASS**: 6 kierunków online + 6 powtórzeń z cache + 6 po przeładowaniu offline. To nie jest ocena językowa całych tłumaczeń. |
+| Kontrolowany WAV → VAD → Whisper → MT | **3/3 kolejne PASS**, pełne zdanie EN→NL, bez ponawiania porażek i bez atrap ASR/MT |
+| Stop / odmowa mikrofonu / historia | **PASS** w zakresie automatyzacji; Stop w mowie nie dopisuje późnych wierszy, natywne fake-track kończą się, odmowa jest czytelna, historia usuwalna |
+| Brak głosu lokalnego | **PASS fallbacku**: czytelne „Brak lokalnego głosu: Niderlandzki”, zachowane tłumaczenie i aktywne pole tekstowe; `voices: []` |
+| Zewnętrzne originy / błędy strony | **0 / 0** w obserwowanym przebiegu; nie jest to audyt połączeń całego systemu operacyjnego |
+| `npm audit --json` | **0 podatności**, exit 0 w bieżącym rejestrze. Nie jest to audyt całego produktu ani akceptacja ryzyk przez właściciela. |
+| Fizyczny Android/iPhone, lokalny TTS i odsłuch offline | **NIEPRZETESTOWANE** |
+| GitHub CI | **BRAK** kontroli/uruchomień dla poprzedniego head; nie dodawano ani nie zmieniano Actions. Lokalny PASS nie oznacza PASS CI. |
+
+### Co test audio rzeczywiście sprawdza
+
+| Odcinek | Rzeczywisty zakres / substytucja |
+|---|---|
+| Zgoda / urządzenie | Playwright nadaje uprawnienie programowo, Chromium używa `--use-fake-device-for-media-stream`. Wywołanie natywnego `getUserMedia` jest rzeczywiste, ale **nie ma fizycznego mikrofonu ani kliknięcia zgody w systemowym UI**. Osobny kontekst sprawdza odmowę. |
+| Strumień zwracany aplikacji | [scripts/audio-fixture.mjs:13](scripts/audio-fixture.mjs#L13) opakowuje `getUserMedia`. Natywny sygnał fake-device przechodzi przez gain=0; aplikacja dostaje **zastępczy, rzeczywisty WebAudio MediaStreamDestination** z jednorazowym fikcyjnym WAV (linie 18–21, 35–40, 57). |
+| Synchronizacja | Odtwarzanie dopiero przy `listening`, żywej/włączonej ścieżce i AudioContext `running` (linie 30–42). Brak arbitralnych 20 s ciszy, pętli lub próby odtwarzania przed gotowością VAD. |
+| VAD / ASR / MT | Produkcyjny capture/AudioWorklet, Silero VAD, Whisper i Opus-MT wykonują rzeczywiste obliczenia z wagami. Nie podmieniono modeli, transkrypcji, funkcji inferencji ani tłumaczeń. |
+| Asercje | [scripts/browser-test.mjs:242](scripts/browser-test.mjs#L242) wymaga **całego** znormalizowanego zdania ASR i MT oraz osobnego wywołania natywnego API dla każdej próby. Sprawdzana jest gotowość, nie samo upłynięcie czasu. |
+| Stop | Helper opakowuje `track.stop()` i sam zwalnia fake-input/AudioContext (linie 45–54); asercje sprawdzają zakończenie ścieżek i brak nowych wyników. To integracja aplikacji z glue testowym, **nie dowód zwolnienia fizycznego sterownika telefonu**. |
+
+Wyniki trzech kolejnych prób po zmianie zależności:
+
+| Próba | Start → gotowość | WAV → wynik | Łącznie | ASR / MT wg UI |
+|---|---:|---:|---:|---|
+| 1 | 2,406 s | 6,887 s | 9,296 s | 2,5 / 1,1 s |
+| 2 | 1,825 s | 6,299 s | 8,127 s | 2,2 / 0,8 s |
+| 3 | 1,462 s | 6,084 s | 7,549 s | 2,0 / 0,8 s |
+
+Każda próba: **ASR `The blue bicycle is next to the house.` → MT `De blauwe fiets ligt naast het huis.`**; `phaseAtPlay: listening`, `trackEnabled: true`, `contextState: running`, nativeCalls 1/2/3. WAV trwa 4,615 s; czasy obejmują wypowiedź i decyzję VAD, nie są benchmarkiem telefonu. Wynik `stoi → ligt` pozostaje znanym **błędem semantycznym**, mimo technicznego PASS. Nie obniżono kryteriów rozpoznania całej wypowiedzi.
+
+### Dowody, odtworzenie i otwarte bramki
+
+Surowe wyniki są lokalne i ignorowane przez Git, bez wag/nagrań w commicie. Raporty zawierają SHA i `passed: true`; zestawienie skrótów pozwala rozpoznać ten konkretny przebieg, ale nie zastępuje jego powtórzenia:
+
+| Plik w `test-results/` | SHA-256 |
+|---|---|
+| `stage2-validation.log` | `a74d79107446b14eeeb1c7df4f34f4304ca453f5b3ff968bead548a93250a7ac` |
+| `browser-results.json` | `10dee16a35b94f38caf69c4425e530bc6d297a5619c2770de506428833831272` |
+| `preview-results.json` | `90e3ad22fd40629818a0fffe5e410e2cb226375b8e2b77d51c6e0f46ebc08b8c` |
+| `csp-results.json` | `68f7424b709aee33d7200b36d4f74366f4c24917d1b899508f275a3e6b996a17` |
+| `stage2-npm-audit.json` | `ccdfb4e40159698212cd681272a8b801322820f2f312e426c04eb16c3ac94c8a` |
+
+Odtworzenie z istniejącymi zależnościami/modelami: `npm test`, `npm run build`, `python3 scripts/verify-models.py --directory dist`; uruchomić lokalny preview na 5180, następnie `npm run test:csp` i `FULL_PREVIEW_TEST=1 npm run test:preview`. Polecenia instalacji/pozyskania wag są w README. Nie pobierano nowych modeli ani narzędzi w etapie 2; zaktualizowano istniejącą zależność sharp i jej lock.
+
+[MOBILE_ACCEPTANCE.md](MOBILE_ACCEPTANCE.md) oddziela automatyzację od fizycznych prób: tekst 6 kierunków, ASR PL/NL/EN, rzeczywisty lokalny TTS każdego języka z odsłuchem offline, fallback bez głosu, 514 MB pobrania i dodatkowe miejsce, RAM/opóźnienia, przerwania/Stop/PWA/cache/historia/prywatność. Negacje, liczby, jednostki i ich zachowanie ocenia człowiek dwujęzyczny; utrata/zmiana daje FAIL próbki. **Odsłuch, pomiary telefonów i ocena językowa pozostają NIEPRZETESTOWANE.** Do ich wykonania potrzebny jest zatwierdzony istniejący prywatny HTTPS i dostępni testerzy/urządzenia; zebrano wymagania, nie uruchomiono HTTPS, tunelu ani nowej usługi. Brak CI pozostaje otwarty. UK/RU/ES, architektura i modele bez zmian; brak wdrożenia/merge lub zmian main/uprawnień/Issues.
+
+---
+
+## Historia — etap 1 (wyniki dla 24820238)
 
 **Testowany commit kodu: `24820238b8da7c26f2bd297d1024404f4204eec8`.** Raporty przeglądarkowe zawierają `sourceSha` z tą wartością i `sourceDirty: false`. Bieżący pełny przebieg Chromium: **23.10.2026, 12:05:13–12:06:22 UTC**; poprzedzały go build/logika i kontrola CSP (12:04 UTC). Późniejszy commit tego raportu zmienia wyłącznie dokumentację wyników; nie należy mylić jego SHA z SHA testowanego kodu.
 
@@ -30,9 +101,9 @@ ASR/MT raportowane przez aplikację odpowiednio: 2,0/0,9 s, 1,9/0,9 s i 1,9/0,7 
 
 Chromiumowy plik fake-device wcześniej biegł od otwarcia `getUserMedia`, również gdy aplikacja wyciszała ścieżkę podczas inicjalizacji. Audyt bazy `488a23ea2f2522182ec04335679f942824742317` zakończył pełną serię FAIL z transkrypcją `to the house.`. Preroll 20 s pomógł w diagnozie, ale **nie jest używany w nowym teście**.
 
-Nowy [scripts/audio-fixture.mjs](scripts/audio-fixture.mjs) wywołuje natywne `getUserMedia` dla zgody/natywnego przechwytywania, wycisza natywny fake-input i podaje fikcyjny WAV przez rzeczywisty strumień WebAudio. Źródło jest jednorazowe i nie rusza przed `listening`, włączoną żywą ścieżką i działającym AudioContext. Stan `listening` w aplikacji następuje po oczekiwaniu na `capture.start()`/VAD. Wszystkie 3 raporty potwierdzają `phaseAtPlay: listening`, `trackEnabled: true`, `contextState: running` i osobne wywołania natywnego API 1/2/3. ASR i MT nie są przechwytywane ani zastępowane. Asercja porównuje całe zdanie po normalizacji wielkości liter/interpunkcji, zamiast samego słowa bicycle/fiets.
+Nowy [scripts/audio-fixture.mjs](scripts/audio-fixture.mjs) wywołuje natywne `getUserMedia` z uprawnieniem nadanym programowo przez Playwright i urządzeniem fake-device, wycisza natywny fake-input i podaje fikcyjny WAV przez rzeczywisty strumień WebAudio. Źródło jest jednorazowe i nie rusza przed `listening`, włączoną żywą ścieżką i działającym AudioContext. Stan `listening` w aplikacji następuje po oczekiwaniu na `capture.start()`/VAD. Wszystkie 3 raporty potwierdzają `phaseAtPlay: listening`, `trackEnabled: true`, `contextState: running` i osobne wywołania natywnego API 1/2/3. ASR i MT nie są przechwytywane ani zastępowane. Asercja porównuje całe zdanie po normalizacji wielkości liter/interpunkcji, zamiast samego słowa bicycle/fiets.
 
-To kontrolowany test integracyjny MediaStream/VAD/ASR/MT z rzeczywistym sprawdzeniem zgody przez API; **nie test fizycznego mikrofonu ani akustyki telefonu**. UI przypomina, by zaczekać na „Słucham”. Wynik holenderski pozostaje znanym przypadkiem do ludzkiej oceny semantyki, nie zatwierdzonym tłumaczeniem medycznym.
+To kontrolowany test integracyjny MediaStream/VAD/ASR/MT z wywołaniem natywnego API; **nie test fizycznego mikrofonu, systemowego okna zgody ani akustyki telefonu**. UI przypomina, by zaczekać na „Słucham”. Wynik holenderski pozostaje znanym przypadkiem do ludzkiej oceny semantyki, nie zatwierdzonym tłumaczeniem medycznym.
 
 ### Timeout, poprawki i granice weryfikacji
 
