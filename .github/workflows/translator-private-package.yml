@@ -57,7 +57,14 @@ jobs:
           npm --version
           python3 --version
           "$CHROMIUM_PATH" --version
-          ffmpeg -hide_banner -filters 2>&1 | grep ' flite '
+          if ! command -v ffmpeg > /dev/null; then
+            sudo apt-get update
+            sudo apt-get install --yes --no-install-recommends ffmpeg
+          fi
+          if ! ffmpeg -hide_banner -filters 2>&1 | grep ' flite '; then
+            echo '::error title=Audio fixture prerequisite::FFmpeg with the flite filter is required; no model download or upload has started.'
+            exit 1
+          fi
 
       - name: Install only the prototype's locked dependencies
         run: |
