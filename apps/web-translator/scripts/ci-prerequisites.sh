@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Standard free Ubuntu runner only. No host changes, credentials or extra repos.
+# Disposable free Ubuntu CI VM only; never the deployment host. No credentials.
 set -euo pipefail
 node --version
 npm --version
@@ -12,10 +12,11 @@ if ! command -v ffmpeg > /dev/null; then
   # Keep Ubuntu suites, signing keys and signature verification unchanged.
   sudo python3 - <<'PY'
 from pathlib import Path
+import re
 for file in [Path('/etc/apt/sources.list'), Path('/etc/apt/sources.list.d/ubuntu.sources')]:
     if file.is_file():
         original = file.read_text()
-        updated = original.replace('http://azure.archive.ubuntu.com/ubuntu/', 'https://archive.ubuntu.com/ubuntu/').replace('https://azure.archive.ubuntu.com/ubuntu/', 'https://archive.ubuntu.com/ubuntu/')
+        updated = re.sub(r'https?://azure\.archive\.ubuntu\.com(?=[/\s]|$)', 'https://archive.ubuntu.com', original)
         if updated != original:
             file.write_text(updated)
             print('Using the official signed Ubuntu archive in', file)
