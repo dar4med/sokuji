@@ -62,7 +62,7 @@
           >
         </div>
         <fieldset class="speaker">
-          <legend>Kto teraz mówi?</legend>
+          <legend>Kto teraz mówi lub pisze?</legend>
           <div>
             <button id="source-a" type="button" aria-pressed="true">
               Polski</button
@@ -71,9 +71,12 @@
             </button>
           </div>
         </fieldset>
+        <p id="direction-info" class="turn-hint" aria-live="polite">Teraz: Polski → Niderlandzki</p>
         <p class="turn-hint">
-          Rozmowa naprzemienna. Zmień język, gdy głos zabiera druga osoba. Nie
-          musisz przytrzymywać przycisku.
+          Wybierz dowolne dwa języki powyżej, także Angielski (EN).
+          Przyciskami wybierz język osoby, która mówi lub pisze.
+          Zmiana pary języków automatycznie zatrzymuje mikrofon.
+          Nie musisz przytrzymywać przycisku.
           Zacznij mówić dopiero po komunikacie „Słucham”.
         </p>
         <button id="start" class="primary" type="button" disabled>
@@ -148,7 +151,7 @@
           <p>
             Odczyt korzysta wyłącznie z głosów oznaczonych przez system jako
             lokalne. Głos może wymagać wcześniejszego zainstalowania w
-            ustawieniach telefonu. Sprawdź odczyt również bez Internetu.
+            ustawieniach systemu tego urządzenia. Sprawdź odczyt również bez Internetu.
           </p>
           <button id="delete-models" class="quiet" type="button">
             Usuń pobrane modele z tego urządzenia

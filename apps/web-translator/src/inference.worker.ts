@@ -2,6 +2,7 @@
 import { env, pipeline } from "@huggingface/transformers";
 import { modelCacheName, artifactUrl } from "./cache.ts";
 import { LANGUAGES, route, type Lang, type Model } from "./core.ts";
+import { audibleAudio, repeatedTranscript } from "./asr-quality.ts";
 
 type Pipe = { dispose(): Promise<void> } & ((
   input: string | Float32Array,
@@ -104,13 +105,20 @@ self.onmessage = async ({ data }) => {
       result = { text: await translate(data.text, data.source, data.target) };
     else if (type === "recognize") {
       if (!asr) throw new Error("Rozpoznawanie mowy nie jest gotowe.");
-      const output = await (asr as any)(data.audio, {
-        language: LANGUAGES[data.source as Lang].asr,
-        task: "transcribe",
-        max_new_tokens: 128,
-        return_timestamps: false,
-      });
-      result = { text: output.text.trim() };
+      if (!audibleAudio(data.audio)) {
+        result = { text: "", warning: "Nie wykryto dostatecznie słyszalnej wypowiedzi. Podejdź do mikrofonu i powtórz zdanie." };
+      } else {
+        const output = await (asr as any)(data.audio, {
+          language: LANGUAGES[data.source as Lang].asr,
+          task: "transcribe",
+          max_new_tokens: 128,
+          return_timestamps: false,
+        });
+        const text = output.text.trim();
+        result = repeatedTranscript(text)
+          ? { text: "", warning: "Rozpoznawanie zwróciło wiele powtórzeń. Pominięto niepewny wynik. Wyłącz muzykę w tle i powtórz krótkie zdanie." }
+          : { text };
+      }
     } else throw new Error("Nieznane polecenie silnika.");
     self.postMessage({ id, result, ms: Math.round(performance.now() - began) });
   } catch (error) {

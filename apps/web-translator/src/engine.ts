@@ -55,7 +55,7 @@ export class LocalEngine {
   recognize(
     audio: Float32Array,
     source: Lang,
-  ): Promise<{ text: string; ms: number }> {
+  ): Promise<{ text: string; ms: number; warning?: string }> {
     return this.call("recognize", { audio, source }, [audio.buffer]);
   }
   translate(

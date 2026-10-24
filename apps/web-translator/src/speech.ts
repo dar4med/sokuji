@@ -24,7 +24,7 @@ export async function speakLocal(
   }
   if (signal.aborted) return null;
   if (!voice)
-    return `Brak lokalnego głosu: ${LANGUAGES[target].name}. Zainstaluj głos w ustawieniach telefonu. Nie używamy zastępczego głosu chmurowego.`;
+    return `Brak lokalnego głosu: ${LANGUAGES[target].name}. Tekst działa. Dodaj bezpłatny głos w ustawieniach systemu tego urządzenia (Windows, Android lub iPhone), a potem otwórz przeglądarkę ponownie. Nie używamy zastępczego głosu chmurowego.`;
   const warning = await new Promise<string | null>((resolve) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.voice = voice!;

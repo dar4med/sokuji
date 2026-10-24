@@ -16,6 +16,7 @@ function deferred<T>() {
 }
 function fixture(overrides: Partial<Resources> = {}) {
   const events: string[] = [],
+    warnings: string[] = [],
     rows: Entry[] = [],
     states: Phase[] = [];
   const resources: Resources = {
@@ -46,9 +47,9 @@ function fixture(overrides: Partial<Resources> = {}) {
     prepare: async () => resources,
     state: (p) => states.push(p),
     entry: (e) => rows.push(e),
-    warning: () => {},
+    warning: (message) => warnings.push(message),
   });
-  return { conversation, resources, events, rows, states };
+  return { conversation, resources, events, rows, states, warnings };
 }
 test("capture stays paused for the entire ASR → MT → TTS sequence", async () => {
   const f = fixture();
@@ -122,4 +123,16 @@ test("resources arriving after Stop are closed and never resumed", async () => {
   pending.resolve(f.resources);
   await starting;
   assert.deepEqual(f.events, ["close"]);
+});
+
+test("rejected ASR warns and resumes capture without creating a row, MT or TTS", async () => {
+  const f = fixture({ recognize: async () => ({ text: "", ms: 1, warning: "Repeat the sentence" }) });
+  await f.conversation.start();
+  f.events.length = 0;
+  await f.conversation.submit(new Float32Array(16000), "en", "nl");
+  assert.deepEqual(f.events, ["pause", "resume"]);
+  assert.deepEqual(f.rows, []);
+  assert.deepEqual(f.warnings, ["Repeat the sentence"]);
+  assert.equal(f.states.at(-1), "listening");
+  await f.conversation.stop();
 });

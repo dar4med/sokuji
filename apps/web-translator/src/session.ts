@@ -22,7 +22,7 @@ export interface Resources {
   recognize(
     audio: Float32Array,
     source: Lang,
-  ): Promise<{ text: string; ms: number }>;
+  ): Promise<{ text: string; ms: number; warning?: string }>;
   translate(
     text: string,
     source: Lang,
@@ -112,7 +112,9 @@ export class Conversation {
         typeof input === "string"
           ? { text: input.trim(), ms: 0 }
           : await resources.recognize(input, source);
-      if (!valid() || !recognized.text) return;
+      if (!valid()) return;
+      if ("warning" in recognized && recognized.warning) this.ports.warning(recognized.warning);
+      if (!recognized.text) return;
       const entry: Entry = {
         id: ++this.rowId,
         source,

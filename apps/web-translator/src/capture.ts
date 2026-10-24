@@ -15,10 +15,11 @@ export async function createCapture(
   let speaking = false;
   let limited = false;
   let destroyed = false;
+  let paused = true;
   let vad: MicVAD;
   vad = await MicVAD.new({
     model: "v5",
-    startOnLoad: true,
+    startOnLoad: false,
     audioContext: context,
     baseAssetPath: new URL("vad/", base).href,
     onnxWASMBasePath: new URL("runtime/", base).href,
@@ -42,21 +43,23 @@ export async function createCapture(
     minSpeechMs: 300,
     submitUserSpeechOnPause: false,
     onSpeechStart() {
+      if (paused || destroyed) return;
       speaking = true;
       speechFrames = 0;
       limited = false;
       callbacks.start();
     },
     onVADMisfire() {
+      if (paused || destroyed) return;
       speaking = false;
       callbacks.misfire();
     },
     onSpeechEnd(audio) {
       speaking = false;
-      if (!limited) callbacks.end(audio);
+      if (!limited && !paused && !destroyed) callbacks.end(audio);
     },
     onFrameProcessed(_probability, frame) {
-      if (speaking && !limited) {
+      if (speaking && !limited && !paused && !destroyed) {
         speechFrames += frame.length;
         if (speechFrames > 20 * 16000) {
           limited = true;
@@ -80,15 +83,19 @@ export async function createCapture(
   return {
     async start() {
       if (destroyed) return;
+      paused = false;
       for (const track of stream.getAudioTracks()) track.enabled = true;
       await vad.start();
     },
     async pause() {
+      paused = true;
+      for (const track of stream.getAudioTracks()) track.enabled = false;
       if (!destroyed) await vad.pause();
     },
     async destroy() {
       if (destroyed) return;
       destroyed = true;
+      paused = true;
       await vad.destroy();
     },
   };

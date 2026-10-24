@@ -49,6 +49,15 @@ let currentModels: Model[] = [];
 let storageGeneration = 0;
 const entries = new Map<number, Entry>();
 let replaying = false;
+let changingPair = false;
+
+// One language registry drives both selectors and collision resolution.
+for (const select of [a, b]) {
+  const selected = select.value;
+  select.replaceChildren(...Object.entries(LANGUAGES).map(([code, language]) =>
+    new Option(`${language.name} (${code.toUpperCase()})`, code)));
+  select.value = selected;
+}
 
 function message(id: "error" | "warning", text: string) {
   el(id).textContent = text;
@@ -57,34 +66,39 @@ function message(id: "error" | "warning", text: string) {
 const targetFor = (language: Lang): Lang =>
   language === a.value ? (b.value as Lang) : (a.value as Lang);
 const usable = () =>
-  !!manifest && ["idle", "error", "listening"].includes(phase) && !replaying;
+  !!manifest && ["idle", "error", "listening"].includes(phase) && !replaying && !changingPair;
 
 function renderControls() {
   const active = conversation.active;
-  a.disabled = active || replaying;
-  b.disabled = active || replaying;
+  const microphoneActive = active && audioMode;
+  a.disabled = !usable();
+  b.disabled = !usable();
   el<HTMLButtonElement>("source-a").disabled = !usable();
   el<HTMLButtonElement>("source-b").disabled = !usable();
   el("source-a").textContent = LANGUAGES[a.value as Lang].name;
   el("source-b").textContent = LANGUAGES[b.value as Lang].name;
   el("source-a").setAttribute("aria-pressed", String(source === a.value));
   el("source-b").setAttribute("aria-pressed", String(source === b.value));
-  start.disabled = !manifest || replaying || (!!microphoneIssue && !active);
-  start.classList.toggle("stopping", active);
-  start.querySelector("span")!.textContent = active
+  el("direction-info").textContent =
+    `Teraz: ${LANGUAGES[source].name} → ${LANGUAGES[targetFor(source)].name}`;
+  start.disabled = !manifest || replaying || changingPair || (!!microphoneIssue && !microphoneActive);
+  start.classList.toggle("stopping", microphoneActive);
+  start.querySelector("span")!.textContent = microphoneActive
     ? "Zakończ rozmowę"
     : "Rozpocznij rozmowę";
   send.disabled = !usable() || !typed.value.trim();
   el<HTMLButtonElement>("delete-models").disabled = active || replaying;
   for (const button of document.querySelectorAll<HTMLButtonElement>(".replay"))
-    button.disabled = active || replaying;
+    button.disabled = !usable();
 }
 
 function state(next: Phase, text?: string) {
   phase = next;
   const labels: Record<Phase, string> = {
     idle: "Gotowe, kiedy Ty jesteś.",
-    preparing: "Przygotowuję lokalny silnik. Zaczekaj na „Słucham”, zanim zaczniesz mówić.",
+    preparing: audioMode
+      ? "Przygotowuję lokalny silnik. Zaczekaj na „Słucham”, zanim zaczniesz mówić."
+      : "Przygotowuję lokalne tłumaczenie tekstu…",
     listening: audioMode
       ? "Słucham. Teraz możesz mówić."
       : "Tryb tekstowy. Wpisz wiadomość poniżej.",
@@ -130,13 +144,16 @@ function renderEntry(entry: Entry) {
     replay.type = "button";
     replay.className = "quiet replay";
     replay.textContent = "Odczytaj ↗";
+    replay.title = "Odczytaj lokalnym głosem. Mikrofon zostanie zatrzymany.";
     replay.addEventListener("click", async () => {
-      if (conversation.active || replaying) return;
+      if (!usable()) return;
       const current = entries.get(entry.id);
       if (!current?.translated) return;
       replaying = true;
       renderControls();
       try {
+        await conversation.stop();
+        el("status").textContent = "Odczytuję. Mikrofon jest wyłączony.";
         const warning = await speakLocal(
           current.translated,
           current.target,
@@ -145,7 +162,7 @@ function renderEntry(entry: Entry) {
         if (warning) message("warning", warning);
       } finally {
         replaying = false;
-        renderControls();
+        state("idle");
       }
     });
     foot.append(timing, replay);
@@ -354,16 +371,25 @@ async function pairChanged() {
     state("error", microphoneError(error));
   }
 }
-a.addEventListener("change", () => {
-  if (a.value === b.value)
-    b.value = ["pl", "nl", "en"].find((l) => l !== a.value)!;
-  void pairChanged();
-});
-b.addEventListener("change", () => {
-  if (a.value === b.value)
-    a.value = ["pl", "nl", "en"].find((l) => l !== b.value)!;
-  void pairChanged();
-});
+async function changeLanguage(changed: HTMLSelectElement, other: HTMLSelectElement) {
+  if (changingPair) return;
+  changingPair = true;
+  if (changed.value === other.value)
+    other.value = Object.keys(LANGUAGES).find((code) => code !== changed.value)!;
+  source = a.value as Lang;
+  renderControls();
+  try {
+    await conversation.stop();
+    await pairChanged();
+    if (phase !== "error")
+      el("status").textContent = "Języki zmienione. Wpisz tekst lub rozpocznij rozmowę głosową.";
+  } finally {
+    changingPair = false;
+    renderControls();
+  }
+}
+a.addEventListener("change", () => void changeLanguage(a, b));
+b.addEventListener("change", () => void changeLanguage(b, a));
 el("source-a").addEventListener("click", () => {
   if (usable()) {
     source = a.value as Lang;
@@ -377,11 +403,13 @@ el("source-b").addEventListener("click", () => {
   }
 });
 start.addEventListener("click", async () => {
-  if (conversation.active) {
+  if (conversation.active && audioMode) {
     await conversation.stop();
     void pairChanged();
     return;
   }
+  // A previous typed translation must not consume the microphone's first click.
+  if (conversation.active) await conversation.stop();
   audioMode = true;
   message("error", "");
   message("warning", "");

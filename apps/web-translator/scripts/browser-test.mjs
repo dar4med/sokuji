@@ -101,9 +101,12 @@ async function stop() {
   }
 }
 async function selectPair(from, to) {
-  await stop();
+  // Exercise the real UI regression: never manually Stop a text session first.
   await page.locator("#language-a").selectOption(from);
   await page.locator("#language-b").selectOption(to);
+  await page.waitForFunction(() => !document.querySelector("#language-a").disabled);
+  assert.match(await page.locator("#direction-info").innerText(), new RegExp(
+    `${await page.locator("#source-a").innerText()} → ${await page.locator("#source-b").innerText()}`));
 }
 async function translate(from, to, input, expected, offline = false) {
   await selectPair(from, to);
@@ -156,7 +159,11 @@ async function translate(from, to, input, expected, offline = false) {
       audibleTTS: "NIEPRZETESTOWANE" };
   }
   console.log(`PASS ${from}→${to}${offline ? " offline" : ""}: ${translated}`);
-  await stop();
+  await page.waitForFunction(() => document.querySelector("#status").dataset.phase === "listening",
+    null, { timeout: 10000 });
+  assert.equal(await page.locator("#language-a").isEnabled(), true);
+  assert.equal(await page.locator("#language-b").isEnabled(), true);
+  assert.match(await page.locator("#start").innerText(), /Rozpocznij/);
 }
 
 const routes = [
@@ -190,6 +197,9 @@ try {
     0,
   );
   await page.locator(".text-mode summary").click();
+  assert.deepEqual(await page.locator("#language-a option").evaluateAll(options => options.map(o => o.value)),
+    ["pl", "nl", "en"]);
+  assert.equal(await page.locator("#language-b option[value=en]").innerText(), "Angielski (EN)");
   for (const args of routes) await translate(...args);
   report.checks.push(
     "All six real translation routes produced the expected object, including both English pivots.",
@@ -208,7 +218,7 @@ try {
   // Three consecutive native permission + real MediaStream/VAD/ASR/MT runs.
   // A controlled WebAudio source is started only after the production VAD start
   // has resolved and the application has enabled the microphone track.
-  await selectPair("en", "nl");
+  await translate(...routes[0]); // Keep text mode active: one click must start the microphone.
   for (let run = 1; run <= 3; run++) {
     const count = await page.locator(".entry").count();
     const began = Date.now();
@@ -256,6 +266,14 @@ try {
       window.__qaAudio.microphone.getTracks().every(t => t.readyState === "ended"));
   }
   report.checks.push("Three consecutive readiness-synchronized audio runs recognize the entire sentence; native capture released after Stop.");
+  report.checks.push("All six directions remain selectable after typed translations without Stop; one click switches text mode to microphone.");
+  await page.locator("#start").click();
+  await page.waitForFunction(() => document.querySelector("#status").dataset.phase === "listening");
+  await page.locator("#language-b").selectOption("pl");
+  await page.waitForFunction(() => document.querySelector("#status").dataset.phase === "idle" &&
+    window.__qaAudio.stopped && window.__qaAudio.microphone.getTracks().every(t => t.readyState === "ended"));
+  report.checks.push("Changing the language pair while listening stops native capture and VAD without manual Stop.");
+  await selectPair("en", "nl");
   report.voices = await page.evaluate(() =>
     speechSynthesis
       .getVoices()
