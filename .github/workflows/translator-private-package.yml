@@ -1,21 +1,30 @@
-name: Translator private static package
+name: Translator manual build and FTPS deployment
 
-# One full delivery only. Account owner confirmed Actions+Packages storage
-# 0 GB / 0.5 GB on 2026-10-23. Do not rerun after a successful upload without
-# checking remaining shared allowance / expiration of the previous artifact.
-# Upload only the precompressed ZIP and small extras, never dist/ or payload/.
-# CSP readiness uses HTTP, including when CI suppresses Vite's startup banner.
+# Reuse registered workflow ID 394420703. Remains disabled until future approval.
+# No push/PR trigger, no artifact upload and no protection-provisioning mode.
+# Owner must configure the protected translator-test Environment BEFORE enabling.
 on:
   workflow_dispatch:
-  push:
-    branches: [feature/voice-translator-mvp]
-    paths: [.github/workflows/translator-private-package.yml]
+    inputs:
+      mode:
+        description: Build and anonymous preflight, or explicitly approved first deployment
+        type: choice
+        options: [build-preflight, deploy]
+        default: build-preflight
+      approve_deployment:
+        description: Future owner approval of first payload transfer (protection must already work)
+        type: boolean
+        default: false
+      approval_sha:
+        description: Exact reviewed 40-character source SHA; required for deploy
+        type: string
+        default: ''
 
 permissions:
   contents: read
 
 concurrency:
-  group: translator-private-static-package
+  group: translator-test-ftps-single-writer
   cancel-in-progress: false
 
 jobs:
@@ -23,9 +32,11 @@ jobs:
     if: >-
       github.repository == 'dar4med/sokuji' &&
       github.ref == 'refs/heads/feature/voice-translator-mvp' &&
+      github.event_name == 'workflow_dispatch' &&
       github.event.repository.private == false
+    environment: translator-test
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: apps/web-translator
@@ -34,6 +45,22 @@ jobs:
       CHROMIUM_PATH: /usr/bin/google-chrome
       OMP_NUM_THREADS: '2'
     steps:
+      - name: Validate manual intent before checkout or network transfer
+        env:
+          DEPLOY_MODE: ${{ inputs.mode }}
+          DEPLOY_APPROVED: ${{ inputs.approve_deployment }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+        working-directory: ${{ github.workspace }}
+        run: |
+          python3 - <<'PY'
+          import os
+          mode = os.environ['DEPLOY_MODE']
+          assert mode in ['build-preflight', 'deploy'], 'Unknown mode'
+          if mode == 'deploy':
+              assert os.environ['DEPLOY_APPROVED'] == 'true', 'Explicit transfer approval required'
+              assert os.environ['APPROVAL_SHA'] == os.environ['GITHUB_SHA'], 'Reviewed SHA must equal this run SHA'
+          PY
+
       - name: Checkout this exact source revision without persisted credentials
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -53,6 +80,7 @@ jobs:
 
       - name: Check standard runner browser and fictional-audio prerequisites
         run: |
+          python3 -m unittest discover -s tests -p test_deploy_ftps.py -v
           python3 scripts/ci-run.py bash scripts/ci-prerequisites.sh
 
       - name: Install only the prototype's locked dependencies
@@ -97,20 +125,18 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/package-private.py --output-dir "$RUNNER_TEMP/translator-packages"
-          python3 scripts/prepare-delivery.py --package-output "$RUNNER_TEMP/translator-packages" --delivery-dir "$RUNNER_TEMP/translator-delivery"
-          {
-            printf 'Source SHA: %s\n\n' "$GITHUB_SHA"
-            cat "$RUNNER_TEMP"/translator-packages/*.zip.delivery.json
-            printf '\nDelivery checksums:\n\n'
-            cat "$RUNNER_TEMP/translator-delivery/SUMY-DOSTAWY.sha256"
-          } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload ONE precompressed delivery, expire after one day
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: translator-private-static-${{ github.sha }}
-          path: ${{ runner.temp }}/translator-delivery/
-          compression-level: 0
-          retention-days: 1
-          if-no-files-found: error
-          overwrite: false
+      - name: Anonymous HTTPS gate only, without FTP or credentials
+        if: inputs.mode == 'build-preflight'
+        run: python3 scripts/deploy-ftps.py --package-dir "$RUNNER_TEMP/translator-packages" --check-anonymous
+
+      - name: Approved first deployment, only after real 401 and authenticated maintenance
+        if: inputs.mode == 'deploy' && inputs.approve_deployment && inputs.approval_sha == github.sha
+        env:
+          FTPS_USERNAME: ${{ secrets.FTPS_USERNAME }}
+          FTPS_PASSWORD: ${{ secrets.FTPS_PASSWORD }}
+          TRANSLATOR_BASIC_USERNAME: ${{ secrets.TRANSLATOR_BASIC_USERNAME }}
+          TRANSLATOR_BASIC_PASSWORD: ${{ secrets.TRANSLATOR_BASIC_PASSWORD }}
+          TRANSLATOR_HTACCESS_SHA256: ${{ vars.TRANSLATOR_HTACCESS_SHA256 }}
+        # Do not wrap secret-bearing transport in a generic raw-error logger.
+        run: python3 scripts/deploy-ftps.py --package-dir "$RUNNER_TEMP/translator-packages" --execute

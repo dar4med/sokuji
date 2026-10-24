@@ -1,5 +1,7 @@
 # Odtwarzanie pojedynczej dostawy w GitHub Actions
 
+**Historia dostawy c29b166bc4a79d03c012293ed7f6c83cffb3e9c6.** Poniższy opis dotyczy udanego artefaktu run 40008774472. Bieżący plik workflow został następnie przygotowany jako ręczny build/preflight/FTPS, bez triggera push i bez upload-artifact; pozostaje wyłączony. Aktualny plan, Secrets i blokady: [FTPS_DEPLOYMENT.md](FTPS_DEPLOYMENT.md). Nie uruchomiono go w fazie przygotowania.
+
 Workflow `.github/workflows/translator-private-package.yml` działa wyłącznie na `feature/voice-translator-mvp` w publicznym `dar4med/sokuji`. Push reaguje tylko na zmianę tego pliku. Nie używa głównego projektu Sokuji, sekretów, cache zależności ani cache modeli. Oficjalne akcje są przypięte do SHA odczytanych z ich repozytoriów. Checkout nie zachowuje poświadczeń. Odziedziczony Build and Release pozostaje wyłączony; dodatkowe guardy blokują wszystkie 13 odziedziczonych zadań w tym forku.
 
 `prepare-models.py --locked` nie odświeża locka, kart modeli ani licencji. Pobiera wyłącznie dotychczasowe rewizje i porównuje długość oraz SHA-256 wszystkich 34 wyników z `models.lock.json`. EN→PL odtwarza dotychczasową konwersję tokenizera i kwantyzację z przypiętej rewizji pełnych grafów. Metadane wejść także dotyczą tej rewizji. Dokładne wersje narzędzi pochodnych zapisano w `scripts/model-constraints.txt`; niezgodność wynikowego SHA kończy build, nie zmienia locka. Karty licencyjne są zachowane w Git. Runtime/WASM/VAD pochodzą z `npm ci` i istniejącego lockfile.
