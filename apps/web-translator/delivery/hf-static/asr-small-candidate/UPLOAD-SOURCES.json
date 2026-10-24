@@ -80,18 +80,18 @@
   "metadataFiles": [
     {
       "path": "licenses/models/asr/BASE_MODEL_CARD.md",
-      "bytes": 20153,
-      "sha256": "967fa44eefe5d3436e040b0f171fc54da67aad96923bae10af37dac9be5bb6b0"
+      "bytes": 20118,
+      "sha256": "ceb19fcb423307ae3db158ef244750b0a7c8f1887d804162804290196a7e9ed9"
     },
     {
       "path": "licenses/models/asr/MODEL_CARD.md",
-      "bytes": 533,
-      "sha256": "32beef908082737f4f48dc6cdbbf7774667a7e48740ce6bf0f686d37e4cfab81"
+      "bytes": 534,
+      "sha256": "7f33e077dbbe3ca0927fb069e2e784f81646b0d4248f6bad8499d2a9bffba716"
     },
     {
       "path": "licenses/models/asr/source.json",
-      "bytes": 543,
-      "sha256": "ebdd03fdcba4b052f2d0b84b82fd5784723f6818bfa992084fd2b213353bda81"
+      "bytes": 884,
+      "sha256": "a31ffbdcc5e668123422ea5c76f250f90960e657a4c0e7322310744b7b97024f"
     },
     {
       "path": "models-manifest.json",

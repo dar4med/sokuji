@@ -6,7 +6,12 @@
   "license": "apache-2.0",
   "licenseBasis": "Pinned upstream model card Apache-2.0; conversion card has no separate license field",
   "modelCardsSha256": {
+    "MODEL_CARD.md": "7f33e077dbbe3ca0927fb069e2e784f81646b0d4248f6bad8499d2a9bffba716",
+    "BASE_MODEL_CARD.md": "ceb19fcb423307ae3db158ef244750b0a7c8f1887d804162804290196a7e9ed9"
+  },
+  "upstreamRawModelCardsSha256": {
     "MODEL_CARD.md": "32beef908082737f4f48dc6cdbbf7774667a7e48740ce6bf0f686d37e4cfab81",
     "BASE_MODEL_CARD.md": "967fa44eefe5d3436e040b0f171fc54da67aad96923bae10af37dac9be5bb6b0"
-  }
+  },
+  "cardNormalization": "LF, strip trailing whitespace and final blank lines only; original upstream hashes preserved"
 }
