@@ -2,6 +2,10 @@
 
 Status tej fazy: kod i lokalne testy transportu z atrapą FTP/HTTPS. **Nie uruchomiono Actions, nie odczytano sekretów, nie zalogowano FTP, niczego nie wysłano na hosting.** Punktem odniesienia jest przetestowany pakiet `c29b166bc4a79d03c012293ed7f6c83cffb3e9c6`, run `40008774472` (34 pliki modeli, 74 pliki archiwum). Testy tego pakietu są historyczne względem bieżących zmian deploymentu, nie nowym wynikiem CI.
 
+Aktualizacja autoryzacji: właściciel zatwierdził osobny `connection-preflight`, a następnie ograniczony bootstrap ochrony bez payloadu. Dodany tryb połączenia używa wyłącznie TLS/login/PWD i MLSD docelowego katalogu, z blokadą komend zapisu na poziomie klienta. Nie buduje aplikacji ani modeli. Wymaga `approve_connection_preflight=true`, dokładnego `approval_sha` i osobnego zatwierdzenia Environment. Wynik realnego uruchomienia będzie oddzielnym dowodem; powyższy status dotyczy zakończonego przygotowania e78eaca, nie deklaruje wykonania nowych operacji.
+
+API potwierdziło required reviewer `dar4med`, brak prevent-self-review i dokładną gałąź `feature/voice-translator-mvp`. Odczyt nazw Secrets/Variables przez integrację: 403. Koordynator zweryfikował cztery nazwy Secrets, wyłączony administrator bypass i brak Variables w GitHub UI bez oglądania wartości. Żadnych ustawień ochrony nie zmieniano przez Codex.
+
 ## Potwierdzenia i otwarte bramki
 
 - Koordynator 2026-10-24 wykonał publiczny test **bez USER/PASS**: `dhostingdar.ftp.dhosting.pl:21`, AUTH TLS 234, TLS 1.3, domyślna weryfikacja łańcucha i hostname PASS, certyfikat `*.ftp.dhosting.pl` do `2027-02-13T23:59:59Z`, PBSZ 0 / PROT P 200. To dowód negocjacji prywatnego transportu, nie działania pasywnego kanału danych po zalogowaniu. Własna próba w Codex zatrzymała się na DNS; publiczny artykuł dhosting był niedostępny przez proxy (403). Nie obchodzono blokad i nie zgadywano innych hostów.

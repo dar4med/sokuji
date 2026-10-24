@@ -78,9 +78,9 @@ class VerifiedFTPS(ftplib.FTP_TLS):
             raise
 
 
-def connect_ftps(username, password):
+def connect_ftps(username, password, client_factory=None):
     require(username == FTP_USER, 'FTP account does not match the approved fixed account')
-    client = VerifiedFTPS(context=tls_context(), timeout=30)
+    client = (client_factory or VerifiedFTPS)(context=tls_context(), timeout=30)
     try:
         client.connect(FTP_HOST, FTP_PORT)
         client.auth()  # AUTH TLS before USER/PASS; certificate and hostname checked.
