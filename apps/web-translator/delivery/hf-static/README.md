@@ -18,3 +18,8 @@ Upload the existing static files under `translator-test/`, preserving their path
 Do not upload Apache `.htaccess`, `.htpasswd`, credentials, recordings or history.
 No Docker, Gradio, runtime server, app build, Secrets or client-side authentication.
 Access control is provided by the private Space and the owner's Hugging Face login.
+
+Do **not** add `app_build_command`, including an archive-extraction command:
+the observed Free-account build requires credits. Upload ready files directly.
+If folder upload is unavailable, use unique temporary upload names and the HF UI's
+Rename file operation to restore every exact `translator-test/...` path.

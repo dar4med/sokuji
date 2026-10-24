@@ -1,17 +1,21 @@
-# Private Static Space — przygotowanie, bez publikacji
+# Private Static Space — gotowe pliki bez płatnego buildera
 
-Jedna droga: Hugging Face **Static / Private**, natywne logowanie HF. Dokumentacja potwierdza darmowe Static Spaces, 100 GB prywatnego storage konta Free oraz `custom_headers` COOP/COEP/CORP. **Działanie na HF nie zostało sprawdzone**: nie mamy zalogowanego konta/Space.
+Jedna droga: Hugging Face **Static / Private**, natywne logowanie HF. Dokumentacja potwierdza darmowe serwowanie Static Spaces, 100 GB prywatnego storage konta Free oraz `custom_headers` COOP/COEP/CORP. Koordynator utworzył Private Static Space `dar4med/med-partners-translator-test`; pełna aplikacja na HF nadal nie została zaakceptowana testami.
+
+**Potwierdzony bloker z rzeczywistego UI:** po uploadzie archiwum i README z poleceniem rozpakowania Space zgłosił: `Static space builds require credits. Add credits to your account to use this feature.` Obecnie **`app_build_command` nie jest bezpłatnym wariantem**, nawet gdy wykonuje tylko sha256sum/tar i nie kompiluje kodu. Wcześniejsze sprawdzenie dostępności narzędzi w obrazie buildera nie potwierdzało braku opłat. Nie dodawać credits, karty ani płatnego planu. Usunąć `app_build_command` z frontmatter README Space i przesłać gotowe pliki bezpośrednio.
 
 ## Wymagane od właściciela
 
 Samodzielnie zalogować się lub założyć bezpłatne konto HF w przeglądarce koordynatora. Tworzenie Space i publikacja plików wymagają osobnej zgody. Wybrać **Static**, **Private**; bez PRO, Docker, Gradio, płatnego hardware i karty. Nie przekazywać haseł ani tokenów w czacie. Na własnym Androidzie właściciel loguje się tym samym swoim kontem. Osobni testerzy wymagają własnego uprawnionego dostępu HF; nie udostępniać im hasła właściciela.
 
-## Najmniejszy transfer — folder, bez budowania
+## Transfer gotowych plików, bez budowania
 
 1. Przygotować lokalny folder roboczy, zachowując oryginał paczki Windows. Do jego root skopiować przygotowany `README.md` jako README Space.
 2. Umieścić gotowy payload w podfolderze **`translator-test/`**, zachowując `index.html`, `assets/`, `models/`, `runtime/`, `vad/`, manifest i licencje. Zastosowana już nakładka UI ma kod `38d8c828b1dd521598a9263b747e62abba654029`. Nie kompilować i nie pobierać modeli ponownie. Zachować zweryfikowane noty/licencje wariantu Actions. Nie kopiować `.htaccess`, `.htpasswd`, plików hostingu, launcherów, źródeł, sekretów, nagrań ani historii. Starsze trzy JS pozostałe po overlay nie są wymagane przez nowy index/SW.
-3. Po zgodzie na publikację: użyć HF Files / Upload files, zachowując folder `translator-test` (nie spłaszczać nazw plików). Duże pliki mogą używać magazynu HF Xet/LFS zarządzanego przez interfejs; nie wklejać pointerów zamiast treści. Sprawdzić rozmiary w repo po zakończeniu uploadu. Jeżeli UI nie zachowa folderu albo nie obsłuży danego pliku, zatrzymać się — nie tworzyć tokena w czacie ani płatnego obejścia.
-4. Ten wariant **nie ma `app_build_command`**: nie potrzebuje buildera, rozpakowania archiwum, npm, Python, serwera ani compute. Nie uruchamiać ręcznie Jobs/Space Build. Jeżeli później będzie wymagane archiwum, osobno sprawdzić i przygotować wyłącznie statyczne rozpakowanie, bez zmiany SDK/planu.
+3. Po zgodzie na publikację użyć HF Files / Upload files. W zaobserwowanym UI input ma `multiple=true`, ale `webkitdirectory=false`; sam opis drag-folder nie potwierdza wyboru katalogu. Koordynator stosuje unikalne nazwy tymczasowe `MP-<indeks>-<basename>` oraz mapowanie do dokładnej docelowej ścieżki. Jest to konieczne, ponieważ wiele różnych plików modeli ma ten sam basename, np. `config.json`.
+4. Po uploadzie użyć HF UI **Rename file** do przywrócenia każdej pełnej ścieżki `translator-test/...`, według lokalnego zweryfikowanego manifestu. Root README musi finalnie nazywać się `README.md`. Zmieniać tylko nazwy/ścieżki plików w repo — nie modyfikować zawartości HTML/JS, nazw referencji w kodzie, modeli ani runtime. Przed uznaniem transferu za zakończony sprawdzić kompletność mapowania, rozmiary oraz zgodność hashy. Nie scalać kolidujących basename i nie uznawać nazw `MP-...` za działającą aplikację.
+5. Duże pliki mogą używać magazynu HF Xet/LFS zarządzanego przez interfejs; nie wklejać pointerów zamiast treści. Jeżeli Rename file nie przyjmie ścieżki lub transfer dużego pliku się nie powiedzie, zatrzymać się — bez tokena w czacie, nowego providera i płatnego obejścia.
+6. Ten wariant **nie ma `app_build_command`**: nie potrzebuje buildera, rozpakowania archiwum, npm, Python, serwera ani compute. Nie uruchamiać ręcznie Jobs/Space Build i nie ponawiać polecenia tar. Samo archiwum w repo nie zastępuje gotowych plików. Istniejące prywatne archiwum nie wymaga ponownego uploadu; nie zlecamy jego usuwania w ramach tej instrukcji.
 
 README wskazuje `translator-test/index.html`; przenośne `base: './'` gotowego builda ma działać na rzeczywistej ścieżce `/translator-test/`. Sprawdzić adres dokumentu i żądania do `/translator-test/assets/`, `/translator-test/models/`, `/translator-test/runtime/`, `/translator-test/vad/`. Nie zakładać, że alias root HF automatycznie zachowa tę ścieżkę. Jeśli platforma ją zmieni, zatrzymać się przed dalszymi zmianami payloadu.
 
