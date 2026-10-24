@@ -1,0 +1,7 @@
+ASR EXPERIMENTAL CANDIDATE — NOT THE DEFAULT RELEASE
+After explicit candidate installation, the ASR entry for Xenova/whisper-tiny above is superseded by:
+asr: onnx-community/whisper-small @36050c46d777d46dc4b5f43f6d90574fc38f8732
+Base: openai/whisper-small @973afd24965f72e36ca33b3055d56a652f456b4d
+License: Apache-2.0 (upstream model card; conversion card has no separate license field).
+See licenses/APACHE-2.0.txt and licenses/models/asr/{MODEL_CARD.md,BASE_MODEL_CARD.md,source.json}.
+Existing dependency and historical model notices are retained. No corpus recordings are included.

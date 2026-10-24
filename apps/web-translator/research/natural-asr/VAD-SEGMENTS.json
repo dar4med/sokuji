@@ -1,0 +1,171 @@
+{
+  "corpusSha256": "2f2e96ebcbc40957ddbe0a4c7e569719a7018378a90192f2c453db7bef727e1e",
+  "runtime": "Existing ORT1.22.0/SileroV5, WASM threads1, proxyfalse",
+  "config": {
+    "positiveSpeechThreshold": 0.55,
+    "negativeSpeechThreshold": 0.35,
+    "redemptionMs": 1400,
+    "preSpeechPadMs": 800,
+    "minSpeechMs": 300,
+    "submitUserSpeechOnPause": false
+  },
+  "method": "Actual MicVAD frameProcessor/processFrame; sequential offline512-sample input, final zero padding of1600ms. No WebAudio, capture/device timing, half-duplex loss, ASR or TTS simulated. This isolates segmentation; identical stored output used by both ASR models.",
+  "samples": [
+    {
+      "language": "pl",
+      "id": 1881,
+      "originalSamples": 132480,
+      "segments": [
+        {
+          "file": "segments/pl-1881-0.f32",
+          "bytes": 583680,
+          "samples": 145920,
+          "sha256": "6ec849c02568edd9cc9ad3f1f4374376e2c742596ac0a807ae5975e3f5b21fb1"
+        }
+      ]
+    },
+    {
+      "language": "pl",
+      "id": 1793,
+      "originalSamples": 188160,
+      "segments": [
+        {
+          "file": "segments/pl-1793-0.f32",
+          "bytes": 692224,
+          "samples": 173056,
+          "sha256": "160eb44abc968f6f6595eb2c4e0b02d549afa28a331b7b4cf398e2156fae2be6"
+        }
+      ]
+    },
+    {
+      "language": "pl",
+      "id": 2003,
+      "originalSamples": 97920,
+      "segments": [
+        {
+          "file": "segments/pl-2003-0.f32",
+          "bytes": 415744,
+          "samples": 103936,
+          "sha256": "1332d0871d1c2e8fe21475f0a006e3fe0b05ebd25998f58f9eb5db9006f7f286"
+        }
+      ]
+    },
+    {
+      "language": "pl",
+      "id": 1880,
+      "originalSamples": 94080,
+      "segments": [
+        {
+          "file": "segments/pl-1880-0.f32",
+          "bytes": 374784,
+          "samples": 93696,
+          "sha256": "1a9e386b574f808d55cd8c8b91eedbc6f5f94cc5f2534fb41c4354709fc111e8"
+        }
+      ]
+    },
+    {
+      "language": "pl",
+      "id": 1931,
+      "originalSamples": 224640,
+      "segments": [
+        {
+          "file": "segments/pl-1931-0.f32",
+          "bytes": 729088,
+          "samples": 182272,
+          "sha256": "aabcdfc85ad35372d73af97bac8189dd5c7ffaa21f061d3babe6b858d8fe1797"
+        }
+      ]
+    },
+    {
+      "language": "pl",
+      "id": 1686,
+      "originalSamples": 220800,
+      "segments": [
+        {
+          "file": "segments/pl-1686-0.f32",
+          "bytes": 770048,
+          "samples": 192512,
+          "sha256": "9fa3c96047ebb6348f52faf73f64558aa12db49f0fe8a4c87cef92a74fa1717d"
+        }
+      ]
+    },
+    {
+      "language": "nl",
+      "id": 1881,
+      "originalSamples": 144000,
+      "segments": [
+        {
+          "file": "segments/nl-1881-0.f32",
+          "bytes": 477184,
+          "samples": 119296,
+          "sha256": "9e7bfa367bd8060ef0e0a57fd0955732cd8923eaf170c6cee92d9e0166f8a092"
+        }
+      ]
+    },
+    {
+      "language": "nl",
+      "id": 1793,
+      "originalSamples": 129600,
+      "segments": [
+        {
+          "file": "segments/nl-1793-0.f32",
+          "bytes": 559104,
+          "samples": 139776,
+          "sha256": "9dc5c7418f202bec0cdebd550d2ccebeeabc28d7aa3078230e59f16df6ce7e5b"
+        }
+      ]
+    },
+    {
+      "language": "nl",
+      "id": 2003,
+      "originalSamples": 96000,
+      "segments": [
+        {
+          "file": "segments/nl-2003-0.f32",
+          "bytes": 428032,
+          "samples": 107008,
+          "sha256": "ff1d914b15ef1297be1d6f3fa0b92a21604adf19f8ac5cdf291dec9a49ffdf31"
+        }
+      ]
+    },
+    {
+      "language": "nl",
+      "id": 1880,
+      "originalSamples": 68160,
+      "segments": [
+        {
+          "file": "segments/nl-1880-0.f32",
+          "bytes": 327680,
+          "samples": 81920,
+          "sha256": "9644bbdadd58ab6167ac05579a59d5246de2f59b0d4f3dd01784e24947def230"
+        }
+      ]
+    },
+    {
+      "language": "nl",
+      "id": 1931,
+      "originalSamples": 148800,
+      "segments": [
+        {
+          "file": "segments/nl-1931-0.f32",
+          "bytes": 641024,
+          "samples": 160256,
+          "sha256": "9dbec1d56bb0c0ab22dbe7b4dae49b59b8dc65955eaed946f52d8556e2dbc6fc"
+        }
+      ]
+    },
+    {
+      "language": "nl",
+      "id": 1686,
+      "originalSamples": 182400,
+      "segments": [
+        {
+          "file": "segments/nl-1686-0.f32",
+          "bytes": 757760,
+          "samples": 189440,
+          "sha256": "00f7c6b622107a52d2955eec8aa60a62f31349330da57c0adf5e91ab2baaaeb7"
+        }
+      ]
+    }
+  ]
+}

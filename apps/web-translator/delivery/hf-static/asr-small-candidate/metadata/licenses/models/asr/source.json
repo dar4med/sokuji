@@ -1,0 +1,12 @@
+{
+  "repo": "onnx-community/whisper-small",
+  "revision": "36050c46d777d46dc4b5f43f6d90574fc38f8732",
+  "base": "openai/whisper-small",
+  "baseRevision": "973afd24965f72e36ca33b3055d56a652f456b4d",
+  "license": "apache-2.0",
+  "licenseBasis": "Pinned upstream model card Apache-2.0; conversion card has no separate license field",
+  "modelCardsSha256": {
+    "MODEL_CARD.md": "32beef908082737f4f48dc6cdbbf7774667a7e48740ce6bf0f686d37e4cfab81",
+    "BASE_MODEL_CARD.md": "967fa44eefe5d3436e040b0f171fc54da67aad96923bae10af37dac9be5bb6b0"
+  }
+}

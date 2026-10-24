@@ -1,0 +1,226 @@
+{
+  "corpusSha256": "2f2e96ebcbc40957ddbe0a4c7e569719a7018378a90192f2c453db7bef727e1e",
+  "startedAt": "2026-10-24T18:34:12.305Z",
+  "environment": {
+    "platform": "linux",
+    "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "logicalCpus": 5,
+    "node": "v24.19.0",
+    "runtime": "onnxruntime-web1.22.0, existing SIMD WASM",
+    "wasmThreads": 1,
+    "proxy": false,
+    "runtimeMjsSha256": "30dd851d9c00622940500f71ddd2ff8820c5cb65270816080175b958705385a8",
+    "runtimeWasmSha256": "71aef04959c5c1b6de461b6538e2058e306610034a85aad2742d0c7fd4533fe4"
+  },
+  "options": {
+    "task": "transcribe",
+    "forcedLanguages": {
+      "pl": "polish",
+      "nl": "dutch"
+    },
+    "max_new_tokens": 128,
+    "return_timestamps": false,
+    "device": "wasm",
+    "dtype": "q8"
+  },
+  "normalization": "Unicode NFC, lowercase, tokens are runs of Unicode letters/numbers; punctuation/apostrophes/hyphens are separators. Preserve diacritics and digits; no numeric expansion or transcript correction. Micro WER=sumLevenshtein/sumReferenceWords.",
+  "measurements": "Cold init=new browser/worker, models already SHA-verified in CacheStorage, no download time. Pass1 first/cold then remaining calls; pass2 same model retained/warm. Browser RSS sums sampled live browser processes every~100ms; includes shared pages/services/cache, no PSS, may miss short peaks. Not exact JS or WASM heap, not Android RAM.",
+  "variants": [
+    {
+      "model": "small",
+      "repo": "onnx-community/whisper-small",
+      "revision": "36050c46d777d46dc4b5f43f6d90574fc38f8732",
+      "filesBytes": 251936077,
+      "browser": "154.0.8037.57",
+      "coldInitMs": 3375.0922239999995,
+      "crossOriginIsolated": false,
+      "memoryPeakRssBytes": {
+        "baseline": 411058176,
+        "cacheFill": 819359744,
+        "modelInit": 1707941888,
+        "inference": 1979523072
+      },
+      "samplingErrors": []
+    }
+  ],
+  "results": [
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "pl",
+      "id": 1880,
+      "rowIndex": 16,
+      "duration": 5.88,
+      "reference": "Tak więc kiedy pojawił się ołówek, stał się dobrym przyjacielem wielu osób.",
+      "rawAsr": "Tak więc, kiedy pojawił się ołówek, stał się dobrym przyjacielem wielu osób.",
+      "applicationText": "Tak więc, kiedy pojawił się ołówek, stał się dobrym przyjacielem wielu osób.",
+      "warning": null,
+      "engineMs": 20446,
+      "wallMs": 20462.800231,
+      "rtf": 3.4772108843537417,
+      "segmentFiles": [
+        "audio/pl_pl-1880.f32"
+      ],
+      "rawScore": {
+        "errors": 0,
+        "referenceWords": 12,
+        "wer": 0
+      },
+      "applicationScore": {
+        "errors": 0,
+        "referenceWords": 12,
+        "wer": 0
+      }
+    },
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "pl",
+      "id": 1931,
+      "rowIndex": 18,
+      "duration": 14.04,
+      "reference": "Usługę często wykorzystuje się w żegludze, również statkami rekreacyjnymi oraz podczas ekspedycji wymagających zdalnych danych i usług głosowych.",
+      "rawAsr": "Usługę często wykorzystuje się w szagluze, również z statkami rekreacyjnymi oraz podczas ekspedycji wymagających z danych, danych i usług głosowych.",
+      "applicationText": "Usługę często wykorzystuje się w szagluze, również z statkami rekreacyjnymi oraz podczas ekspedycji wymagających z danych, danych i usług głosowych.",
+      "warning": null,
+      "engineMs": 20096,
+      "wallMs": 20114.633853000003,
+      "rtf": 1.4313390313390313,
+      "segmentFiles": [
+        "audio/pl_pl-1931.f32"
+      ],
+      "rawScore": {
+        "errors": 4,
+        "referenceWords": 18,
+        "wer": 0.2222222222222222
+      },
+      "applicationScore": {
+        "errors": 4,
+        "referenceWords": 18,
+        "wer": 0.2222222222222222
+      }
+    },
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "pl",
+      "id": 1686,
+      "rowIndex": 19,
+      "duration": 13.8,
+      "reference": "W efekcie współpraca w obrębie organizacji w celu pokonania przeszkody może doprowadzić do utworzenia innowacyjnego procesu, który zaspokoi potrzeby klientów.",
+      "rawAsr": "W efekcie współpraca w obrębie organizacji w celu pokonania przeszkody może doprowadzić do utworzenia innowacyjnego procesu, który zaspokoi potrzeby klientów.",
+      "applicationText": "W efekcie współpraca w obrębie organizacji w celu pokonania przeszkody może doprowadzić do utworzenia innowacyjnego procesu, który zaspokoi potrzeby klientów.",
+      "warning": null,
+      "engineMs": 17953,
+      "wallMs": 17969.785543000005,
+      "rtf": 1.3009420289855071,
+      "segmentFiles": [
+        "audio/pl_pl-1686.f32"
+      ],
+      "rawScore": {
+        "errors": 0,
+        "referenceWords": 20,
+        "wer": 0
+      },
+      "applicationScore": {
+        "errors": 0,
+        "referenceWords": 20,
+        "wer": 0
+      }
+    },
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "nl",
+      "id": 1880,
+      "rowIndex": 138,
+      "duration": 4.26,
+      "reference": "Daarom was het potlood voor veel mensen een trouwe vriend toen het werd gelanceerd.",
+      "rawAsr": "Daarom was het potlood voor veel mensen en trouwen vriend toen het werd gelanceerd.",
+      "applicationText": "Daarom was het potlood voor veel mensen en trouwen vriend toen het werd gelanceerd.",
+      "warning": null,
+      "engineMs": 15087,
+      "wallMs": 15101.924845000001,
+      "rtf": 3.5415492957746477,
+      "segmentFiles": [
+        "audio/nl_nl-1880.f32"
+      ],
+      "rawScore": {
+        "errors": 2,
+        "referenceWords": 14,
+        "wer": 0.14285714285714285
+      },
+      "applicationScore": {
+        "errors": 2,
+        "referenceWords": 14,
+        "wer": 0.14285714285714285
+      }
+    },
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "nl",
+      "id": 1931,
+      "rowIndex": 304,
+      "duration": 9.3,
+      "reference": "Deze dienst wordt vaak gebruikt door de scheepvaart, waaronder pleziervaartuigen, en voor expedities waarbij er behoefte is aan externe gegevens en communicatie.",
+      "rawAsr": "Deze dienst wordt vaak gebruikt voor de scheepvaart, waaronder pleziervaart duigen en voor expedities waarbij je behoeft is dan externe gegevens en communicatie.",
+      "applicationText": "Deze dienst wordt vaak gebruikt voor de scheepvaart, waaronder pleziervaart duigen en voor expedities waarbij je behoeft is dan externe gegevens en communicatie.",
+      "warning": null,
+      "engineMs": 22825,
+      "wallMs": 22843.791731999998,
+      "rtf": 2.454301075268817,
+      "segmentFiles": [
+        "audio/nl_nl-1931.f32"
+      ],
+      "rawScore": {
+        "errors": 6,
+        "referenceWords": 22,
+        "wer": 0.2727272727272727
+      },
+      "applicationScore": {
+        "errors": 6,
+        "referenceWords": 22,
+        "wer": 0.2727272727272727
+      }
+    },
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "nl",
+      "id": 1686,
+      "rowIndex": 132,
+      "duration": 11.4,
+      "reference": "Het resultaat hiervan is dat het proces van een organisatie die zich samen inspant om een hindernis te overwinnen, kan leiden tot een nieuw innovatief proces om te voldoen aan de behoeften van de klant.",
+      "rawAsr": "Het resultaat is dat het proces van een organisatie die staat samen in spant om hun hindernis te overwinnen kan bijden tot een nieuw innovatief proces om te voldoen aan de behoefte van de klant.",
+      "applicationText": "Het resultaat is dat het proces van een organisatie die staat samen in spant om hun hindernis te overwinnen kan bijden tot een nieuw innovatief proces om te voldoen aan de behoefte van de klant.",
+      "warning": null,
+      "engineMs": 18886,
+      "wallMs": 18904.667021999994,
+      "rtf": 1.6566666666666667,
+      "segmentFiles": [
+        "audio/nl_nl-1686.f32"
+      ],
+      "rawScore": {
+        "errors": 7,
+        "referenceWords": 35,
+        "wer": 0.2
+      },
+      "applicationScore": {
+        "errors": 7,
+        "referenceWords": 35,
+        "wer": 0.2
+      }
+    }
+  ],
+  "externalRequests": [],
+  "physicalAndroid": false,
+  "viaVAD": false,
+  "limits": {
+    "callTimeoutMs": 45000,
+    "runTimeoutMs": 240000,
+    "maxRssBytes": 2684354560
+  },
+  "completedAt": "2026-10-24T18:36:14.484Z",
+  "passedExecution": true
+}
