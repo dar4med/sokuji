@@ -1,0 +1,18 @@
+{
+  "sourceApplicationSha": "38d8c828b1dd521598a9263b747e62abba654029",
+  "baseCaptureSha256": "90dff1b2cfbb71a7010def2f03a2eda2f998cb66eef47b590fe5b7aa1dee426f",
+  "captureReplacementCount": 1,
+  "files": {
+    "hf-session-adapter.js": {
+      "bytes": 6874,
+      "sha256": "0da02a6f4e0a4db71112e64e6c463d0833a56a8b17a7a3647b33cf988af8cedc"
+    },
+    "capture-Bh2ZntkC.js": {
+      "bytes": 70078,
+      "sha256": "f5ef0856feb88b7b661dc88915f7b63469db44ad6af777640e416db767035ac6"
+    }
+  },
+  "worker": "worker-runtime/PATCH.json",
+  "modelsChanged": false,
+  "runtimeFilesChanged": false
+}

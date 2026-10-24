@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "baseline": {
+    "ok": false,
+    "error": "no available backend found. ERR: [wasm] TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:41423/runtime/ort-wasm-simd-threaded.mjs, [cpu] Error: previous call to 'initWasm()' failed.",
+    "physicalMicrophone": false
+  },
+  "patched": {
+    "ok": true,
+    "speechCallbacks": 0,
+    "physicalMicrophone": false,
+    "isolated": false
+  },
+  "mjsFetches": 1,
+  "wasmFetches": 1,
+  "vadFetches": 1,
+  "mainCspWithoutBlob": {
+    "ok": false,
+    "error": "HF ORT: import zweryfikowanego MJS z blob nie powiódł się. Sprawdź CSP strony; polityki nie zmieniono.",
+    "physicalMicrophone": false
+  },
+  "externalRequests": [],
+  "source": "Actual VAD/ORT initialization/start/pause with locally pinned files and silent generated MediaStream; only HF host literal replaced with localhost fixture. No HF network, physical microphone, speech ASR/MT or TTS test",
+  "testHostLiteralSubstituted": true,
+  "adapterSha256": "0da02a6f4e0a4db71112e64e6c463d0833a56a8b17a7a3647b33cf988af8cedc",
+  "captureSha256": "f5ef0856feb88b7b661dc88915f7b63469db44ad6af777640e416db767035ac6"
+}
