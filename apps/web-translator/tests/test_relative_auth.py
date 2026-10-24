@@ -14,24 +14,27 @@ r=importlib.util.module_from_spec(spec);spec.loader.exec_module(r)
 class FTP(FakeFTP):
     def __init__(self):
         super().__init__();self.http=[];self.mode_missing=False;self.bad_hash=False;self.interrupt=False
+        self.reported_mode=None;self.lose_mode_on_rename=False
     def mlsd(self,path='',facts=None):
         assert path=='','No external/root listing'
         result=super().mlsd(path,facts)
         if facts and 'unix.mode' in facts:
-            return [(n,{**f,**({} if self.mode_missing else {'unix.mode':self.modes.get(n,'0644')})}) for n,f in result]
+            return [(n,{**f,**({} if self.mode_missing else {'unix.mode':self.reported_mode or self.modes.get(n,'0644')})}) for n,f in result]
         return result
     def rename(self,source,target):
         super().rename(source,target)
         if source in self.modes:self.modes[target]=self.modes.pop(source)
+        if target==r.LOCAL_HASH and self.lose_mode_on_rename:self.modes[target]='0644'
     def sendcmd(self,cmd):
-        assert cmd.startswith('SITE CHMOD 644 .htpasswd-relative-') or cmd.startswith('STAT .htpasswd')
+        assert cmd.startswith('SITE CHMOD 600 .htpasswd-relative-') or cmd.startswith('STAT .htpasswd')
         self.events.append(('MODE',cmd))
-        if cmd.startswith('SITE CHMOD'):self.modes[cmd.split(' ',3)[3]]='0644';return '200'
-        return '211\n-rw-r--r-- 1 fictional fictional 0 file\n211 End'
+        if cmd.startswith('SITE CHMOD'):self.modes[cmd.split(' ',3)[3]]='0600';return '200'
+        return '211\n-rw------- 1 fictional fictional 0 file\n211 End'
     def storbinary(self,command,source):
         content=source.read(); name=command.removeprefix('STOR ')
         self.events.append(('STOR',name))
         if content.startswith(AUTH[0].encode()+b':'):
+            assert self.modes.get(name)=='0600', 'Mode 0600 must precede hash content'
             assert b'<FilesMatch "^\\.">' in self.files['.htaccess']
             assert self.http and all(c['status']==403 for c in self.http), 'Refusal must precede hash'
             if self.interrupt:self.files[name]=content[:4];raise ConnectionError('fictional transfer interrupted')
@@ -69,10 +72,11 @@ class RelativeTests(unittest.TestCase):
         self.assertTrue(result['hiddenDeniedBeforeHash']);self.assertTrue(result['hiddenDeniedAfterAuth'])
         self.assertEqual(self.ftp.files['.htaccess'],self.runner.final)
         self.assertEqual(self.ftp.files[r.LOCAL_HASH],self.runner.password_file)
-        self.assertEqual(self.ftp.modes[r.LOCAL_HASH],'0644')
+        self.assertEqual(self.ftp.modes[r.LOCAL_HASH],'0600')
         self.assertEqual(set(self.ftp.files),{'.htaccess',r.PROBE,r.LOCAL_HASH})
         for sensitive in [AUTH[0],AUTH[1],self.runner.password_file.decode()]:self.assertNotIn(sensitive,json.dumps(result))
         self.assertFalse(result['externalHashAccessed']);self.assertFalse(result['passwordChanged']);self.assertFalse(result['applicationTransferred'])
+        self.assertEqual(result['localHashMode'],'0600')
     def test_relative_path_failure_restores_deny_without_trying_absolute_path(self):
         self.relative_works=False;result=self.runner.execute()
         self.assertFalse(result['ready']);self.assertTrue(result['rollbackDenyVerified'],result)
@@ -116,6 +120,24 @@ class RelativeTests(unittest.TestCase):
     def test_missing_optional_mode_uses_only_local_stat(self):
         self.ftp.mode_missing=True;result=self.runner.execute();self.assertTrue(result['ready'],result)
         self.assertTrue(any(e[0]=='MODE' and e[1].startswith('STAT ') for e in self.ftp.events))
+    def test_wrong_mode_before_hash_aborts_without_secret_content_or_fallback(self):
+        self.ftp.reported_mode='0644';result=self.runner.execute()
+        self.assertFalse(result['ready']);self.assertTrue(result['rollbackDenyVerified'],result)
+        self.assertFalse(any(AUTH[0].encode()+b':' in body for body in self.ftp.files.values()))
+        self.assertFalse(any(e[0]=='MODE' and 'CHMOD 644' in e[1] for e in self.ftp.events))
+    def test_mode0600_is_verified_again_after_hash_rename(self):
+        self.ftp.lose_mode_on_rename=True;result=self.runner.execute()
+        self.assertFalse(result['ready']);self.assertTrue(result['rollbackDenyVerified'],result)
+        self.assertEqual(self.ftp.files['.htaccess'],self.runner.deny)
+        self.assertFalse(any(e[0]=='MODE' and 'CHMOD 644' in e[1] for e in self.ftp.events))
+    def test_protocol_forbids_chmod644_and_allows_only0600_for_owned_temporary(self):
+        client=r.RelativeFTPS(context=r.t.tls_context());name='.htpasswd-relative-'+'a'*32
+        with patch.object(r.t.VerifiedFTPS,'putcmd') as send:
+            for mode in ['644','640','666']:
+                with self.assertRaises(r.t.DeploymentError):client.putcmd('SITE CHMOD '+mode+' '+name)
+            send.assert_not_called()
+            client.putcmd('SITE CHMOD 600 '+name)
+            send.assert_called_once_with('SITE CHMOD 600 '+name)
     def test_protocol_blocks_external_paths_plain_ftp_payload_delete_and_rename_escape(self):
         client=r.RelativeFTPS(context=r.t.tls_context())
         for cmd in ['RETR '+r.p.HASH_REMOTE,'MLSD /','CWD /public_html','STOR index.html','STOR .htpasswd',

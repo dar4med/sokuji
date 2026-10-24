@@ -46,7 +46,7 @@ class RelativeFTPS(t.VerifiedFTPS):
         if verb == 'STOR': require(arg == PROBE or temporary(arg), 'Only control probe and hidden temporaries may be stored')
         if verb == 'RNFR': require(temporary(arg), 'Rename must start at an owned hidden temporary')
         if verb == 'RNTO': require(arg in ['.htaccess',LOCAL_HASH], 'Rename outside child protection files')
-        if verb == 'SITE': require(bool(re.fullmatch(r'CHMOD 644 \.htpasswd-relative-[0-9a-f]{32}', arg)), 'Only the new local hash temporary may have mode 0644')
+        if verb == 'SITE': require(bool(re.fullmatch(r'CHMOD 600 \.htpasswd-relative-[0-9a-f]{32}', arg)), 'Only the new local hash temporary may have mode 0600')
         if verb == 'STAT': require(arg == LOCAL_HASH or bool(re.fullmatch(r'\.htpasswd-relative-[0-9a-f]{32}', arg)), 'Only local hash metadata')
         super().putcmd(line)
 
@@ -120,18 +120,18 @@ class RelativeTest(p.Provision):
         for hidden in ['.htaccess','.htpasswd','%2ehtpasswd','.htpasswd?download=1','.htaccess?download=1',name]:
             for auth in [None,self.auth]: self.check(hidden,403,auth)
 
-    def mode_644(self, name):
+    def mode_600(self, name):
         self.guard(); self.pwd(); self.attempts += 1
-        self.client.sendcmd('SITE CHMOD 644 '+name); self.evidence['writes'] += 1
-        self.verify_mode_644(name)
+        self.client.sendcmd('SITE CHMOD 600 '+name); self.evidence['writes'] += 1
+        self.verify_mode_600(name)
 
-    def verify_mode_644(self, name):
+    def verify_mode_600(self, name):
         facts = self.facts(mode=True).get(name,{})
         if 'unix.mode' in facts:
-            require(int(facts['unix.mode'],8) == 0o644, 'Local hash temporary mode not verified')
+            require(int(facts['unix.mode'],8) == 0o600, 'Local hash temporary mode not verified')
         else:
             status = self.client.sendcmd('STAT '+name)
-            require(re.search(r'(?m)^\s*-rw-r--r--\s',status), 'Local hash temporary mode not proven')
+            require(re.search(r'(?m)^\s*-rw-------\s',status), 'Local hash temporary mode not proven')
 
     def execute(self):
         self.client = self.connector()
@@ -149,15 +149,15 @@ class RelativeTest(p.Provision):
             self.check('',403); self.check(PROBE,403)
             name = '.htpasswd-relative-'+secrets.token_hex(16)
             # Empty file first: prove real dotfile/temporary refusal BEFORE any
-            # hash is placed in WWW, then make only this dedicated file readable.
-            self.store_owned(name,b''); self.mode_644(name); self.hidden_checks(name)
+            # hash is placed in WWW, with the dedicated file restricted to 0600.
+            self.store_owned(name,b''); self.mode_600(name); self.hidden_checks(name)
             self.evidence['hiddenDeniedBeforeHash'] = True
-            self.store_owned(name,self.password_file); self.mode_644(name); self.hidden_checks(name)
+            self.store_owned(name,self.password_file); self.mode_600(name); self.hidden_checks(name)
             self.guard(); self.pwd(); self.attempts += 1
             self.client.rename(name,LOCAL_HASH); self.evidence['writes'] += 1
             self.expected.pop(name); self.expected[LOCAL_HASH] = self.password_file
             self.read(LOCAL_HASH,self.password_file)
-            self.verify_mode_644(LOCAL_HASH)
+            self.verify_mode_600(LOCAL_HASH)
             if PROBE not in self.expected: self.store_owned(PROBE,BODY)
             self.install(self.final)
             self.hidden_checks(name)  # Also the now-absent temporary must be forbidden.
@@ -167,7 +167,7 @@ class RelativeTest(p.Provision):
             self.check(PROBE,401,(self.auth[0],wrong))
             for path in ['',PROBE]: self.check(path,200,self.auth,content=True)
             self.guard()
-            self.evidence.update(ready=True,hiddenDeniedAfterAuth=True,localHashMode='0644',
+            self.evidence.update(ready=True,hiddenDeniedAfterAuth=True,localHashMode='0600',
                                  relativePathResolvedByServer=True,htaccessSha256=hashlib.sha256(self.final).hexdigest())
         except Exception as error:
             self.evidence['errorType'] = type(error).__name__
