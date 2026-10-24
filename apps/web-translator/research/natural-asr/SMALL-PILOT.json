@@ -1,0 +1,226 @@
+{
+  "corpusSha256": "2f2e96ebcbc40957ddbe0a4c7e569719a7018378a90192f2c453db7bef727e1e",
+  "startedAt": "2026-10-24T18:31:10.313Z",
+  "environment": {
+    "platform": "linux",
+    "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "logicalCpus": 5,
+    "node": "v24.19.0",
+    "runtime": "onnxruntime-web1.22.0, existing SIMD WASM",
+    "wasmThreads": 1,
+    "proxy": false,
+    "runtimeMjsSha256": "30dd851d9c00622940500f71ddd2ff8820c5cb65270816080175b958705385a8",
+    "runtimeWasmSha256": "71aef04959c5c1b6de461b6538e2058e306610034a85aad2742d0c7fd4533fe4"
+  },
+  "options": {
+    "task": "transcribe",
+    "forcedLanguages": {
+      "pl": "polish",
+      "nl": "dutch"
+    },
+    "max_new_tokens": 128,
+    "return_timestamps": false,
+    "device": "wasm",
+    "dtype": "q8"
+  },
+  "normalization": "Unicode NFC, lowercase, tokens are runs of Unicode letters/numbers; punctuation/apostrophes/hyphens are separators. Preserve diacritics and digits; no numeric expansion or transcript correction. Micro WER=sumLevenshtein/sumReferenceWords.",
+  "measurements": "Cold init=new browser/worker, models already SHA-verified in CacheStorage, no download time. Pass1 first/cold then remaining calls; pass2 same model retained/warm. Browser RSS sums sampled live browser processes every~100ms; includes shared pages/services/cache, no PSS, may miss short peaks. Not exact JS or WASM heap, not Android RAM.",
+  "variants": [
+    {
+      "model": "small",
+      "repo": "onnx-community/whisper-small",
+      "revision": "36050c46d777d46dc4b5f43f6d90574fc38f8732",
+      "filesBytes": 251936077,
+      "browser": "154.0.8037.57",
+      "coldInitMs": 3740.5356439999996,
+      "crossOriginIsolated": false,
+      "memoryPeakRssBytes": {
+        "baseline": 406335488,
+        "cacheFill": 822837248,
+        "modelInit": 1702309888,
+        "inference": 2006687744
+      },
+      "samplingErrors": []
+    }
+  ],
+  "results": [
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "pl",
+      "id": 1881,
+      "rowIndex": 9,
+      "duration": 8.28,
+      "reference": "Udostępniając wycieczkę terenową w trybie wirtualnym, można stymulować refleksje na jej temat i podzielić się doświadczeniami z kolejnymi klasami.",
+      "rawAsr": "Udostępniając wycieczkę terenową w trybie wizytualnym można stymulować refleksję na jej temat i podzielić się doświadczeniami z kolejnymi klasami.",
+      "applicationText": "Udostępniając wycieczkę terenową w trybie wizytualnym można stymulować refleksję na jej temat i podzielić się doświadczeniami z kolejnymi klasami.",
+      "warning": null,
+      "engineMs": 21994,
+      "wallMs": 22006.914678,
+      "rtf": 2.656280193236715,
+      "segmentFiles": [
+        "audio/pl_pl-1881.f32"
+      ],
+      "rawScore": {
+        "errors": 2,
+        "referenceWords": 19,
+        "wer": 0.10526315789473684
+      },
+      "applicationScore": {
+        "errors": 2,
+        "referenceWords": 19,
+        "wer": 0.10526315789473684
+      }
+    },
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "pl",
+      "id": 1793,
+      "rowIndex": 10,
+      "duration": 11.76,
+      "reference": "Jeśli nie masz w zwyczaju jeździć po wiejskich drogach, miej oczy dookoła głowy, bo często napotkasz strome podjazdy, wąskie odcinki i ostre zakręty.",
+      "rawAsr": "Jeśli nie masz zwyczaj ujeździć po wiejskich drogach, mój oczy dookoła głowy. Często nadpodkasz strome podjazdy, wąskie odcinki i ostre zakręty.",
+      "applicationText": "Jeśli nie masz zwyczaj ujeździć po wiejskich drogach, mój oczy dookoła głowy. Często nadpodkasz strome podjazdy, wąskie odcinki i ostre zakręty.",
+      "warning": null,
+      "engineMs": 20766,
+      "wallMs": 20790.886737,
+      "rtf": 1.7658163265306122,
+      "segmentFiles": [
+        "audio/pl_pl-1793.f32"
+      ],
+      "rawScore": {
+        "errors": 6,
+        "referenceWords": 23,
+        "wer": 0.2608695652173913
+      },
+      "applicationScore": {
+        "errors": 6,
+        "referenceWords": 23,
+        "wer": 0.2608695652173913
+      }
+    },
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "pl",
+      "id": 2003,
+      "rowIndex": 14,
+      "duration": 6.12,
+      "reference": "Najlepsze widoki Hongkongu oferuje nabrzeże Koulun naprzeciwko miasta.",
+      "rawAsr": "Najlepsze widoki Hongkongu oferuje na przeżyku Lun, naprzeciwko miasta.",
+      "applicationText": "Najlepsze widoki Hongkongu oferuje na przeżyku Lun, naprzeciwko miasta.",
+      "warning": null,
+      "engineMs": 16133,
+      "wallMs": 16155.348993,
+      "rtf": 2.636111111111111,
+      "segmentFiles": [
+        "audio/pl_pl-2003.f32"
+      ],
+      "rawScore": {
+        "errors": 3,
+        "referenceWords": 8,
+        "wer": 0.375
+      },
+      "applicationScore": {
+        "errors": 3,
+        "referenceWords": 8,
+        "wer": 0.375
+      }
+    },
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "nl",
+      "id": 1881,
+      "rowIndex": 241,
+      "duration": 9,
+      "reference": "Virtueel een excursie delen is ook een fantastische manier om terug te blikken op een reis en ervaringen met toekomstige klassen te delen.",
+      "rawAsr": "Vitueel en excursie delen is ook een fantastische manier om terug te blikken op een reis en ervaringen met toekomstige klassen te delen.",
+      "applicationText": "Vitueel en excursie delen is ook een fantastische manier om terug te blikken op een reis en ervaringen met toekomstige klassen te delen.",
+      "warning": null,
+      "engineMs": 17852,
+      "wallMs": 17955.86996099999,
+      "rtf": 1.9835555555555555,
+      "segmentFiles": [
+        "audio/nl_nl-1881.f32"
+      ],
+      "rawScore": {
+        "errors": 2,
+        "referenceWords": 23,
+        "wer": 0.08695652173913043
+      },
+      "applicationScore": {
+        "errors": 2,
+        "referenceWords": 23,
+        "wer": 0.08695652173913043
+      }
+    },
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "nl",
+      "id": 1793,
+      "rowIndex": 338,
+      "duration": 8.1,
+      "reference": "Ben je niet gewend om op landweggetjes te rijden? Houd dan je hoofd erbij. Je komt veel steile hellingen, smalle straatjes en scherpe bochten tegen.",
+      "rawAsr": "Ben je niet gewend om op landweggertjes te rijden? Hou dan je hoofd erbij. Je komt veel steilenhelingen, smalleteraardjes en scherpe bochten tegen.",
+      "applicationText": "Ben je niet gewend om op landweggertjes te rijden? Hou dan je hoofd erbij. Je komt veel steilenhelingen, smalleteraardjes en scherpe bochten tegen.",
+      "warning": null,
+      "engineMs": 23833,
+      "wallMs": 23862.027122,
+      "rtf": 2.942345679012346,
+      "segmentFiles": [
+        "audio/nl_nl-1793.f32"
+      ],
+      "rawScore": {
+        "errors": 6,
+        "referenceWords": 25,
+        "wer": 0.24
+      },
+      "applicationScore": {
+        "errors": 6,
+        "referenceWords": 25,
+        "wer": 0.24
+      }
+    },
+    {
+      "model": "small",
+      "pass": 1,
+      "language": "nl",
+      "id": 2003,
+      "rowIndex": 208,
+      "duration": 6,
+      "reference": "Voor het beste uitzicht op Hongkong verlaat je het eiland en ga je richting de waterkant van Kowloon aan de overkant.",
+      "rawAsr": "Voor het beste uitzicht op Hong Kong verlaten we de eiland en ga je richting de waterkant van Kowloon aan de overkant.",
+      "applicationText": "Voor het beste uitzicht op Hong Kong verlaten we de eiland en ga je richting de waterkant van Kowloon aan de overkant.",
+      "warning": null,
+      "engineMs": 16780,
+      "wallMs": 16793.70262099999,
+      "rtf": 2.796666666666667,
+      "segmentFiles": [
+        "audio/nl_nl-2003.f32"
+      ],
+      "rawScore": {
+        "errors": 5,
+        "referenceWords": 21,
+        "wer": 0.23809523809523808
+      },
+      "applicationScore": {
+        "errors": 5,
+        "referenceWords": 21,
+        "wer": 0.23809523809523808
+      }
+    }
+  ],
+  "externalRequests": [],
+  "physicalAndroid": false,
+  "viaVAD": false,
+  "limits": {
+    "callTimeoutMs": 45000,
+    "runTimeoutMs": 240000,
+    "maxRssBytes": 2684354560
+  },
+  "completedAt": "2026-10-24T18:33:14.310Z",
+  "passedExecution": true
+}

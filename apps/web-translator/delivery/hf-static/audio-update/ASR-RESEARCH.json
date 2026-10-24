@@ -1,0 +1,390 @@
+{
+  "results": [
+    {
+      "model": "tiny",
+      "id": "pl-160",
+      "duration": 19.0636875,
+      "generationLimit": 128,
+      "reference": "Nie biorę pięciu miligramów. Biorę dziesięć miligramów dwa razy dziennie. Jutro o dziewiątej pojadę autobusem numer dwanaście do niebieskiego budynku. Proszę powiedzieć, czy wejście jest po lewej stronie. Nie skręcam przy pierwszym skrzyżowaniu, tylko przy drugim.",
+      "text": "",
+      "ms": 6947,
+      "wordErrors": 36,
+      "referenceWords": 36,
+      "wer": 1,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "pl"
+    },
+    {
+      "model": "tiny",
+      "id": "pl-160",
+      "duration": 19.0636875,
+      "generationLimit": 256,
+      "reference": "Nie biorę pięciu miligramów. Biorę dziesięć miligramów dwa razy dziennie. Jutro o dziewiątej pojadę autobusem numer dwanaście do niebieskiego budynku. Proszę powiedzieć, czy wejście jest po lewej stronie. Nie skręcam przy pierwszym skrzyżowaniu, tylko przy drugim.",
+      "text": "",
+      "ms": 9554,
+      "wordErrors": 36,
+      "referenceWords": 36,
+      "wer": 1,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "pl"
+    },
+    {
+      "model": "tiny",
+      "id": "pl-220",
+      "duration": 13.85025,
+      "generationLimit": 128,
+      "reference": "Nie biorę pięciu miligramów. Biorę dziesięć miligramów dwa razy dziennie. Jutro o dziewiątej pojadę autobusem numer dwanaście do niebieskiego budynku. Proszę powiedzieć, czy wejście jest po lewej stronie. Nie skręcam przy pierwszym skrzyżowaniu, tylko przy drugim.",
+      "text": "Ja w imieniu regioniczne.",
+      "ms": 2539,
+      "wordErrors": 36,
+      "referenceWords": 36,
+      "wer": 1,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "pl"
+    },
+    {
+      "model": "tiny",
+      "id": "pl-220",
+      "duration": 13.85025,
+      "generationLimit": 256,
+      "reference": "Nie biorę pięciu miligramów. Biorę dziesięć miligramów dwa razy dziennie. Jutro o dziewiątej pojadę autobusem numer dwanaście do niebieskiego budynku. Proszę powiedzieć, czy wejście jest po lewej stronie. Nie skręcam przy pierwszym skrzyżowaniu, tylko przy drugim.",
+      "text": "Ja w imieniu regioniczne.",
+      "ms": 2417,
+      "wordErrors": 36,
+      "referenceWords": 36,
+      "wer": 1,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "pl"
+    },
+    {
+      "model": "tiny",
+      "id": "nl-160",
+      "duration": 16.428125,
+      "generationLimit": 128,
+      "reference": "Ik neem geen vijf milligram. Ik neem tien milligram twee keer per dag. Morgen om negen uur neem ik bus twaalf naar het blauwe gebouw. Kunt u zeggen of de ingang aan de linkerkant is? Ik sla niet af bij het eerste kruispunt, maar bij het tweede.",
+      "text": "",
+      "ms": 5676,
+      "wordErrors": 47,
+      "referenceWords": 47,
+      "wer": 1,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "nl"
+    },
+    {
+      "model": "tiny",
+      "id": "nl-160",
+      "duration": 16.428125,
+      "generationLimit": 256,
+      "reference": "Ik neem geen vijf milligram. Ik neem tien milligram twee keer per dag. Morgen om negen uur neem ik bus twaalf naar het blauwe gebouw. Kunt u zeggen of de ingang aan de linkerkant is? Ik sla niet af bij het eerste kruispunt, maar bij het tweede.",
+      "text": "",
+      "ms": 10269,
+      "wordErrors": 47,
+      "referenceWords": 47,
+      "wer": 1,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "nl"
+    },
+    {
+      "model": "tiny",
+      "id": "nl-220",
+      "duration": 11.582,
+      "generationLimit": 128,
+      "reference": "Ik neem geen vijf milligram. Ik neem tien milligram twee keer per dag. Morgen om negen uur neem ik bus twaalf naar het blauwe gebouw. Kunt u zeggen of de ingang aan de linkerkant is? Ik sla niet af bij het eerste kruispunt, maar bij het tweede.",
+      "text": "",
+      "ms": 5408,
+      "wordErrors": 47,
+      "referenceWords": 47,
+      "wer": 1,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "nl"
+    },
+    {
+      "model": "tiny",
+      "id": "nl-220",
+      "duration": 11.582,
+      "generationLimit": 256,
+      "reference": "Ik neem geen vijf milligram. Ik neem tien milligram twee keer per dag. Morgen om negen uur neem ik bus twaalf naar het blauwe gebouw. Kunt u zeggen of de ingang aan de linkerkant is? Ik sla niet af bij het eerste kruispunt, maar bij het tweede.",
+      "text": "",
+      "ms": 8100,
+      "wordErrors": 47,
+      "referenceWords": 47,
+      "wer": 1,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "nl"
+    },
+    {
+      "model": "base",
+      "id": "pl-160",
+      "duration": 19.0636875,
+      "generationLimit": 128,
+      "reference": "Nie biorę pięciu miligramów. Biorę dziesięć miligramów dwa razy dziennie. Jutro o dziewiątej pojadę autobusem numer dwanaście do niebieskiego budynku. Proszę powiedzieć, czy wejście jest po lewej stronie. Nie skręcam przy pierwszym skrzyżowaniu, tylko przy drugim.",
+      "text": "Jury, pięć u mili rami. Jury, pięć mili rami, ma razy dnia. Jury, pięć, on tej pojadę autobusem numer, ma raz się do mnie bieskiego budynku. Proszę po mnie, dnia, czy będzie jest polem jej stronie. Ja skręcam, czy będzie, czy mógł się ziołmaniu, tylko przy drugim.",
+      "ms": 10445,
+      "wordErrors": 33,
+      "referenceWords": 36,
+      "wer": 0.9166666666666666,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "pl"
+    },
+    {
+      "model": "base",
+      "id": "pl-160",
+      "duration": 19.0636875,
+      "generationLimit": 256,
+      "reference": "Nie biorę pięciu miligramów. Biorę dziesięć miligramów dwa razy dziennie. Jutro o dziewiątej pojadę autobusem numer dwanaście do niebieskiego budynku. Proszę powiedzieć, czy wejście jest po lewej stronie. Nie skręcam przy pierwszym skrzyżowaniu, tylko przy drugim.",
+      "text": "Jury, pięć u mili rami. Jury, pięć mili rami, ma razy dnia. Jury, pięć, on tej pojadę autobusem numer, ma raz się do mnie bieskiego budynku. Proszę po mnie, dnia, czy będzie jest polem jej stronie. Ja skręcam, czy będzie, czy mógł się ziołmaniu, tylko przy drugim.",
+      "ms": 8867,
+      "wordErrors": 33,
+      "referenceWords": 36,
+      "wer": 0.9166666666666666,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "pl"
+    },
+    {
+      "model": "base",
+      "id": "pl-220",
+      "duration": 13.85025,
+      "generationLimit": 128,
+      "reference": "Nie biorę pięciu miligramów. Biorę dziesięć miligramów dwa razy dziennie. Jutro o dziewiątej pojadę autobusem numer dwanaście do niebieskiego budynku. Proszę powiedzieć, czy wejście jest po lewej stronie. Nie skręcam przy pierwszym skrzyżowaniu, tylko przy drugim.",
+      "text": "Jury, wiem czy umię gramów, umię gramów dwa razy dnia, jutro w jednym tej pojawia, autobusem numer dwa, aż się domiebieskie do budynku, proszę powiadiać, czy wejścia jest polemie, ja skręcam, czy tjesz się z krzyżowaniu, tylko przyjaciół.",
+      "ms": 8818,
+      "wordErrors": 29,
+      "referenceWords": 36,
+      "wer": 0.8055555555555556,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "pl"
+    },
+    {
+      "model": "base",
+      "id": "pl-220",
+      "duration": 13.85025,
+      "generationLimit": 256,
+      "reference": "Nie biorę pięciu miligramów. Biorę dziesięć miligramów dwa razy dziennie. Jutro o dziewiątej pojadę autobusem numer dwanaście do niebieskiego budynku. Proszę powiedzieć, czy wejście jest po lewej stronie. Nie skręcam przy pierwszym skrzyżowaniu, tylko przy drugim.",
+      "text": "Jury, wiem czy umię gramów, umię gramów dwa razy dnia, jutro w jednym tej pojawia, autobusem numer dwa, aż się domiebieskie do budynku, proszę powiadiać, czy wejścia jest polemie, ja skręcam, czy tjesz się z krzyżowaniu, tylko przyjaciół.",
+      "ms": 8258,
+      "wordErrors": 29,
+      "referenceWords": 36,
+      "wer": 0.8055555555555556,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "pl"
+    },
+    {
+      "model": "base",
+      "id": "nl-160",
+      "duration": 16.428125,
+      "generationLimit": 128,
+      "reference": "Ik neem geen vijf milligram. Ik neem tien milligram twee keer per dag. Morgen om negen uur neem ik bus twaalf naar het blauwe gebouw. Kunt u zeggen of de ingang aan de linkerkant is? Ik sla niet af bij het eerste kruispunt, maar bij het tweede.",
+      "text": "Ik neem geen mei van Milikram. Ik neem geen mei van Milikram te maken, maar mogen van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van",
+      "ms": 10120,
+      "wordErrors": 68,
+      "referenceWords": 47,
+      "wer": 1.446808510638298,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "nl"
+    },
+    {
+      "model": "base",
+      "id": "nl-160",
+      "duration": 16.428125,
+      "generationLimit": 256,
+      "reference": "Ik neem geen vijf milligram. Ik neem tien milligram twee keer per dag. Morgen om negen uur neem ik bus twaalf naar het blauwe gebouw. Kunt u zeggen of de ingang aan de linkerkant is? Ik sla niet af bij het eerste kruispunt, maar bij het tweede.",
+      "text": "Ik neem geen mei van Milikram. Ik neem geen mei van Milikram te maken, maar mogen van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf uit te lopen. Ik neem geen mei van Milikram niet meer smaalf",
+      "ms": 18591,
+      "wordErrors": 144,
+      "referenceWords": 47,
+      "wer": 3.0638297872340425,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "nl"
+    },
+    {
+      "model": "base",
+      "id": "nl-220",
+      "duration": 11.582,
+      "generationLimit": 128,
+      "reference": "Ik neem geen vijf milligram. Ik neem tien milligram twee keer per dag. Morgen om negen uur neem ik bus twaalf naar het blauwe gebouw. Kunt u zeggen of de ingang aan de linkerkant is? Ik sla niet af bij het eerste kruispunt, maar bij het tweede.",
+      "text": "",
+      "ms": 10635,
+      "wordErrors": 47,
+      "referenceWords": 47,
+      "wer": 1,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "nl"
+    },
+    {
+      "model": "base",
+      "id": "nl-220",
+      "duration": 11.582,
+      "generationLimit": 256,
+      "reference": "Ik neem geen vijf milligram. Ik neem tien milligram twee keer per dag. Morgen om negen uur neem ik bus twaalf naar het blauwe gebouw. Kunt u zeggen of de ingang aan de linkerkant is? Ik sla niet af bij het eerste kruispunt, maar bij het tweede.",
+      "text": "",
+      "ms": 36739,
+      "wordErrors": 47,
+      "referenceWords": 47,
+      "wer": 1,
+      "synthetic": true,
+      "viaVAD": false,
+      "sampleRate": 16000,
+      "forcedLanguage": "nl"
+    }
+  ],
+  "externalRequests": [],
+  "physicalAndroid": false,
+  "limitations": [
+    "Synthetic eSpeak1.48; not representative human Android speech; no physical mic or listening",
+    "Outputs include current repetition rejection; warning fields were not recorded in this run",
+    "Not a basis to select Base/Small or promise accuracy improvement"
+  ],
+  "models": {
+    "tiny": {
+      "repo": "Xenova/whisper-tiny",
+      "revision": "5332fcc35e32a33b86612b9a57a89be7906102b1",
+      "onnxBytes": 40852675,
+      "allFilesBytes": 43679069
+    },
+    "base": {
+      "repo": "onnx-community/whisper-base",
+      "revision": "1846881b6b3a3024392c1eea3ad983695bc23925",
+      "onnxBytes": 76894629,
+      "allFilesBytes": 79753655
+    },
+    "small": {
+      "repo": "onnx-community/whisper-small",
+      "revision": "36050c46d777d46dc4b5f43f6d90574fc38f8732",
+      "onnxBytes": 249077005,
+      "downloaded": false,
+      "tested": false
+    }
+  },
+  "fixtures": [
+    {
+      "id": "pl-160",
+      "lang": "pl",
+      "wpmSetting": 160,
+      "reference": "Nie biorę pięciu miligramów. Biorę dziesięć miligramów dwa razy dziennie. Jutro o dziewiątej pojadę autobusem numer dwanaście do niebieskiego budynku. Proszę powiedzieć, czy wejście jest po lewej stronie. Nie skręcam przy pierwszym skrzyżowaniu, tylko przy drugim.",
+      "duration": 19.0636875,
+      "file": "pl-160.f32",
+      "synthetic": true,
+      "bytes": 1220076,
+      "sha256": "582ecc1142de8659f8a0f2937dd6d2ad16d1550e580d76e357908b04283ff452"
+    },
+    {
+      "id": "pl-220",
+      "lang": "pl",
+      "wpmSetting": 220,
+      "reference": "Nie biorę pięciu miligramów. Biorę dziesięć miligramów dwa razy dziennie. Jutro o dziewiątej pojadę autobusem numer dwanaście do niebieskiego budynku. Proszę powiedzieć, czy wejście jest po lewej stronie. Nie skręcam przy pierwszym skrzyżowaniu, tylko przy drugim.",
+      "duration": 13.85025,
+      "file": "pl-220.f32",
+      "synthetic": true,
+      "bytes": 886416,
+      "sha256": "1eb5c986f9400dc32774fc2016cdb8874b4e50ac051aabc23449caa34950dd9d"
+    },
+    {
+      "id": "nl-160",
+      "lang": "nl",
+      "wpmSetting": 160,
+      "reference": "Ik neem geen vijf milligram. Ik neem tien milligram twee keer per dag. Morgen om negen uur neem ik bus twaalf naar het blauwe gebouw. Kunt u zeggen of de ingang aan de linkerkant is? Ik sla niet af bij het eerste kruispunt, maar bij het tweede.",
+      "duration": 16.428125,
+      "file": "nl-160.f32",
+      "synthetic": true,
+      "bytes": 1051400,
+      "sha256": "dfbe4854f5855f3d7a9da32c12fd1f589caabb49dea15deed75399d820243aab"
+    },
+    {
+      "id": "nl-220",
+      "lang": "nl",
+      "wpmSetting": 220,
+      "reference": "Ik neem geen vijf milligram. Ik neem tien milligram twee keer per dag. Morgen om negen uur neem ik bus twaalf naar het blauwe gebouw. Kunt u zeggen of de ingang aan de linkerkant is? Ik sla niet af bij het eerste kruispunt, maar bij het tweede.",
+      "duration": 11.582,
+      "file": "nl-220.f32",
+      "synthetic": true,
+      "bytes": 741248,
+      "sha256": "5d3a441d64da92782c1b043c27ada8272dada6629c652b2dcc7e055d8eb962f1"
+    }
+  ],
+  "baseManifest": {
+    "repo": "onnx-community/whisper-base",
+    "revision": "1846881b6b3a3024392c1eea3ad983695bc23925",
+    "files": [
+      {
+        "path": "added_tokens.json",
+        "bytes": 34604,
+        "sha256": "9715fd2243b6f06a5858b5e32950d2853f73dd5bc201aafcf76f5082a2d8acd1"
+      },
+      {
+        "path": "config.json",
+        "bytes": 2243,
+        "sha256": "f4d0608f7d918166da7edb3e188de5ef1bfe70d9802e785d271fd88111e9cf4b"
+      },
+      {
+        "path": "generation_config.json",
+        "bytes": 3832,
+        "sha256": "61070cf8de25b1e9256e8e102ded49d8d24a8369ed36ef84fdf21549e68125a0"
+      },
+      {
+        "path": "normalizer.json",
+        "bytes": 52666,
+        "sha256": "bf1c507dc8724ca9cf9903640dacfb69dae2f00edee4f21ceba106a7392f26dd"
+      },
+      {
+        "path": "onnx/decoder_model_merged_quantized.onnx",
+        "bytes": 53693315,
+        "sha256": "fa3ef9902734ce5ae6f9ef2bdb2ba9a6c4b5785b09f4f420ce036573dc9d090b"
+      },
+      {
+        "path": "onnx/encoder_model_quantized.onnx",
+        "bytes": 23201314,
+        "sha256": "5862993336bf33acd23736071aae2b32261d3b1b2f37780194460d4ef974dd46"
+      },
+      {
+        "path": "preprocessor_config.json",
+        "bytes": 339,
+        "sha256": "a6a76d28c93edb273669eb9e0b0636a2bddbb1272c3261e47b7ca6dfdbac1b8d"
+      },
+      {
+        "path": "special_tokens_map.json",
+        "bytes": 2194,
+        "sha256": "e67ae3a0aaa99abcd9f187138e12db1f65c16a14761c50ef10eef2c174a7a691"
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 2480466,
+        "sha256": "27fc476bfe7f17299480be2273fc0608e4d5a99aba2ab5dec5374b4482d1a566"
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 282682,
+        "sha256": "2e036e4dbacfdeb7242c7d4ec4149f4a16e86026048f94d1637e3a8ee9c6a573"
+      }
+    ]
+  }
+}

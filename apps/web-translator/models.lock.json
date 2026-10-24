@@ -1,0 +1,235 @@
+{
+  "version": 1,
+  "models": [
+    {
+      "id": "asr",
+      "repo": "Xenova/whisper-tiny",
+      "revision": "5332fcc35e32a33b86612b9a57a89be7906102b1",
+      "base": "openai/whisper-tiny",
+      "source": null,
+      "target": null,
+      "license": "apache-2.0",
+      "prefix": "",
+      "files": [
+        {
+          "path": "added_tokens.json",
+          "bytes": 2082,
+          "sha256": "ce949fe720c14311cb6c446e69cfe340dc669d7b006077a6feed6ae571dd7e88"
+        },
+        {
+          "path": "config.json",
+          "bytes": 2248,
+          "sha256": "2b2e4e519084e0ea028b19b153f95202735a971870d6844aa26e559edd292e94"
+        },
+        {
+          "path": "generation_config.json",
+          "bytes": 3716,
+          "sha256": "68ac791fcb4999461a313472125042934656240ba1cba7d1c2627fcbb19ac24c"
+        },
+        {
+          "path": "normalizer.json",
+          "bytes": 52666,
+          "sha256": "bf1c507dc8724ca9cf9903640dacfb69dae2f00edee4f21ceba106a7392f26dd"
+        },
+        {
+          "path": "onnx/decoder_model_merged_quantized.onnx",
+          "bytes": 30727765,
+          "sha256": "6c0c125986b007d2e3734bec84c18bda0152071b90b87fadac6d7764499927a0"
+        },
+        {
+          "path": "onnx/encoder_model_quantized.onnx",
+          "bytes": 10124910,
+          "sha256": "fd9d995b9dcb0520f0dbf6cf68651af639fc385f594d9d876e69ca2802dc438e"
+        },
+        {
+          "path": "preprocessor_config.json",
+          "bytes": 339,
+          "sha256": "a6a76d28c93edb273669eb9e0b0636a2bddbb1272c3261e47b7ca6dfdbac1b8d"
+        },
+        {
+          "path": "special_tokens_map.json",
+          "bytes": 2194,
+          "sha256": "e67ae3a0aaa99abcd9f187138e12db1f65c16a14761c50ef10eef2c174a7a691"
+        },
+        {
+          "path": "tokenizer.json",
+          "bytes": 2480466,
+          "sha256": "27fc476bfe7f17299480be2273fc0608e4d5a99aba2ab5dec5374b4482d1a566"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "bytes": 282683,
+          "sha256": "2a4c4281cf9f51ac6ccc406fdc711a087afe6530f671fa7b80953edc498275ce"
+        }
+      ]
+    },
+    {
+      "id": "pl-en",
+      "repo": "Xenova/opus-mt-pl-en",
+      "revision": "aeaf0e003b045248c28a559a5ce6027b54ebdaba",
+      "base": "Helsinki-NLP/opus-mt-pl-en",
+      "source": "pl",
+      "target": "en",
+      "license": "apache-2.0",
+      "prefix": "",
+      "files": [
+        {
+          "path": "config.json",
+          "bytes": 1376,
+          "sha256": "98ccffdad4d25169e4621b05b70824b93855fcc1ac9e917a6faef0ead4d6c799"
+        },
+        {
+          "path": "generation_config.json",
+          "bytes": 293,
+          "sha256": "58d0f9d875ca857930d2e8425c7dd093eef4799d56e6ca94bc067650d001248d"
+        },
+        {
+          "path": "onnx/decoder_model_merged_quantized.onnx",
+          "bytes": 59402168,
+          "sha256": "9ad9da5bce473ca06a9b0a3dbf0793675827e5668ab501e5dc65dac8cecd93ba"
+        },
+        {
+          "path": "onnx/encoder_model_quantized.onnx",
+          "bytes": 52095390,
+          "sha256": "2416eb3c6db52a2d116539bf673b596e6a3d1453153b17778e85c9f55249c832"
+        },
+        {
+          "path": "tokenizer.json",
+          "bytes": 6118576,
+          "sha256": "788e7e69a1dcb862ced197e440581bfcb672b37173dd0c5ff55649c7c8394f74"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "bytes": 280,
+          "sha256": "d29a00bce5fa370984ef9bd8c612625b90d9a4843cffd27c067fde320080dfe0"
+        }
+      ]
+    },
+    {
+      "id": "en-nl",
+      "repo": "Xenova/opus-mt-en-nl",
+      "revision": "c3a0541231a7329b4492809fc2bd7ab7d2ceb0bc",
+      "base": "Helsinki-NLP/opus-mt-en-nl",
+      "source": "en",
+      "target": "nl",
+      "license": "apache-2.0",
+      "prefix": "",
+      "files": [
+        {
+          "path": "config.json",
+          "bytes": 1376,
+          "sha256": "3469caf791a6a038451e418d4254434087c94afc7d9676c03d38b9c64ce258c5"
+        },
+        {
+          "path": "generation_config.json",
+          "bytes": 293,
+          "sha256": "d22743c9c80fd838a33581944bdbe6f86b1374ec5d851d954430dd3f2d2552d1"
+        },
+        {
+          "path": "onnx/decoder_model_merged_quantized.onnx",
+          "bytes": 61258735,
+          "sha256": "5f8034fddc4cdcb6fa6c3b64a06e1cd9b1955c0c6dcd13e0e47610ab99ac4a99"
+        },
+        {
+          "path": "onnx/encoder_model_quantized.onnx",
+          "bytes": 53937565,
+          "sha256": "0febb990f8ca8ed9fd3e0017dfcb55ec5293999f20ead81d2bb4370e9e3120ff"
+        },
+        {
+          "path": "tokenizer.json",
+          "bytes": 6433167,
+          "sha256": "c6b55d9ac70b2a566f0307c6f80d3136fb839ed8e70bb16186324747df58668b"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "bytes": 280,
+          "sha256": "75fc8adb60ba4b1d9fd242e0c73e1e38e9571e6822a2601ab78dd917fddaadfe"
+        }
+      ]
+    },
+    {
+      "id": "nl-en",
+      "repo": "Xenova/opus-mt-nl-en",
+      "revision": "82c42d95d1508037cbe7172d85fd4e940a2f3584",
+      "base": "Helsinki-NLP/opus-mt-nl-en",
+      "source": "nl",
+      "target": "en",
+      "license": "apache-2.0",
+      "prefix": "",
+      "files": [
+        {
+          "path": "config.json",
+          "bytes": 1376,
+          "sha256": "e03f36d5475954f1c09b08d0da68d6ea06a051e299a399e740554ed768d2a99c"
+        },
+        {
+          "path": "generation_config.json",
+          "bytes": 293,
+          "sha256": "b11b1ae60dbb7656d021197a8883e81004dbdb74652df9d113f2efe2ca0dd974"
+        },
+        {
+          "path": "onnx/decoder_model_merged_quantized.onnx",
+          "bytes": 61258736,
+          "sha256": "ad4df9a08f16952c0d9ee06807f54d62fcd07a9109c2c0b8ea05a4422d7bf4d7"
+        },
+        {
+          "path": "onnx/encoder_model_quantized.onnx",
+          "bytes": 53937566,
+          "sha256": "7b8b1e9071bed8e2394e3bd2f65b952700b1dd1293d087141134c8bac018653b"
+        },
+        {
+          "path": "tokenizer.json",
+          "bytes": 6433167,
+          "sha256": "c6b55d9ac70b2a566f0307c6f80d3136fb839ed8e70bb16186324747df58668b"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "bytes": 280,
+          "sha256": "7e7b5a6712709169fe3bcd7fe1bfb851310e09b4ef70a7e39b176de30e420657"
+        }
+      ]
+    },
+    {
+      "id": "en-pl",
+      "repo": "TigreGotico/opus-mt-en-pl-onnx",
+      "revision": "22ac61d6f7a5e58e0e2d0671a5dcff91b9c66f54",
+      "base": "Helsinki-NLP/opus-mt-en-sla",
+      "source": "en",
+      "target": "pl",
+      "license": "apache-2.0",
+      "prefix": ">>pol<< ",
+      "files": [
+        {
+          "path": "config.json",
+          "bytes": 1311,
+          "sha256": "697e0b5cf9ddf67225a07f5620d0f7fab374098f5b7efe23cecc598a5af3b821"
+        },
+        {
+          "path": "generation_config.json",
+          "bytes": 288,
+          "sha256": "d8e9eb84f72d481769c5d43c4670950410a88cfcdae148333b5b2bc2a57ba3f5"
+        },
+        {
+          "path": "onnx/decoder_model_merged_quantized.onnx",
+          "bytes": 56713441,
+          "sha256": "2bb33f0816ff2560065765fcef89760ecdb382d9ef17e6d51479611de99ef534"
+        },
+        {
+          "path": "onnx/encoder_model_quantized.onnx",
+          "bytes": 49586951,
+          "sha256": "07005509aee185871eaf3dca95b6aeb4b3477cdd38d3a9d193368a357340677f"
+        },
+        {
+          "path": "tokenizer.json",
+          "bytes": 3576054,
+          "sha256": "6a5fdc5c916764fe2f404945aa296ac20d285cf21a02e5d28642a1018418612f"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "bytes": 849,
+          "sha256": "38247cba4535951dd2c86c8470a0bff11990463e2610388f920cb38293c825f5"
+        }
+      ]
+    }
+  ]
+}

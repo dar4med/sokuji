@@ -1,0 +1,54 @@
+name: Translator artifact delivery smoke
+
+# Registration probe: only this small artifact gate is intended to execute.
+# This gate generates only a public, nonsensitive TXT and its checksum.
+# Enabling Actions for this fork also enables the existing workflows.
+# Inherited jobs on this PR branch have repository guards that skip this fork.
+# main still has unguarded workflows: do not push main or release tags.
+# Preparation commits use [skip ci]; that skips this push too. After authorized
+# fork activation, a change to this file without [skip ci] triggers this gate.
+# workflow_dispatch may need default-branch registration; do not change main
+# to bypass that restriction.
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/voice-translator-mvp]
+    paths: [.github/workflows/translator-artifact-smoke.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  artifact-smoke:
+    if: >-
+      github.repository == 'dar4med/sokuji' &&
+      github.ref == 'refs/heads/feature/voice-translator-mvp' &&
+      github.event.repository.private == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Create nonsensitive TXT and SHA-256 manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/translator-artifact-smoke"
+          cd "$RUNNER_TEMP/translator-artifact-smoke"
+          printf '%s\n' 'Sokuji translator artifact delivery test. No patient data or credentials.' > artifact-test.txt
+          sha256sum artifact-test.txt > SHA256SUMS
+          sha256sum --check SHA256SUMS
+          {
+            printf 'TXT bytes: %s\n\n' "$(wc -c < artifact-test.txt)"
+            cat SHA256SUMS
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload small delivery test (retained for three days)
+        # Official actions/upload-artifact v7.0.2, verified via GitHub tag + commit API.
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: translator-artifact-smoke-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/translator-artifact-smoke/artifact-test.txt
+            ${{ runner.temp }}/translator-artifact-smoke/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 3
+          overwrite: false

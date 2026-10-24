@@ -35,7 +35,9 @@ on:
     tags: ['sidecar-v*']
 
 jobs:
+  # Fork safety: inherited jobs must not run during the translator artifact gate.
   build-linux-x64:
+    if: github.repository != 'dar4med/sokuji'
     # ubuntu-22.04, matching native-build.yml's R37 linux lanes (glibc 2.35 floor);
     # this job's own interpreter is python-build-standalone (portable), so only the
     # sokuji-native wheel it installs is floor-sensitive, not this runner's own glibc.
@@ -76,6 +78,7 @@ jobs:
           path: out/bundles/sidecar-linux-x64-v*
 
   build-linux-arm64:
+    if: github.repository != 'dar4med/sokuji'
     # ubuntu-22.04-arm, matching native-build.yml's R37 linux lanes (glibc 2.35 floor).
     runs-on: ubuntu-22.04-arm
     steps:
@@ -113,6 +116,7 @@ jobs:
           path: out/bundles/sidecar-linux-arm64-v*
 
   build-win-x64:
+    if: github.repository != 'dar4med/sokuji'
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v5
@@ -150,6 +154,7 @@ jobs:
           path: out/bundles/sidecar-win-x64-v*
 
   build-mac-arm64:
+    if: github.repository != 'dar4med/sokuji'
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v5
@@ -184,6 +189,7 @@ jobs:
           path: out/bundles/sidecar-mac-arm64-v*
 
   build-mac-x64:
+    if: github.repository != 'dar4med/sokuji'
     runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v5
@@ -218,7 +224,7 @@ jobs:
           path: out/bundles/sidecar-mac-x64-v*
 
   release:
-    if: startsWith(github.ref, 'refs/tags/sidecar-v')
+    if: github.repository != 'dar4med/sokuji' && startsWith(github.ref, 'refs/tags/sidecar-v')
     needs: [build-linux-x64, build-linux-arm64, build-win-x64, build-mac-arm64, build-mac-x64]
     runs-on: ubuntu-latest
     permissions:

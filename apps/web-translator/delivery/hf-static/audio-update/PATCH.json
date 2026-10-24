@@ -1,0 +1,30 @@
+{
+  "files": {
+    "assets/capture-Bh2ZntkC.js": {
+      "bytes": 71979,
+      "sha256": "254338e99c1e2256f3a088e364167cac5d8333e391242a268df09fa00f0af8c2"
+    },
+    "assets/index-CJ_k8XCq.js": {
+      "bytes": 22481,
+      "sha256": "3dbe83e65044ddfd98c8349a59444062aa97f867e195936dd121c0f9678eb562"
+    }
+  },
+  "preservedFiles": {
+    "assets/inference.worker-DK3oltoU.js": "d6fbb7329848723c4979700a88f1361e6c32b8140fa7b5758e548a9a3b8066dc",
+    "hf-session-adapter.js": "0da02a6f4e0a4db71112e64e6c463d0833a56a8b17a7a3647b33cf988af8cedc"
+  },
+  "baseFiles": {
+    "assets/capture-Bh2ZntkC.js": "f5ef0856feb88b7b661dc88915f7b63469db44ad6af777640e416db767035ac6",
+    "assets/index-CJ_k8XCq.js": "ed8e48ab178b39cc0fa336ea48c3a95c3a03d695fcc388226a9dc2fbe4a77cbe"
+  },
+  "modelsChanged": false,
+  "runtimeFilesChanged": false,
+  "htmlChanged": false,
+  "asrOptionsChanged": false,
+  "hfFixesPreserved": [
+    "verified worker Blob+explicit WASM",
+    "Worker __sign in unchanged adapter",
+    "MAIN verified Blob+explicit WASM",
+    "capture import __sign"
+  ]
+}

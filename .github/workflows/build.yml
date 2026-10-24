@@ -17,6 +17,8 @@ permissions:
   actions: read
 
 jobs:
+  # Fork safety: inherited jobs must not run during the translator artifact gate.
+  # This guard is scoped to this fork; upstream behavior is unchanged.
   # No workflow ran vitest before this one, so `npm run build` (plain
   # `vite build`, no tsc) was the only gate and a consistency test could not
   # fail CI. That is what let the LogsPanel copy-export defect and the
@@ -33,6 +35,7 @@ jobs:
   # of the #470 decode-handoff guard was vacuous for two workers and nothing
   # noticed until a maintainer ran it locally.
   test:
+    if: github.repository != 'dar4med/sokuji'
     name: test (diagnostics)
     runs-on: ubuntu-latest
     steps:
@@ -96,6 +99,7 @@ jobs:
   # model-gated tests skip (pytest.skip / importorskip) instead of failing —
   # see sidecar/tests/test_accel.py and test_catalog.py.
   sidecar-tests:
+    if: github.repository != 'dar4med/sokuji'
     name: sidecar-tests
     runs-on: ubuntu-24.04
     # T3a: least-privilege override -- this job only checks out and runs
@@ -154,6 +158,7 @@ jobs:
         run: python -m pytest sidecar/tests -q
 
   build:
+    if: github.repository != 'dar4med/sokuji'
     name: build (${{ matrix.name }})
     strategy:
       fail-fast: false
@@ -670,7 +675,7 @@ jobs:
 
   sign-windows:
     name: Sign Windows artifacts
-    if: startsWith(github.ref, 'refs/tags/v') && github.repository == 'kizuna-ai-lab/sokuji'
+    if: github.repository != 'dar4med/sokuji' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'kizuna-ai-lab/sokuji'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -725,7 +730,7 @@ jobs:
 
   release:
     # Only run for tag pushes
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.repository != 'dar4med/sokuji' && startsWith(github.ref, 'refs/tags/v')
     needs: [build, sign-windows]
     runs-on: ubuntu-latest
 

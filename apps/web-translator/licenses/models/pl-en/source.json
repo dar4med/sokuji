@@ -1,0 +1,7 @@
+{
+  "repo": "Xenova/opus-mt-pl-en",
+  "revision": "aeaf0e003b045248c28a559a5ce6027b54ebdaba",
+  "base": "Helsinki-NLP/opus-mt-pl-en",
+  "baseRevision": "7f2bb874fdfb6139f9842b91a9b75c4a6c93401c",
+  "license": "apache-2.0"
+}

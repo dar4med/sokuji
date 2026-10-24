@@ -1,0 +1,14 @@
+{
+  "worker": "inference.worker-DK3oltoU.js",
+  "baseSha256": "a1a7e6a143df3f5c25916b405aaaa63a9cce5d484de59cc03d2b3270ade6ccd0",
+  "bytes": 547482,
+  "sha256": "d6fbb7329848723c4979700a88f1361e6c32b8140fa7b5758e548a9a3b8066dc",
+  "replacementCount": 1,
+  "mjsBytes": 20856,
+  "mjsSha256": "30dd851d9c00622940500f71ddd2ff8820c5cb65270816080175b958705385a8",
+  "wasmChanged": false,
+  "modelsChanged": false,
+  "numThreads": 1,
+  "proxy": false,
+  "sourceApplicationSha": "38d8c828b1dd521598a9263b747e62abba654029"
+}

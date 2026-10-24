@@ -1,0 +1,18 @@
+{
+  "applicationRuntimeUnchanged": true,
+  "applicationSourceSha": "cfaf56c68d5dcc87173cc8e23173b4cc5c862eee",
+  "deployedHfHeadUnchanged": "1a1eb79ba3c7d13c4bb3bf38846673139b2b6962",
+  "defaultModelsLockSha256": "e502daddf85dc5ab91338cf2d90b237306ff482cc89aafa0c300094e96c3d489",
+  "testedWorkerSha256": "d6fbb7329848723c4979700a88f1361e6c32b8140fa7b5758e548a9a3b8066dc",
+  "qaWorkerSha256": "0c73dbc44ab0e856268d4c0bde0686d53ce6241133a716b154af4cb5d1951efb",
+  "qaWorkerChanges": "Only add qaRawAsr to responses; no inference/options/filter changes",
+  "independentWerRecomputedRows": 84,
+  "mtControls": 48,
+  "candidateValidatedFiles": 15,
+  "candidateBytes": 252416175,
+  "candidateUploadSourcesSha256": "66c14d928378878fd25d2eeb8daf458ae7dc12ba014f45329c93f0b777856a17",
+  "candidateModelManifestSha256": "4ab2b00963f642b4353c2fb59ed174054ac309e2eb5afb0e05eb5653fc224645",
+  "physicalAndroidTested": false,
+  "hfUploaded": false,
+  "ciRun": false
+}

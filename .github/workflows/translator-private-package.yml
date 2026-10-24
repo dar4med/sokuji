@@ -1,0 +1,353 @@
+name: Translator manual build and FTPS deployment
+
+# Reuse registered workflow ID 394420703. No push/PR trigger or artifact upload.
+# Connection and protection are separate Environment-approved operations.
+# Neither protection job builds or transfers any application payload.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Build and anonymous preflight, or explicitly approved first deployment
+        type: choice
+        options: [build-preflight, connection-preflight, provision-protection, inspect-recover-protection, test-relative-auth, deploy]
+        default: build-preflight
+      approve_deployment:
+        description: Future owner approval of first payload transfer (protection must already work)
+        type: boolean
+        default: false
+      approve_connection_preflight:
+        description: Approve TLS/login/PWD/target MLSD only, strictly no remote writes
+        type: boolean
+        default: false
+      approve_protection:
+        description: Approve selected protection-only operation, never application payload
+        type: boolean
+        default: false
+      operator_mapping_confirmed:
+        description: Confirm the reviewed dPanel mapping and observed FTP root for AuthUserFile
+        type: boolean
+        default: false
+      connection_preflight_run:
+        description: Previously verified successful read-only connection run ID
+        type: string
+        default: ''
+      approve_inspection:
+        description: Approve bounded read-only inspection of existing owned protection and HTTP states
+        type: boolean
+        default: false
+      approve_recovery:
+        description: Additionally approve known-hash-only child protection recovery and static control file
+        type: boolean
+        default: false
+      approval_sha:
+        description: Exact reviewed 40-character source SHA; required for connection, protection or deploy
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: translator-test-ftps-single-writer
+  cancel-in-progress: false
+
+jobs:
+  connection-preflight:
+    if: >-
+      github.repository == 'dar4med/sokuji' &&
+      github.ref == 'refs/heads/feature/voice-translator-mvp' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.mode == 'connection-preflight'
+    environment: translator-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: apps/web-translator
+        shell: bash
+    steps:
+      - name: Validate approved read-only operation
+        working-directory: ${{ github.workspace }}
+        env:
+          CONNECTION_APPROVED: ${{ inputs.approve_connection_preflight }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          assert os.environ['CONNECTION_APPROVED'] == 'true', 'Explicit read-only approval required'
+          assert os.environ['APPROVAL_SHA'] == os.environ['GITHUB_SHA'], 'Reviewed SHA must match'
+          PY
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: 3.12.14
+      - name: Offline TLS/path/no-write regression
+        run: python3 -m unittest discover -s tests -p 'test_*ftps*.py' -v
+      - name: Read-only FTPS login and encrypted target MLSD
+        env:
+          CONNECTION_APPROVED: ${{ inputs.approve_connection_preflight }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+          FTPS_USERNAME: ${{ secrets.FTPS_USERNAME }}
+          FTPS_PASSWORD: ${{ secrets.FTPS_PASSWORD }}
+        run: python3 scripts/ftps-protection.py --operation connection-preflight --execute
+
+  provision-protection:
+    if: >-
+      github.repository == 'dar4med/sokuji' &&
+      github.ref == 'refs/heads/feature/voice-translator-mvp' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.mode == 'provision-protection'
+    environment: translator-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: apps/web-translator
+        shell: bash
+    steps:
+      - name: Validate separately approved protection-only scope
+        working-directory: ${{ github.workspace }}
+        env:
+          PROTECTION_APPROVED: ${{ inputs.approve_protection }}
+          OPERATOR_MAPPING_CONFIRMED: ${{ inputs.operator_mapping_confirmed }}
+          CONNECTION_PREFLIGHT_RUN: ${{ inputs.connection_preflight_run }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          assert os.environ['PROTECTION_APPROVED'] == 'true', 'Separate protection approval required'
+          assert os.environ['OPERATOR_MAPPING_CONFIRMED'] == 'true', 'Operator mapping must be reviewed'
+          assert os.environ['CONNECTION_PREFLIGHT_RUN'] == '40064907899', 'Verified prior connection required'
+          assert os.environ['APPROVAL_SHA'] == os.environ['GITHUB_SHA'], 'Exact reviewed SHA required'
+          PY
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: 3.12.14
+      - name: Offline protection and failure rollback tests
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Provision only private bcrypt file and child protection, then prove real HTTP states
+        env:
+          PROTECTION_APPROVED: ${{ inputs.approve_protection }}
+          OPERATOR_MAPPING_CONFIRMED: ${{ inputs.operator_mapping_confirmed }}
+          CONNECTION_PREFLIGHT_RUN: ${{ inputs.connection_preflight_run }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+          FTPS_USERNAME: ${{ secrets.FTPS_USERNAME }}
+          FTPS_PASSWORD: ${{ secrets.FTPS_PASSWORD }}
+          TRANSLATOR_BASIC_USERNAME: ${{ secrets.TRANSLATOR_BASIC_USERNAME }}
+          TRANSLATOR_BASIC_PASSWORD: ${{ secrets.TRANSLATOR_BASIC_PASSWORD }}
+        run: python3 scripts/provision-protection.py --execute
+
+  inspect-recover-protection:
+    if: >-
+      github.repository == 'dar4med/sokuji' &&
+      github.ref == 'refs/heads/feature/voice-translator-mvp' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.mode == 'inspect-recover-protection'
+    environment: translator-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: apps/web-translator
+        shell: bash
+    steps:
+      - name: Validate exact reviewed inspection and optional recovery
+        working-directory: ${{ github.workspace }}
+        env:
+          INSPECTION_APPROVED: ${{ inputs.approve_inspection }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          assert os.environ['INSPECTION_APPROVED'] == 'true', 'Explicit inspection approval required'
+          assert os.environ['APPROVAL_SHA'] == os.environ['GITHUB_SHA'], 'Exact reviewed SHA required'
+          PY
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: 3.12.14
+      - name: Offline existing-state and FTP reply-queue regression
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Inspect existing protection; write only when separately approved
+        env:
+          INSPECTION_APPROVED: ${{ inputs.approve_inspection }}
+          RECOVERY_APPROVED: ${{ inputs.approve_recovery }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+          FTPS_USERNAME: ${{ secrets.FTPS_USERNAME }}
+          FTPS_PASSWORD: ${{ secrets.FTPS_PASSWORD }}
+          TRANSLATOR_BASIC_USERNAME: ${{ secrets.TRANSLATOR_BASIC_USERNAME }}
+          TRANSLATOR_BASIC_PASSWORD: ${{ secrets.TRANSLATOR_BASIC_PASSWORD }}
+        run: |
+          if [ "$RECOVERY_APPROVED" = true ]; then
+            python3 scripts/recover-protection.py --execute --recover
+          else
+            python3 scripts/recover-protection.py --execute
+          fi
+
+  test-relative-auth:
+    if: >-
+      github.repository == 'dar4med/sokuji' &&
+      github.ref == 'refs/heads/feature/voice-translator-mvp' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.mode == 'test-relative-auth'
+    environment: translator-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: apps/web-translator
+        shell: bash
+    steps:
+      - name: Validate separately reviewed same-directory protection experiment
+        working-directory: ${{ github.workspace }}
+        env:
+          PROTECTION_APPROVED: ${{ inputs.approve_protection }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          assert os.environ['PROTECTION_APPROVED'] == 'true', 'Relative AuthUserFile experiment approval required'
+          assert os.environ['APPROVAL_SHA'] == os.environ['GITHUB_SHA'], 'Exact reviewed SHA required'
+          PY
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: 3.12.14
+      - name: Offline relative auth ordering, non-disclosure and rollback tests
+        run: python3 -m unittest discover -s tests -p 'test_relative_auth.py' -v
+      - name: Protection-only relative AuthUserFile test, no application or external file access
+        env:
+          PROTECTION_APPROVED: ${{ inputs.approve_protection }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+          FTPS_USERNAME: ${{ secrets.FTPS_USERNAME }}
+          FTPS_PASSWORD: ${{ secrets.FTPS_PASSWORD }}
+          TRANSLATOR_BASIC_USERNAME: ${{ secrets.TRANSLATOR_BASIC_USERNAME }}
+          TRANSLATOR_BASIC_PASSWORD: ${{ secrets.TRANSLATOR_BASIC_PASSWORD }}
+        run: python3 scripts/test-relative-auth.py --execute
+
+  package:
+    if: >-
+      github.repository == 'dar4med/sokuji' &&
+      github.ref == 'refs/heads/feature/voice-translator-mvp' &&
+      github.event_name == 'workflow_dispatch' &&
+      (inputs.mode == 'build-preflight' || inputs.mode == 'deploy') &&
+      github.event.repository.private == false
+    environment: translator-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: apps/web-translator
+        shell: bash
+    env:
+      CHROMIUM_PATH: /usr/bin/google-chrome
+      OMP_NUM_THREADS: '2'
+    steps:
+      - name: Validate manual intent before checkout or network transfer
+        env:
+          DEPLOY_MODE: ${{ inputs.mode }}
+          DEPLOY_APPROVED: ${{ inputs.approve_deployment }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+        working-directory: ${{ github.workspace }}
+        run: |
+          python3 - <<'PY'
+          import os
+          mode = os.environ['DEPLOY_MODE']
+          assert mode in ['build-preflight', 'deploy'], 'Unknown mode'
+          if mode == 'deploy':
+              assert os.environ['DEPLOY_APPROVED'] == 'true', 'Explicit transfer approval required'
+              assert os.environ['APPROVAL_SHA'] == os.environ['GITHUB_SHA'], 'Reviewed SHA must equal this run SHA'
+          PY
+
+      - name: Checkout this exact source revision without persisted credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up the tested Node version without dependency cache
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+
+      - name: Set up the tested Python version without dependency cache
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: 3.12.14
+
+      - name: Check standard runner browser and fictional-audio prerequisites
+        run: |
+          python3 -m unittest discover -s tests -p test_deploy_ftps.py -v
+          python3 scripts/ci-run.py bash scripts/ci-prerequisites.sh
+
+      - name: Install only the prototype's locked dependencies
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          python3 -m venv .tools/model-tools
+          .tools/model-tools/bin/pip install --no-cache-dir -r scripts/model-requirements.txt -c scripts/model-constraints.txt
+
+      - name: Reproduce the existing pinned models without refreshing the lock
+        run: |
+          set -euo pipefail
+          .tools/model-tools/bin/python scripts/prepare-models.py --locked
+          python3 scripts/verify-models.py
+          git diff --exit-code
+
+      - name: Copy pinned runtime and licenses, build TypeScript and static assets
+        run: |
+          set -euo pipefail
+          npm run assets
+          npm run build
+          python3 scripts/verify-models.py --directory dist
+
+      - name: Logic, real browser Basic Auth and portable payload, CSP, offline helper
+        run: |
+          set -euo pipefail
+          python3 scripts/ci-run.py npm test
+          npm run preview > "$RUNNER_TEMP/translator-preview.log" 2>&1 &
+          translator_preview_pid=$!
+          trap 'kill "$translator_preview_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:5180/ > /dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:5180/ > /dev/null
+          python3 scripts/ci-run.py npm run test:csp
+          python3 scripts/ci-run.py npm run test:auth
+          python3 scripts/ci-run.py node scripts/delivery-helper-test.mjs
+          git diff --exit-code
+
+      - name: Package verified payload and verify complete ZIP extraction and SHA-256
+        run: |
+          set -euo pipefail
+          python3 scripts/package-private.py --output-dir "$RUNNER_TEMP/translator-packages"
+
+      - name: Anonymous HTTPS gate only, without FTP or credentials
+        if: inputs.mode == 'build-preflight'
+        run: python3 scripts/deploy-ftps.py --package-dir "$RUNNER_TEMP/translator-packages" --check-anonymous
+
+      - name: Approved first deployment, only after real 401 and authenticated maintenance
+        if: inputs.mode == 'deploy' && inputs.approve_deployment && inputs.approval_sha == github.sha
+        env:
+          FTPS_USERNAME: ${{ secrets.FTPS_USERNAME }}
+          FTPS_PASSWORD: ${{ secrets.FTPS_PASSWORD }}
+          TRANSLATOR_BASIC_USERNAME: ${{ secrets.TRANSLATOR_BASIC_USERNAME }}
+          TRANSLATOR_BASIC_PASSWORD: ${{ secrets.TRANSLATOR_BASIC_PASSWORD }}
+          TRANSLATOR_HTACCESS_SHA256: ${{ vars.TRANSLATOR_HTACCESS_SHA256 }}
+        # Do not wrap secret-bearing transport in a generic raw-error logger.
+        run: python3 scripts/deploy-ftps.py --package-dir "$RUNNER_TEMP/translator-packages" --execute

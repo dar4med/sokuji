@@ -1,0 +1,741 @@
+{
+  "corpusSha256": "2f2e96ebcbc40957ddbe0a4c7e569719a7018378a90192f2c453db7bef727e1e",
+  "startedAt": "2026-10-24T18:26:33.812Z",
+  "environment": {
+    "platform": "linux",
+    "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "logicalCpus": 5,
+    "node": "v24.19.0",
+    "runtime": "onnxruntime-web1.22.0, existing SIMD WASM",
+    "wasmThreads": 1,
+    "proxy": false,
+    "runtimeMjsSha256": "30dd851d9c00622940500f71ddd2ff8820c5cb65270816080175b958705385a8",
+    "runtimeWasmSha256": "71aef04959c5c1b6de461b6538e2058e306610034a85aad2742d0c7fd4533fe4"
+  },
+  "options": {
+    "task": "transcribe",
+    "forcedLanguages": {
+      "pl": "polish",
+      "nl": "dutch"
+    },
+    "max_new_tokens": 128,
+    "return_timestamps": false,
+    "device": "wasm",
+    "dtype": "q8"
+  },
+  "normalization": "Unicode NFC, lowercase, tokens are runs of Unicode letters/numbers; punctuation/apostrophes/hyphens are separators. Preserve diacritics and digits; no numeric expansion or transcript correction. Micro WER=sumLevenshtein/sumReferenceWords.",
+  "measurements": "Cold init=new browser/worker, models already SHA-verified in CacheStorage, no download time. Pass1 first/cold then remaining calls; pass2 same model retained/warm. Browser RSS sums sampled live browser processes every~100ms; includes shared pages/services/cache, no PSS, may miss short peaks. Not exact JS or WASM heap, not Android RAM.",
+  "variants": [
+    {
+      "model": "tiny",
+      "repo": "Xenova/whisper-tiny",
+      "revision": "5332fcc35e32a33b86612b9a57a89be7906102b1",
+      "filesBytes": 43679069,
+      "browser": "154.0.8037.57",
+      "coldInitMs": 1524.611866,
+      "crossOriginIsolated": false,
+      "memoryPeakRssBytes": {
+        "baseline": 411508736,
+        "cacheFill": 496349184,
+        "modelInit": 848949248,
+        "inference": 1583935488
+      },
+      "samplingErrors": []
+    },
+    {
+      "model": "base",
+      "repo": "onnx-community/whisper-base",
+      "revision": "1846881b6b3a3024392c1eea3ad983695bc23925",
+      "filesBytes": 79753655,
+      "browser": "154.0.8037.57",
+      "coldInitMs": 1936.9603599999973,
+      "crossOriginIsolated": false,
+      "memoryPeakRssBytes": {
+        "baseline": 404205568,
+        "cacheFill": 543145984,
+        "modelInit": 1030053888,
+        "inference": 1188720640
+      },
+      "samplingErrors": []
+    }
+  ],
+  "results": [
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "pl",
+      "id": 1881,
+      "rowIndex": 9,
+      "duration": 8.28,
+      "reference": "Udostępniając wycieczkę terenową w trybie wirtualnym, można stymulować refleksje na jej temat i podzielić się doświadczeniami z kolejnymi klasami.",
+      "rawAsr": "udostępnijając wycieczkę teredową wstrybili tu mamy można z tym olować refleksję na internet i podzielić do ćwiczenia miks kolejnym mikrosami",
+      "applicationText": "udostępnijając wycieczkę teredową wstrybili tu mamy można z tym olować refleksję na internet i podzielić do ćwiczenia miks kolejnym mikrosami",
+      "warning": null,
+      "engineMs": 3566,
+      "wallMs": 3588.7236510000002,
+      "rtf": 0.43067632850241544,
+      "segmentFiles": [
+        "segments/pl-1881-0.f32"
+      ],
+      "rawScore": {
+        "errors": 16,
+        "referenceWords": 19,
+        "wer": 0.8421052631578947
+      },
+      "applicationScore": {
+        "errors": 16,
+        "referenceWords": 19,
+        "wer": 0.8421052631578947
+      }
+    },
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "pl",
+      "id": 1793,
+      "rowIndex": 10,
+      "duration": 11.76,
+      "reference": "Jeśli nie masz w zwyczaju jeździć po wiejskich drogach, miej oczy dookoła głowy, bo często napotkasz strome podjazdy, wąskie odcinki i ostre zakręty.",
+      "rawAsr": "Jeśli nie może zwycięć po wiejskich drugach, mi oczy do około głowy, bo często nad podkażstrum, podjazd, wąskiej odcinki i osyza klienty.",
+      "applicationText": "Jeśli nie może zwycięć po wiejskich drugach, mi oczy do około głowy, bo często nad podkażstrum, podjazd, wąskiej odcinki i osyza klienty.",
+      "warning": null,
+      "engineMs": 5361,
+      "wallMs": 5377.978624999999,
+      "rtf": 0.4558673469387755,
+      "segmentFiles": [
+        "segments/pl-1793-0.f32"
+      ],
+      "rawScore": {
+        "errors": 14,
+        "referenceWords": 23,
+        "wer": 0.6086956521739131
+      },
+      "applicationScore": {
+        "errors": 14,
+        "referenceWords": 23,
+        "wer": 0.6086956521739131
+      }
+    },
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "pl",
+      "id": 2003,
+      "rowIndex": 14,
+      "duration": 6.12,
+      "reference": "Najlepsze widoki Hongkongu oferuje nabrzeże Koulun naprzeciwko miasta.",
+      "rawAsr": "Najlepsze widać o kogo oferuje na przykład, że kulun, na przykład w komiasta.",
+      "applicationText": "Najlepsze widać o kogo oferuje na przykład, że kulun, na przykład w komiasta.",
+      "warning": null,
+      "engineMs": 3617,
+      "wallMs": 3632.6224789999997,
+      "rtf": 0.5910130718954248,
+      "segmentFiles": [
+        "segments/pl-2003-0.f32"
+      ],
+      "rawScore": {
+        "errors": 11,
+        "referenceWords": 8,
+        "wer": 1.375
+      },
+      "applicationScore": {
+        "errors": 11,
+        "referenceWords": 8,
+        "wer": 1.375
+      }
+    },
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "pl",
+      "id": 1880,
+      "rowIndex": 16,
+      "duration": 5.88,
+      "reference": "Tak więc kiedy pojawił się ołówek, stał się dobrym przyjacielem wielu osób.",
+      "rawAsr": "Tak więc kiedy pojawi się o wykształcią, dobrze chciałem się w tym wyrosu.",
+      "applicationText": "Tak więc kiedy pojawi się o wykształcią, dobrze chciałem się w tym wyrosu.",
+      "warning": null,
+      "engineMs": 2484,
+      "wallMs": 2498.0380799999984,
+      "rtf": 0.42244897959183675,
+      "segmentFiles": [
+        "segments/pl-1880-0.f32"
+      ],
+      "rawScore": {
+        "errors": 9,
+        "referenceWords": 12,
+        "wer": 0.75
+      },
+      "applicationScore": {
+        "errors": 9,
+        "referenceWords": 12,
+        "wer": 0.75
+      }
+    },
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "pl",
+      "id": 1931,
+      "rowIndex": 18,
+      "duration": 14.04,
+      "reference": "Usługę często wykorzystuje się w żegludze, również statkami rekreacyjnymi oraz podczas ekspedycji wymagających zdalnych danych i usług głosowych.",
+      "rawAsr": "Usuwiam często wykorzystuje się w szegrudze. Również statkami rekryacyjnymi oraz podczas ekspedycji wymawiających z danych, już zługim głosowych.",
+      "applicationText": "Usuwiam często wykorzystuje się w szegrudze. Również statkami rekryacyjnymi oraz podczas ekspedycji wymawiających z danych, już zługim głosowych.",
+      "warning": null,
+      "engineMs": 3111,
+      "wallMs": 3122.3741389999996,
+      "rtf": 0.22158119658119657,
+      "segmentFiles": [
+        "segments/pl-1931-0.f32"
+      ],
+      "rawScore": {
+        "errors": 7,
+        "referenceWords": 18,
+        "wer": 0.3888888888888889
+      },
+      "applicationScore": {
+        "errors": 7,
+        "referenceWords": 18,
+        "wer": 0.3888888888888889
+      }
+    },
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "pl",
+      "id": 1686,
+      "rowIndex": 19,
+      "duration": 13.8,
+      "reference": "W efekcie współpraca w obrębie organizacji w celu pokonania przeszkody może doprowadzić do utworzenia innowacyjnego procesu, który zaspokoi potrzeby klientów.",
+      "rawAsr": "W efekcie współpracach w obriombialisacji w celu pokonania przeszkody może doprowadzić do utworzenia innowacyjnego procesu, który za spokoj potrzeby klientów.",
+      "applicationText": "W efekcie współpracach w obriombialisacji w celu pokonania przeszkody może doprowadzić do utworzenia innowacyjnego procesu, który za spokoj potrzeby klientów.",
+      "warning": null,
+      "engineMs": 3221,
+      "wallMs": 3234.091500999999,
+      "rtf": 0.23340579710144926,
+      "segmentFiles": [
+        "segments/pl-1686-0.f32"
+      ],
+      "rawScore": {
+        "errors": 5,
+        "referenceWords": 20,
+        "wer": 0.25
+      },
+      "applicationScore": {
+        "errors": 5,
+        "referenceWords": 20,
+        "wer": 0.25
+      }
+    },
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "nl",
+      "id": 1881,
+      "rowIndex": 241,
+      "duration": 9,
+      "reference": "Virtueel een excursie delen is ook een fantastische manier om terug te blikken op een reis en ervaringen met toekomstige klassen te delen.",
+      "rawAsr": "In de video en de discussie de Nederland is ook fantastisch in die moment die ik op de blikken heb gedaan heb. En daar waren de meetjes de verhaalst.",
+      "applicationText": "In de video en de discussie de Nederland is ook fantastisch in die moment die ik op de blikken heb gedaan heb. En daar waren de meetjes de verhaalst.",
+      "warning": null,
+      "engineMs": 3111,
+      "wallMs": 3123.293084000001,
+      "rtf": 0.3456666666666667,
+      "segmentFiles": [
+        "segments/nl-1881-0.f32"
+      ],
+      "rawScore": {
+        "errors": 25,
+        "referenceWords": 23,
+        "wer": 1.0869565217391304
+      },
+      "applicationScore": {
+        "errors": 25,
+        "referenceWords": 23,
+        "wer": 1.0869565217391304
+      }
+    },
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "nl",
+      "id": 1793,
+      "rowIndex": 338,
+      "duration": 8.1,
+      "reference": "Ben je niet gewend om op landweggetjes te rijden? Houd dan je hoofd erbij. Je komt veel steile hellingen, smalle straatjes en scherpe bochten tegen.",
+      "rawAsr": "Ben je niet gewend om op land weg te streiden? Houd je hoofd te bij? Ik kom het veel stijle en ik ga een beetje schrijp op bocht te tegen.",
+      "applicationText": "Ben je niet gewend om op land weg te streiden? Houd je hoofd te bij? Ik kom het veel stijle en ik ga een beetje schrijp op bocht te tegen.",
+      "warning": null,
+      "engineMs": 3313,
+      "wallMs": 3324.600297000001,
+      "rtf": 0.40901234567901235,
+      "segmentFiles": [
+        "segments/nl-1793-0.f32"
+      ],
+      "rawScore": {
+        "errors": 19,
+        "referenceWords": 25,
+        "wer": 0.76
+      },
+      "applicationScore": {
+        "errors": 19,
+        "referenceWords": 25,
+        "wer": 0.76
+      }
+    },
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "nl",
+      "id": 2003,
+      "rowIndex": 208,
+      "duration": 6,
+      "reference": "Voor het beste uitzicht op Hongkong verlaat je het eiland en ga je richting de waterkant van Kowloon aan de overkant.",
+      "rawAsr": "Voor het beste uitstort op Hong Kong Verlaatje, daar ga je richting de waterkant van Covid-19 aan de overkant.",
+      "applicationText": "Voor het beste uitstort op Hong Kong Verlaatje, daar ga je richting de waterkant van Covid-19 aan de overkant.",
+      "warning": null,
+      "engineMs": 2993,
+      "wallMs": 3012.2601829999985,
+      "rtf": 0.49883333333333335,
+      "segmentFiles": [
+        "segments/nl-2003-0.f32"
+      ],
+      "rawScore": {
+        "errors": 9,
+        "referenceWords": 21,
+        "wer": 0.42857142857142855
+      },
+      "applicationScore": {
+        "errors": 9,
+        "referenceWords": 21,
+        "wer": 0.42857142857142855
+      }
+    },
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "nl",
+      "id": 1880,
+      "rowIndex": 138,
+      "duration": 4.26,
+      "reference": "Daarom was het potlood voor veel mensen een trouwe vriend toen het werd gelanceerd.",
+      "rawAsr": "Daar was het probleem voor veel mensen een 3 over 1 ton het werkt van ons zier.",
+      "applicationText": "Daar was het probleem voor veel mensen een 3 over 1 ton het werkt van ons zier.",
+      "warning": null,
+      "engineMs": 2909,
+      "wallMs": 2916.9905179999987,
+      "rtf": 0.6828638497652583,
+      "segmentFiles": [
+        "segments/nl-1880-0.f32"
+      ],
+      "rawScore": {
+        "errors": 10,
+        "referenceWords": 14,
+        "wer": 0.7142857142857143
+      },
+      "applicationScore": {
+        "errors": 10,
+        "referenceWords": 14,
+        "wer": 0.7142857142857143
+      }
+    },
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "nl",
+      "id": 1931,
+      "rowIndex": 304,
+      "duration": 9.3,
+      "reference": "Deze dienst wordt vaak gebruikt door de scheepvaart, waaronder pleziervaartuigen, en voor expedities waarbij er behoefte is aan externe gegevens en communicatie.",
+      "rawAsr": "Deze lindsververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververver",
+      "applicationText": "Deze lindsververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververververver",
+      "warning": null,
+      "engineMs": 5127,
+      "wallMs": 5142.220235000001,
+      "rtf": 0.5512903225806451,
+      "segmentFiles": [
+        "segments/nl-1931-0.f32"
+      ],
+      "rawScore": {
+        "errors": 21,
+        "referenceWords": 22,
+        "wer": 0.9545454545454546
+      },
+      "applicationScore": {
+        "errors": 21,
+        "referenceWords": 22,
+        "wer": 0.9545454545454546
+      }
+    },
+    {
+      "model": "tiny",
+      "pass": 1,
+      "language": "nl",
+      "id": 1686,
+      "rowIndex": 132,
+      "duration": 11.4,
+      "reference": "Het resultaat hiervan is dat het proces van een organisatie die zich samen inspant om een hindernis te overwinnen, kan leiden tot een nieuw innovatief proces om te voldoen aan de behoeften van de klant.",
+      "rawAsr": "Het resultaat van de Universiteit van de Universiteit in die 7-innspannende ongeveer 10-nig stilverwinden kan bij de tot een nieuwe innovatie van de proces op de voldoende aan de behoeft van de klant.",
+      "applicationText": "Het resultaat van de Universiteit van de Universiteit in die 7-innspannende ongeveer 10-nig stilverwinden kan bij de tot een nieuwe innovatie van de proces op de voldoende aan de behoeft van de klant.",
+      "warning": null,
+      "engineMs": 3378,
+      "wallMs": 3393.1851520000055,
+      "rtf": 0.2963157894736842,
+      "segmentFiles": [
+        "segments/nl-1686-0.f32"
+      ],
+      "rawScore": {
+        "errors": 26,
+        "referenceWords": 35,
+        "wer": 0.7428571428571429
+      },
+      "applicationScore": {
+        "errors": 26,
+        "referenceWords": 35,
+        "wer": 0.7428571428571429
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "pl",
+      "id": 1881,
+      "rowIndex": 9,
+      "duration": 8.28,
+      "reference": "Udostępniając wycieczkę terenową w trybie wirtualnym, można stymulować refleksje na jej temat i podzielić się doświadczeniami z kolejnymi klasami.",
+      "rawAsr": "Udostępniając wycieczkę terenową w trybie widualnym, można z tym olować refleksję na itemat i podzielić się doświadczeniami z kolejnymi klasami.",
+      "applicationText": "Udostępniając wycieczkę terenową w trybie widualnym, można z tym olować refleksję na itemat i podzielić się doświadczeniami z kolejnymi klasami.",
+      "warning": null,
+      "engineMs": 7029,
+      "wallMs": 7065.740378000002,
+      "rtf": 0.8489130434782609,
+      "segmentFiles": [
+        "segments/pl-1881-0.f32"
+      ],
+      "rawScore": {
+        "errors": 7,
+        "referenceWords": 19,
+        "wer": 0.3684210526315789
+      },
+      "applicationScore": {
+        "errors": 7,
+        "referenceWords": 19,
+        "wer": 0.3684210526315789
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "pl",
+      "id": 1793,
+      "rowIndex": 10,
+      "duration": 11.76,
+      "reference": "Jeśli nie masz w zwyczaju jeździć po wiejskich drogach, miej oczy dookoła głowy, bo często napotkasz strome podjazdy, wąskie odcinki i ostre zakręty.",
+      "rawAsr": "Jeśli nie możesz zwyczajowiedzieć po wiejskich drogach, mi oczy dookoła głowy. Moja cześć na podkaż strome podjazdy, wąskie odcinki i ostre zakręty.",
+      "applicationText": "Jeśli nie możesz zwyczajowiedzieć po wiejskich drogach, mi oczy dookoła głowy. Moja cześć na podkaż strome podjazdy, wąskie odcinki i ostre zakręty.",
+      "warning": null,
+      "engineMs": 6228,
+      "wallMs": 6240.7311430000045,
+      "rtf": 0.5295918367346939,
+      "segmentFiles": [
+        "segments/pl-1793-0.f32"
+      ],
+      "rawScore": {
+        "errors": 9,
+        "referenceWords": 23,
+        "wer": 0.391304347826087
+      },
+      "applicationScore": {
+        "errors": 9,
+        "referenceWords": 23,
+        "wer": 0.391304347826087
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "pl",
+      "id": 2003,
+      "rowIndex": 14,
+      "duration": 6.12,
+      "reference": "Najlepsze widoki Hongkongu oferuje nabrzeże Koulun naprzeciwko miasta.",
+      "rawAsr": "Najlepsze widoki Hong Kongu oferuje na przyże kulu, np. w komiastach.",
+      "applicationText": "Najlepsze widoki Hong Kongu oferuje na przyże kulu, np. w komiastach.",
+      "warning": null,
+      "engineMs": 4796,
+      "wallMs": 4807.318448000005,
+      "rtf": 0.7836601307189542,
+      "segmentFiles": [
+        "segments/pl-2003-0.f32"
+      ],
+      "rawScore": {
+        "errors": 8,
+        "referenceWords": 8,
+        "wer": 1
+      },
+      "applicationScore": {
+        "errors": 8,
+        "referenceWords": 8,
+        "wer": 1
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "pl",
+      "id": 1880,
+      "rowIndex": 16,
+      "duration": 5.88,
+      "reference": "Tak więc kiedy pojawił się ołówek, stał się dobrym przyjacielem wielu osób.",
+      "rawAsr": "Tak więc kiedy pojawił się ołówek stał się dobrym przejacienem wielu osób.",
+      "applicationText": "Tak więc kiedy pojawił się ołówek stał się dobrym przejacienem wielu osób.",
+      "warning": null,
+      "engineMs": 4736,
+      "wallMs": 4746.843252999999,
+      "rtf": 0.8054421768707483,
+      "segmentFiles": [
+        "segments/pl-1880-0.f32"
+      ],
+      "rawScore": {
+        "errors": 1,
+        "referenceWords": 12,
+        "wer": 0.08333333333333333
+      },
+      "applicationScore": {
+        "errors": 1,
+        "referenceWords": 12,
+        "wer": 0.08333333333333333
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "pl",
+      "id": 1931,
+      "rowIndex": 18,
+      "duration": 14.04,
+      "reference": "Usługę często wykorzystuje się w żegludze, również statkami rekreacyjnymi oraz podczas ekspedycji wymagających zdalnych danych i usług głosowych.",
+      "rawAsr": "Usługam często wykorzystuje się wszelce, również statkami rekreacyjnymi oraz podczas ekspedycji wymagających z danych danych i usług głosowych.",
+      "applicationText": "Usługam często wykorzystuje się wszelce, również statkami rekreacyjnymi oraz podczas ekspedycji wymagających z danych danych i usług głosowych.",
+      "warning": null,
+      "engineMs": 6065,
+      "wallMs": 6108.382420000009,
+      "rtf": 0.431980056980057,
+      "segmentFiles": [
+        "segments/pl-1931-0.f32"
+      ],
+      "rawScore": {
+        "errors": 5,
+        "referenceWords": 18,
+        "wer": 0.2777777777777778
+      },
+      "applicationScore": {
+        "errors": 5,
+        "referenceWords": 18,
+        "wer": 0.2777777777777778
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "pl",
+      "id": 1686,
+      "rowIndex": 19,
+      "duration": 13.8,
+      "reference": "W efekcie współpraca w obrębie organizacji w celu pokonania przeszkody może doprowadzić do utworzenia innowacyjnego procesu, który zaspokoi potrzeby klientów.",
+      "rawAsr": "W efekcie współpraca w obrębie organizacji w celu pokolenia przeszkody może doprowadzić do utworzenia innowacyjnego procesu, który zaspokoi potrzeby klientów.",
+      "applicationText": "W efekcie współpraca w obrębie organizacji w celu pokolenia przeszkody może doprowadzić do utworzenia innowacyjnego procesu, który zaspokoi potrzeby klientów.",
+      "warning": null,
+      "engineMs": 8453,
+      "wallMs": 8472.398094999997,
+      "rtf": 0.6125362318840579,
+      "segmentFiles": [
+        "segments/pl-1686-0.f32"
+      ],
+      "rawScore": {
+        "errors": 1,
+        "referenceWords": 20,
+        "wer": 0.05
+      },
+      "applicationScore": {
+        "errors": 1,
+        "referenceWords": 20,
+        "wer": 0.05
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "nl",
+      "id": 1881,
+      "rowIndex": 241,
+      "duration": 9,
+      "reference": "Virtueel een excursie delen is ook een fantastische manier om terug te blikken op een reis en ervaringen met toekomstige klassen te delen.",
+      "rawAsr": "Vitueel en excursie deelens is ook een fantastische manier om terug te blikken op een reis en een varingen met toekomstige klasse",
+      "applicationText": "Vitueel en excursie deelens is ook een fantastische manier om terug te blikken op een reis en een varingen met toekomstige klasse",
+      "warning": null,
+      "engineMs": 7072,
+      "wallMs": 7088.232273000001,
+      "rtf": 0.7857777777777778,
+      "segmentFiles": [
+        "segments/nl-1881-0.f32"
+      ],
+      "rawScore": {
+        "errors": 8,
+        "referenceWords": 23,
+        "wer": 0.34782608695652173
+      },
+      "applicationScore": {
+        "errors": 8,
+        "referenceWords": 23,
+        "wer": 0.34782608695652173
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "nl",
+      "id": 1793,
+      "rowIndex": 338,
+      "duration": 8.1,
+      "reference": "Ben je niet gewend om op landweggetjes te rijden? Houd dan je hoofd erbij. Je komt veel steile hellingen, smalle straatjes en scherpe bochten tegen.",
+      "rawAsr": "Ben je niet gewend om op landweg het je strijden? Hou dan je hoofd erbij. Ik kom het veel stijlen herlang en smal het straatjes een scherp op bochtetegen.",
+      "applicationText": "Ben je niet gewend om op landweg het je strijden? Hou dan je hoofd erbij. Ik kom het veel stijlen herlang en smal het straatjes een scherp op bochtetegen.",
+      "warning": null,
+      "engineMs": 8487,
+      "wallMs": 8500.906705000001,
+      "rtf": 1.0477777777777777,
+      "segmentFiles": [
+        "segments/nl-1793-0.f32"
+      ],
+      "rawScore": {
+        "errors": 17,
+        "referenceWords": 25,
+        "wer": 0.68
+      },
+      "applicationScore": {
+        "errors": 17,
+        "referenceWords": 25,
+        "wer": 0.68
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "nl",
+      "id": 2003,
+      "rowIndex": 208,
+      "duration": 6,
+      "reference": "Voor het beste uitzicht op Hongkong verlaat je het eiland en ga je richting de waterkant van Kowloon aan de overkant.",
+      "rawAsr": "Voor het beste uitzicht op Hongkong verlaten je het Eilander Gijrichting de Waterkant van Kovloen aan de overkant.",
+      "applicationText": "Voor het beste uitzicht op Hongkong verlaten je het Eilander Gijrichting de Waterkant van Kovloen aan de overkant.",
+      "warning": null,
+      "engineMs": 6145,
+      "wallMs": 6160.047386999999,
+      "rtf": 1.0241666666666667,
+      "segmentFiles": [
+        "segments/nl-2003-0.f32"
+      ],
+      "rawScore": {
+        "errors": 7,
+        "referenceWords": 21,
+        "wer": 0.3333333333333333
+      },
+      "applicationScore": {
+        "errors": 7,
+        "referenceWords": 21,
+        "wer": 0.3333333333333333
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "nl",
+      "id": 1880,
+      "rowIndex": 138,
+      "duration": 4.26,
+      "reference": "Daarom was het potlood voor veel mensen een trouwe vriend toen het werd gelanceerd.",
+      "rawAsr": "Daar was het bottload voor veel mensen en trouwen verend door het werd gelunserd.",
+      "applicationText": "Daar was het bottload voor veel mensen en trouwen verend door het werd gelunserd.",
+      "warning": null,
+      "engineMs": 5740,
+      "wallMs": 5754.614919999993,
+      "rtf": 1.3474178403755868,
+      "segmentFiles": [
+        "segments/nl-1880-0.f32"
+      ],
+      "rawScore": {
+        "errors": 7,
+        "referenceWords": 14,
+        "wer": 0.5
+      },
+      "applicationScore": {
+        "errors": 7,
+        "referenceWords": 14,
+        "wer": 0.5
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "nl",
+      "id": 1931,
+      "rowIndex": 304,
+      "duration": 9.3,
+      "reference": "Deze dienst wordt vaak gebruikt door de scheepvaart, waaronder pleziervaartuigen, en voor expedities waarbij er behoefte is aan externe gegevens en communicatie.",
+      "rawAsr": "Deze dienst wordt vaker gebruikt voor de scheepvaart. Waaronder pleziervaart duur en voor expedities waarbij er behoeft is dan externe, gegevens en communicatie.",
+      "applicationText": "Deze dienst wordt vaker gebruikt voor de scheepvaart. Waaronder pleziervaart duur en voor expedities waarbij er behoeft is dan externe, gegevens en communicatie.",
+      "warning": null,
+      "engineMs": 7209,
+      "wallMs": 7243.553172,
+      "rtf": 0.7751612903225806,
+      "segmentFiles": [
+        "segments/nl-1931-0.f32"
+      ],
+      "rawScore": {
+        "errors": 6,
+        "referenceWords": 22,
+        "wer": 0.2727272727272727
+      },
+      "applicationScore": {
+        "errors": 6,
+        "referenceWords": 22,
+        "wer": 0.2727272727272727
+      }
+    },
+    {
+      "model": "base",
+      "pass": 1,
+      "language": "nl",
+      "id": 1686,
+      "rowIndex": 132,
+      "duration": 11.4,
+      "reference": "Het resultaat hiervan is dat het proces van een organisatie die zich samen inspant om een hindernis te overwinnen, kan leiden tot een nieuw innovatief proces om te voldoen aan de behoeften van de klant.",
+      "rawAsr": "Het resultaat is dat het proces van een organisatie is dat samen een inspanthe om een hinden in stover winnen kan blijven tot een nieuwe innovatief proces om te voldoen aan de behoefte van de klant.",
+      "applicationText": "Het resultaat is dat het proces van een organisatie is dat samen een inspanthe om een hinden in stover winnen kan blijven tot een nieuwe innovatief proces om te voldoen aan de behoefte van de klant.",
+      "warning": null,
+      "engineMs": 6868,
+      "wallMs": 6888.127531999999,
+      "rtf": 0.6024561403508772,
+      "segmentFiles": [
+        "segments/nl-1686-0.f32"
+      ],
+      "rawScore": {
+        "errors": 12,
+        "referenceWords": 35,
+        "wer": 0.34285714285714286
+      },
+      "applicationScore": {
+        "errors": 12,
+        "referenceWords": 35,
+        "wer": 0.34285714285714286
+      }
+    }
+  ],
+  "externalRequests": [],
+  "physicalAndroid": false,
+  "viaVAD": true,
+  "completedAt": "2026-10-24T18:28:41.546Z",
+  "passedExecution": true
+}

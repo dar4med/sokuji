@@ -1,0 +1,105 @@
+{
+  "corpusSha256": "2f2e96ebcbc40957ddbe0a4c7e569719a7018378a90192f2c453db7bef727e1e",
+  "scope": "12 human read-speech recordings,6 per language. First pass only for quality. No Android or semantic MT acceptance.",
+  "models": {
+    "tiny": {
+      "pl": {
+        "samples": 6,
+        "errors": 62,
+        "referenceWords": 100,
+        "wer": 0.62,
+        "medianEngineMs": 3163.5,
+        "medianRtf": 0.36403061224489797
+      },
+      "nl": {
+        "samples": 6,
+        "errors": 105,
+        "referenceWords": 140,
+        "wer": 0.75,
+        "medianEngineMs": 2992.0,
+        "medianRtf": 0.43014197530864196
+      },
+      "coldInitMs": [
+        1641.88948
+      ],
+      "maxSampledBrowserRssBytes": 1593372672,
+      "warmMedianMs": 3339.0,
+      "warmMedianRtf": 0.4111419205363305,
+      "identicalWarmTranscripts": true
+    },
+    "base": {
+      "pl": {
+        "samples": 6,
+        "errors": 34,
+        "referenceWords": 100,
+        "wer": 0.34,
+        "medianEngineMs": 6743.0,
+        "medianRtf": 0.8816092378980578
+      },
+      "nl": {
+        "samples": 6,
+        "errors": 55,
+        "referenceWords": 140,
+        "wer": 0.39285714285714285,
+        "medianEngineMs": 6700.0,
+        "medianRtf": 0.9223888888888889
+      },
+      "coldInitMs": [
+        2206.1996910000016
+      ],
+      "maxSampledBrowserRssBytes": 1206616064,
+      "warmMedianMs": 6354.5,
+      "warmMedianRtf": 0.8495185185185186,
+      "identicalWarmTranscripts": true
+    },
+    "small": {
+      "pl": {
+        "samples": 6,
+        "errors": 15,
+        "referenceWords": 100,
+        "wer": 0.15,
+        "medianEngineMs": 20271.0,
+        "medianRtf": 2.2009637188208617
+      },
+      "nl": {
+        "samples": 6,
+        "errors": 28,
+        "referenceWords": 140,
+        "wer": 0.2,
+        "medianEngineMs": 18369.0,
+        "medianRtf": 2.625483870967742
+      },
+      "coldInitMs": [
+        3740.5356439999996,
+        3375.0922239999995
+      ],
+      "maxSampledBrowserRssBytes": 2006687744
+    }
+  },
+  "commonVad": {
+    "tiny": {
+      "pl": {
+        "errors": 62,
+        "referenceWords": 100,
+        "wer": 0.62
+      },
+      "nl": {
+        "errors": 110,
+        "referenceWords": 140,
+        "wer": 0.7857142857142857
+      }
+    },
+    "base": {
+      "pl": {
+        "errors": 31,
+        "referenceWords": 100,
+        "wer": 0.31
+      },
+      "nl": {
+        "errors": 57,
+        "referenceWords": 140,
+        "wer": 0.40714285714285714
+      }
+    }
+  }
+}

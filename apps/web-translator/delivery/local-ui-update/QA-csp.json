@@ -1,0 +1,12 @@
+{
+  "startedAt": "2026-10-24T07:38:07.941Z",
+  "sourceSha": "38d8c828b1dd521598a9263b747e62abba654029",
+  "sourceDirty": true,
+  "node": "v24.19.0",
+  "checks": [
+    "dev: styled UI; enforced blocking of untrusted inline JS/CSS; no unsafe directives; fresh style nonce per response",
+    "preview: styled UI; enforced blocking of untrusted inline JS/CSS; no unsafe directives; unchanged production CSP and matching Apache header"
+  ],
+  "passed": true,
+  "completedAt": "2026-10-24T07:38:16.944Z"
+}

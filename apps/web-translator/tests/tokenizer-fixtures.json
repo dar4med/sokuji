@@ -1,0 +1,64 @@
+[
+  {
+    "text": ">>pol<< Hello, how are you today?",
+    "ids": [
+      44,
+      1878,
+      3,
+      352,
+      78,
+      16,
+      1113,
+      8,
+      0
+    ]
+  },
+  {
+    "text": ">>pol<< I would like a glass of water.",
+    "ids": [
+      44,
+      13,
+      217,
+      162,
+      10,
+      7741,
+      7,
+      1233,
+      2,
+      0
+    ]
+  },
+  {
+    "text": ">>pol<< The blue bicycle is next to the house.",
+    "ids": [
+      44,
+      57,
+      5760,
+      33068,
+      21,
+      959,
+      6,
+      4,
+      1080,
+      2,
+      0
+    ]
+  },
+  {
+    "text": ">>pol<< This is a fictional test, number 42.",
+    "ids": [
+      44,
+      174,
+      21,
+      10,
+      41358,
+      323,
+      1449,
+      3,
+      633,
+      5347,
+      2,
+      0
+    ]
+  }
+]
