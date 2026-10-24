@@ -1,15 +1,15 @@
 name: Translator manual build and FTPS deployment
 
-# Reuse registered workflow ID 394420703. Remains disabled until future approval.
-# No push/PR trigger, no artifact upload and no protection-provisioning mode.
-# Owner must configure the protected translator-test Environment BEFORE enabling.
+# Reuse registered workflow ID 394420703. No push/PR trigger or artifact upload.
+# Connection and protection are separate Environment-approved operations.
+# Neither protection job builds or transfers any application payload.
 on:
   workflow_dispatch:
     inputs:
       mode:
         description: Build and anonymous preflight, or explicitly approved first deployment
         type: choice
-        options: [build-preflight, connection-preflight, deploy]
+        options: [build-preflight, connection-preflight, provision-protection, deploy]
         default: build-preflight
       approve_deployment:
         description: Future owner approval of first payload transfer (protection must already work)
@@ -19,8 +19,20 @@ on:
         description: Approve TLS/login/PWD/target MLSD only, strictly no remote writes
         type: boolean
         default: false
+      approve_protection:
+        description: Approve only dedicated protection files, never application payload
+        type: boolean
+        default: false
+      operator_mapping_confirmed:
+        description: Confirm the reviewed dPanel mapping and observed FTP root for AuthUserFile
+        type: boolean
+        default: false
+      connection_preflight_run:
+        description: Previously verified successful read-only connection run ID
+        type: string
+        default: ''
       approval_sha:
-        description: Exact reviewed 40-character source SHA; required for connection-preflight or deploy
+        description: Exact reviewed 40-character source SHA; required for connection, protection or deploy
         type: string
         default: ''
 
@@ -73,6 +85,56 @@ jobs:
           FTPS_USERNAME: ${{ secrets.FTPS_USERNAME }}
           FTPS_PASSWORD: ${{ secrets.FTPS_PASSWORD }}
         run: python3 scripts/ftps-protection.py --operation connection-preflight --execute
+
+  provision-protection:
+    if: >-
+      github.repository == 'dar4med/sokuji' &&
+      github.ref == 'refs/heads/feature/voice-translator-mvp' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.mode == 'provision-protection'
+    environment: translator-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: apps/web-translator
+        shell: bash
+    steps:
+      - name: Validate separately approved protection-only scope
+        working-directory: ${{ github.workspace }}
+        env:
+          PROTECTION_APPROVED: ${{ inputs.approve_protection }}
+          OPERATOR_MAPPING_CONFIRMED: ${{ inputs.operator_mapping_confirmed }}
+          CONNECTION_PREFLIGHT_RUN: ${{ inputs.connection_preflight_run }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          assert os.environ['PROTECTION_APPROVED'] == 'true', 'Separate protection approval required'
+          assert os.environ['OPERATOR_MAPPING_CONFIRMED'] == 'true', 'Operator mapping must be reviewed'
+          assert os.environ['CONNECTION_PREFLIGHT_RUN'] == '40064907899', 'Verified prior connection required'
+          assert os.environ['APPROVAL_SHA'] == os.environ['GITHUB_SHA'], 'Exact reviewed SHA required'
+          PY
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: 3.12.14
+      - name: Offline protection and failure rollback tests
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Provision only private bcrypt file and child protection, then prove real HTTP states
+        env:
+          PROTECTION_APPROVED: ${{ inputs.approve_protection }}
+          OPERATOR_MAPPING_CONFIRMED: ${{ inputs.operator_mapping_confirmed }}
+          CONNECTION_PREFLIGHT_RUN: ${{ inputs.connection_preflight_run }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+          FTPS_USERNAME: ${{ secrets.FTPS_USERNAME }}
+          FTPS_PASSWORD: ${{ secrets.FTPS_PASSWORD }}
+          TRANSLATOR_BASIC_USERNAME: ${{ secrets.TRANSLATOR_BASIC_USERNAME }}
+          TRANSLATOR_BASIC_PASSWORD: ${{ secrets.TRANSLATOR_BASIC_PASSWORD }}
+        run: python3 scripts/provision-protection.py --execute
 
   package:
     if: >-

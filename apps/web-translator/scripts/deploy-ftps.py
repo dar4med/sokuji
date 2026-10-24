@@ -26,7 +26,7 @@ MARKER = '.deployment-in-progress'
 MAINTENANCE = '''# BEGIN TRANSLATOR DEPLOYMENT GUARD
 ErrorDocument 503 "Translator deployment locked"
 RewriteEngine On
-RewriteCond %{DOCUMENT_ROOT}/translator-test/.deployment-in-progress -f
+RewriteCond %{DOCUMENT_ROOT}/translator-test/.deployment-in-progress -s
 RewriteRule ^ - [R=503,L]
 # END TRANSLATOR DEPLOYMENT GUARD'''
 REQUIRED_HEADERS = {
@@ -238,8 +238,11 @@ class Deployment:
             entries = {name: facts for name, facts in self.client.mlsd()
                        if not (name == '.' and facts.get('type') == 'cdir')
                        and not (name == '..' and facts.get('type') == 'pdir')}
-            require(set(entries) in [{'.htaccess'}, {'.htaccess', 'icon.svg'}] and all(f.get('type') == 'file' and not any('slink' in k.lower() or 'symlink' in str(v).lower() for k,v in f.items()) for f in entries.values()),
-                    'First deployment requires only regular .htaccess and optional icon.svg; existing payload/links/locks require manual recovery')
+            require('.htaccess' in entries and set(entries) <= {'.htaccess','icon.svg',MARKER} and
+                    all(f.get('type') == 'file' and not any('slink' in k.lower() or 'symlink' in str(v).lower() for k,v in f.items()) for f in entries.values()),
+                    'First deployment requires only regular protection files and optional icon; existing payload/links require manual recovery')
+            if MARKER in entries:
+                require(self.read_remote(MARKER) == b'', 'Existing nonempty maintenance lock requires manual recovery')
             self.verify_guard()
             if 'icon.svg' in entries:
                 self.read_remote('icon.svg', self.payload['icon.svg'])

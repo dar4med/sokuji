@@ -6,6 +6,22 @@ Aktualizacja autoryzacji: właściciel zatwierdził osobny `connection-preflight
 
 API potwierdziło required reviewer `dar4med`, brak prevent-self-review i dokładną gałąź `feature/voice-translator-mvp`. Odczyt nazw Secrets/Variables przez integrację: 403. Koordynator zweryfikował cztery nazwy Secrets, wyłączony administrator bypass i brak Variables w GitHub UI bez oglądania wartości. Żadnych ustawień ochrony nie zmieniano przez Codex.
 
+### Bieżący bootstrap ochrony (osobna operacja, bez aplikacji)
+
+Realny `connection-preflight` **40064907899 / d34b8bd29ced336dee3bcaada007f705a2652511** zakończył się SUCCESS po wymaganym zatwierdzeniu właściciela. Kontrola i dane: TLS 1.3 / TLS_AES_256_GCM_SHA384, hostname verification PASS; początkowy PWD `/`, cel `/public_html/translator-test`, 0 wpisów, 0 zapisów, brak `.htaccess`. Nie powtarzamy tego testu.
+
+Na tej podstawie i jawnego odczytu dPanelu `~ → /home/klient.dhosting.pl/dhostingdar/` oraz konta `~/ai.lekarz.nl-ohp3/` przyjmujemy **jedną wyprowadzoną ścieżkę** AuthUserFile: `/home/klient.dhosting.pl/dhostingdar/ai.lekarz.nl-ohp3/.translator-test.htpasswd`, FTP `/.translator-test.htpasswd`. To dowód mapowania od operatora + rzeczywisty FTP root, nie zgadywanie katalogów /home. Poprawność odczytu pliku przez serwer potwierdzi dopiero rzeczywisty Basic Auth. Przy błędzie nie próbujemy innych ścieżek.
+
+Dodany odrębny tryb `provision-protection` ma osobny job, `approve_protection`, dokładny `approval_sha`, potwierdzenie mapowania i referencję do udanego runu 40064907899. Wymaga **drugiego** zatwierdzenia Environment. Nie uruchamia Node, npm, modeli, builda, artefaktów ani joba aplikacji.
+
+Operacje są ograniczone do pustego translator-test oraz nowego dedykowanego pliku hasha poza WWW. Najpierw własny child deny-all + rzeczywiste 403; potem test atomowego RNTO zastępującego wyłącznie własny deny-all (bez DELE). Prywatny plik jest tworzony pusty, otrzymuje **SITE CHMOD 600 wyłącznie na tym nowym pliku**, a dopiero po potwierdzeniu MLSD unix.mode=0600 (lub dokładnym STAT tego pliku) dopisywany jest bcrypt koszt 12. Zaszyfrowany RETR sprawdza SHA/długość bez logowania hasha ani treści. Brak obsługi bezpiecznych uprawnień lub rename = STOP z deny-all, bez osłabiania kontroli.
+
+Konfiguracja child zachowuje startup CSP hash i wszystkie nagłówki; zawiera tekstowe ErrorDocument 401/403/404, żeby nie dziedziczyć stron błędów WP. Maintenance używa teraz **`-s`**, nie `-f`. Poprawne hasło ma osiągnąć rzeczywiste 503 przy niepustym markerze, anonimowe/błędne dane 401. Następnie marker jest zapisywany jako zero bajtów i weryfikowany przez TLS — bez usuwania. Poprawnie uwierzytelniony pusty katalog może wtedy zwracać 403/404; to nie porażka hasła po zaliczonym teście 503. Anonimowe żądania nadal muszą dawać 401. Main first-deploy dopuszcza wyłącznie zweryfikowany pusty marker; niepusty marker nadal blokuje.
+
+Przy błędzie po własnej instalacji bootstrap weryfikuje lub przywraca **tylko własny** child deny-all i sprawdza 403. Nie nadpisuje równoległej obcej zmiany konfiguracji. Awaria sieci uniemożliwiająca rollback jest raportowana jako niepotwierdzona ochrona; żadnego payloadu wtedy nie ma. Pozostawione pliki ochrony na failure nie są automatycznie kasowane. Nie uruchamiać prowizji ponownie w niepustym celu bez inspekcji.
+
+Lokalnie przed runem: **48/48 testów offline PASS**, w tym rzeczywisty lokalny bcrypt/verify, obsługa pustego markera, odmowa rename-overwrite, brak dowodu unix.mode, zły SHA prywatnego pliku, 500/404/redirect finalnej konfiguracji z rollbackiem, niedziałający maintenance/CSP, istniejące pliki i zakaz komend payloadu/WP/DELE. To nie zastępuje testu prawdziwego hostingu. Finalne `htaccessSha256` po SUCCESS jest niesekretną wartością do przyszłej Environment variable; nie ustawiamy jej ani innych reguł automatycznie. Payload zawsze czeka na ostateczną odrębną zgodę.
+
 ## Potwierdzenia i otwarte bramki
 
 - Koordynator 2026-10-24 wykonał publiczny test **bez USER/PASS**: `dhostingdar.ftp.dhosting.pl:21`, AUTH TLS 234, TLS 1.3, domyślna weryfikacja łańcucha i hostname PASS, certyfikat `*.ftp.dhosting.pl` do `2027-02-13T23:59:59Z`, PBSZ 0 / PROT P 200. To dowód negocjacji prywatnego transportu, nie działania pasywnego kanału danych po zalogowaniu. Własna próba w Codex zatrzymała się na DNS; publiczny artykuł dhosting był niedostępny przez proxy (403). Nie obchodzono blokad i nie zgadywano innych hostów.
@@ -56,7 +72,7 @@ Główny skrypt **nigdy nie zapisuje `.htaccess` ani `.htpasswd`**. Musi istnie�
 # BEGIN TRANSLATOR DEPLOYMENT GUARD
 ErrorDocument 503 "Translator deployment locked"
 RewriteEngine On
-RewriteCond %{DOCUMENT_ROOT}/translator-test/.deployment-in-progress -f
+RewriteCond %{DOCUMENT_ROOT}/translator-test/.deployment-in-progress -s
 RewriteRule ^ - [R=503,L]
 # END TRANSLATOR DEPLOYMENT GUARD
 ```
@@ -67,7 +83,7 @@ Pierwsze wdrożenie dopuszcza tylko zwykły `.htaccess` i opcjonalnie zgodną ik
 
 ## Osobny przyszły bootstrap ochrony — konkretny plan bez WinSCP
 
-**Nie zaimplementowano trybu zapisującego ochronę.** To osobna przyszła zgoda, bo obejmuje także dedykowany plik poza docelowym katalogiem payloadu. Nie kończymy zaleceniem ręcznego przenoszenia haseł/plików przez WinSCP. Po zgodzie można dodać wyraźnie oddzielny, domyślnie wyłączony manualny tryb `provision-protection` do tego samego zarejestrowanego workflow, z SHA i osobnym zatwierdzeniem Environment. Plan:
+Poniższy plan historyczny został zaimplementowany jako rozdzielony `provision-protection`, opisany w aktualizacji powyżej. Właściciel autoryzował tę ograniczoną prowizję, lecz jej run nadal wymaga osobnego zatwierdzenia Environment. Nie obejmuje to aplikacji. Nie ma ręcznego przenoszenia plików przez WinSCP. Plan i granice:
 
 1. Właściciel potwierdza przez istniejący dPanel/operatora fizyczny, absolutny **AuthUserFile** poza WWW oraz mapowanie FTP root do zaakceptowanej przestrzeni `ai.lekarz.nl-ohp3/`. Nie składać tego z home konta głównego i nie zgadywać `/home/...`. Parametr ścieżki będzie nieaktywną do tego czasu Environment variable, nigdy hasłem w czacie. Prywatna ścieżka FTP proponowana do zatwierdzenia to `/.translator-test.htpasswd` w tym zaakceptowanym root, nie w public_html.
 2. Osobny preflight przyszłego trybu: TLS/PWD/root/mode katalogów, brak obcych plików i istniejących plików ochrony. Istniejącej konfiguracji lub hashy nie nadpisywać automatycznie. Potwierdzić bezpieczne uprawnienia tylko dedykowanego pliku i zdolność serwera do odczytu; bez chmod WP/globalnych zmian. Osobno potwierdzić atomowe RNTO zastępujące własny deny-all — jeśli serwer tego odmawia, STOP, bez usuwania działającej ochrony.

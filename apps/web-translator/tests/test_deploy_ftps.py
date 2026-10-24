@@ -105,7 +105,7 @@ class DeploymentTests(unittest.TestCase):
                                            'www-authenticate': 'Basic realm="Fictional"'})
         if auth != AUTH or not self.good_credentials:
             return {'status': self.anon_status if auth is None else self.wrong_status, 'headers': headers}
-        if d.MARKER in self.ftp.files and not self.broken_guard:
+        if self.ftp.files.get(d.MARKER) and not self.broken_guard:
             return {'status': 503, 'headers': headers}
         if expected is None:
             return {'status': 200, 'headers': headers}
@@ -167,8 +167,14 @@ class DeploymentTests(unittest.TestCase):
                              ('outside', {'type':'OS.unix=slink'}), ('models', {'type':'dir'})]:
             with self.subTest(extra=extra):
                 self.ftp.entries = {'.htaccess': {'type':'file'}, extra: facts}
+                if extra == d.MARKER: self.ftp.files[extra] = b'interrupted deployment'
                 with self.assertRaises(d.DeploymentError): self.deployment().execute(CSP)
         self.assertEqual(self.payload_writes(), [])
+
+    def test_verified_empty_bootstrap_marker_is_reused_safely(self):
+        self.ftp.entries[d.MARKER] = {'type':'file', 'size':'0'}
+        self.ftp.files[d.MARKER] = b''
+        self.assertTrue(self.deployment().execute(CSP)['verified'])
 
     def test_symlink_attribute_on_allowed_file_is_rejected(self):
         self.ftp.entries['.htaccess']['unix.slink'] = '/outside'
