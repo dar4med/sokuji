@@ -102,9 +102,11 @@ function state(next: Phase, text?: string) {
     listening: audioMode
       ? "Słucham. Teraz możesz mówić."
       : "Tryb tekstowy. Wpisz wiadomość poniżej.",
-    speech: "Słyszę Cię. Zakończ zdanie i zrób krótką pauzę.",
-    recognizing: "Rozpoznaję wypowiedź na urządzeniu…",
-    translating: "Tłumaczę na urządzeniu…",
+    speech: "Słyszę Cię. Po wypowiedzi zrób około 1,4 sekundy pauzy.",
+    recognizing: "Rozpoznaję wypowiedź. Mikrofon wstrzymany — zaczekaj na „Słucham”.",
+    translating: audioMode
+      ? "Tłumaczę. Mikrofon wstrzymany — zaczekaj na „Słucham”."
+      : "Tłumaczę wpisany tekst na urządzeniu…",
     speaking: "Odczytuję. Mikrofon jest chwilowo wstrzymany.",
     error: "Nie udało się kontynuować rozmowy.",
   };
@@ -170,10 +172,10 @@ function renderEntry(entry: Entry) {
     el("entries").append(row);
   }
   row.querySelector(".original-label")!.textContent =
-    LANGUAGES[entry.source].name;
+    `${entry.asrMs ? "Rozpoznano (ASR)" : "Wpisany tekst"} · ${LANGUAGES[entry.source].name}`;
   row.querySelector(".original")!.textContent = entry.original;
   row.querySelector(".translated-label")!.textContent =
-    LANGUAGES[entry.target].name;
+    `Tłumaczenie (MT) · ${LANGUAGES[entry.target].name}`;
   row.querySelector(".translated")!.textContent =
     entry.translated || "Tłumaczę…";
   row.querySelector(".timing")!.textContent = entry.translated
@@ -304,9 +306,11 @@ async function prepare(signal: AbortSignal): Promise<Resources> {
         limit() {
           message(
             "warning",
-            "Wypowiedź była zbyt długa. Mów krótszymi zdaniami, do 20 sekund, i rób pauzy.",
+            "Osiągnięto limit 20 sekund. Rozpoznaję tylko pierwszy fragment. Dalszą część powiedz ponownie po komunikacie „Słucham”.",
           );
-          conversation.speechMisfire();
+        },
+        failure(text) {
+          void conversation.stop().then(() => state("error", text));
         },
       });
       capture = await capturePending;

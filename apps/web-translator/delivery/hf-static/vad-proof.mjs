@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 const root = new URL('../../', import.meta.url);
 const origin = 'https://dar4med-med-partners-translator-test.static.hf.space';
 const original = await readFile(new URL('delivery/local-ui-update/payload/assets/capture-Bh2ZntkC.js', root));
-const patched = await readFile(new URL('./capture-Bh2ZntkC.js', import.meta.url));
+const patched = await readFile(new URL(process.env.VAD_CAPTURE_FILE || './capture-Bh2ZntkC.js', import.meta.url));
 const adapter = await readFile(new URL('./hf-session-adapter.js', import.meta.url));
 const pinned = JSON.parse(await readFile(new URL('delivery/local-ui-update/update-manifest.json', root)));
 const resources = new Map();
@@ -47,7 +47,7 @@ const server = http.createServer(async (req, res) => {
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 localOrigin = 'http://127.0.0.1:' + server.address().port;
-const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', args: ['--no-sandbox'] });
+const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', args: ['--no-sandbox', '--autoplay-policy=no-user-gesture-required'] });
 const context = await browser.newContext();
 const page = await context.newPage();
 context.on('request', req => {
@@ -66,7 +66,9 @@ async function trial(filename) {
       const module = await import('/' + filename);
       capture = await module.createCapture(location.origin + '/', stream, context,
         { start() { speech++; }, end() { speech++; }, misfire() {}, limit() {} });
-      await capture.start(); await capture.pause();
+      await context.resume(); await capture.start();
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      await capture.pause();
       return { ok: true, speechCallbacks: speech, physicalMicrophone: false, isolated: crossOriginIsolated };
     } catch (error) { return { ok: false, error: error.message, physicalMicrophone: false }; }
     finally {
@@ -90,6 +92,6 @@ try {
     source: 'Actual VAD/ORT initialization/start/pause with locally pinned files and silent generated MediaStream; only HF host literal replaced with localhost fixture. No HF network, physical microphone, speech ASR/MT or TTS test',
     testHostLiteralSubstituted: true,
     adapterSha256: createHash('sha256').update(adapter).digest('hex'), captureSha256: createHash('sha256').update(patched).digest('hex') };
-  await writeFile(new URL('./VAD-PROOF.json', import.meta.url), JSON.stringify(evidence, null, 2) + '\n');
+  await writeFile(new URL(process.env.VAD_PROOF_OUTPUT || './VAD-PROOF.json', import.meta.url), JSON.stringify(evidence, null, 2) + '\n');
   console.log(JSON.stringify(evidence, null, 2));
 } finally { await browser.close(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
