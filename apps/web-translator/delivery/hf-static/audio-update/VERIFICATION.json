@@ -1,0 +1,53 @@
+{
+  "testedCodeSha": "cfaf56c68d5dcc87173cc8e23173b4cc5c862eee",
+  "sourceInputsSha256": {
+    "apps/web-translator/src/cache.ts": "9453fa5e8006fbf3fac46026a733258e2cb626f6bc771809c46bd760f91057cf",
+    "apps/web-translator/src/capture.ts": "36ee58b7c593bb9240614280253eb1dcc0a5d8127e004bb765bdf9c1cc08cf93",
+    "apps/web-translator/src/core.ts": "a944351678db2c7913ede5ea90e72f0cc132b5b75a20dd088fe94b7771fffa2d",
+    "apps/web-translator/src/engine.ts": "2c076d447b2295acd623ec3d0e7c1a457c9b436120196ff281a59acc4e935753",
+    "apps/web-translator/src/inference.worker.ts": "dd1a06834ebc32c3488156505d48e205ddc7e98abd0623adb657fe1ff1d084fa",
+    "apps/web-translator/src/installation.ts": "d821ad1fe3aa25bfe797a178db59950c501e268bed7d8c23c03f9b2cd79ad6c7",
+    "apps/web-translator/src/main.ts": "d3d43ee20c263138471ad9d4a529138b2866a315206ae1fb7f633c04ee77b7ce",
+    "apps/web-translator/src/service-worker.ts": "0de4ddc666c920580457587d801721f0e5734bf86e74d1659b4c7e44f8152ac5",
+    "apps/web-translator/src/session.ts": "9ff418951ac04b077b49dc25ea1f90a8ec8904b3f7ddd1860395c67b6391e8f1",
+    "apps/web-translator/src/speech.ts": "e492b1fdcef2788ad768c47806afab0adb43f281e3acceaef496418958791e34",
+    "apps/web-translator/src/style.css": "9f44734a2e1ca2b29dedcfca679a3035381cbb79a6a33fd6463ec34210cd17f9",
+    "apps/web-translator/src/asr-quality.ts": "74362ab230c3d6fe9a62f5d5571914ecb3edc6606d23c468be83d1fecf09ec43",
+    "apps/web-translator/src/audio-flow.ts": "de00b9d688b16af0efdcde9a5bc06dcf08dd703726a8db5538367119e6bb40f0",
+    "apps/web-translator/package.json": "d77086b8b0c30cedd73d315e35ed8988092d4f399c932f6ae6e638f46fbf5535",
+    "apps/web-translator/package-lock.json": "e0ab242f1f95bc9a1f62c199c3de3334222c619239500eda77dd6453636d71c1",
+    "apps/web-translator/vite.config.ts": "bd7a6aceb320ef569467d9ae95c810fe2dffd50dcc08c16f89fe646bfd4fb48f",
+    "apps/web-translator/index.html": "f40e6b5bbd83656b535664e92ddc005e0f109b0c476fe6602b875a9fa6d8f41f"
+  },
+  "testedBuildAssetsSha256": {
+    "index-6Mmpehg4.css": "5c4f2bd1d41a144bb1c23a92425542e334b80b718d8794538986be7e1e393c47",
+    "inference.worker-DK3oltoU.js": "a1a7e6a143df3f5c25916b405aaaa63a9cce5d484de59cc03d2b3270ade6ccd0",
+    "capture-BCCqfGRV.js": "4075cbd95c354e2996ceabc7d0a48a66b9f5a7066ede5ee7df91507e28e2417f",
+    "index-H-bTZoeO.js": "462c69cdf1a4cbda6f1137abe17c6eec5360a742a4a0d936aa1560edea0be606"
+  },
+  "overlayFiles": {
+    "assets/capture-Bh2ZntkC.js": {
+      "bytes": 71979,
+      "sha256": "254338e99c1e2256f3a088e364167cac5d8333e391242a268df09fa00f0af8c2"
+    },
+    "assets/index-CJ_k8XCq.js": {
+      "bytes": 22481,
+      "sha256": "3dbe83e65044ddfd98c8349a59444062aa97f867e195936dd121c0f9678eb562"
+    }
+  },
+  "checks": {
+    "typescript": "PASS",
+    "build": "PASS",
+    "nodeTests": {
+      "pass": 48,
+      "fail": 0
+    },
+    "browserSourceRegression": "PASS",
+    "englishControlledAudioRuns": 3,
+    "overlayVADReadiness": "PASS",
+    "physicalAndroidAfterPatch": "NOT_TESTED",
+    "humanListeningAfterPatch": "NOT_TESTED"
+  },
+  "evidenceBinding": "Browser run started on89e0c500 with dirty worktree. Its exact tested sources/build are bound here to cfaf56c68 by file hashes. Original startedAt/sourceSha/sourceDirty fields preserved; no claim of a clean checkout test. HF overlay capture hash is independently bound by VAD-PROOF.json. No runtime changes after tests.",
+  "notDeployed": true
+}

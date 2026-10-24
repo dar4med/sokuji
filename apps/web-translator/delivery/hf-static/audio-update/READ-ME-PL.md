@@ -31,7 +31,7 @@ RAM/WASM potrzebuje dodatkowo tensorów, aktywacji, pamięci ORT i cache dekoder
 
 ## Aktualne testy
 
-- Build/TypeScript PASS. Logika i testy granic/seryjności: wyniki w raporcie weryfikacji obok. Testy ASR/MT nie są zastępowane atrapą; wolny fake model stosowany jest wyłącznie w jednostkowym teście harmonogramu VAD.
+- Build/TypeScript PASS; testy Node48/48 PASS. Kod i pliki są powiązane z SHA `cfaf56c68d5dcc87173cc8e23173b4cc5c862eee` w VERIFICATION.json; pierwotne metadane testu przeglądarkowego wskazują start na89e0c500 z roboczymi zmianami, a zgodność testowanych źródeł potwierdzono hashami. Późniejszy commit dotyczy tylko tego raportu i wiązania dowodów. Testy ASR/MT nie są zastępowane atrapą; wolny fake model stosowany jest wyłącznie w jednostkowym teście harmonogramu VAD.
 - `VAD-PROOF.json`: Chromium, rzeczywiste ORT/Silero/AudioWorklet,1200ms generowanej ciszy, start/pauza, bez COI; błędny bezpośredni import zastąpiony sprawdzonym Blob; osobno odmowa bez MAIN script-src blob. W lokalnej próbie tylko literał hosta HF zamieniono na localhost. To nie jest realny HF ani fizyczny mikrofon.
 - `BROWSER-RESULTS.json`: trzy kolejne EN→NL przez kontrolowany WAV→MediaStream→VAD→Tiny→MT. Referencja „The blue bicycle is next to the house.”, wynik każdego ASR identyczny; MT „De blauwe fiets ligt naast het huis.”. Nie nazywać tego PL/NL ani fizycznym E2E. Sześć kierunków tekstu online/reuse/offline, Stop/brak późnych wyników, odmowa mikrofonu, usuwanie historii — PASS. TTS w headless: brak głosu, bezpieczny fallback; odsłuch człowieka NIEPRZETESTOWANY.
 - Test lokalnego TTS z kontrolowanymi zdarzeniami API potwierdza utrzymanie pauzy przez onend+450ms oraz brak resume po Stop. Nie mierzy akustycznego echa na Androidzie.
