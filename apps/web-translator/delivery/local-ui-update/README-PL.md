@@ -2,7 +2,7 @@
 
 Tylko aktualizacja plików aplikacji lokalnej. Bez hostingu, WordPressa, nowych modeli, instalacji głosów i płatnych usług.
 
-Kod aplikacji: `38d8c828b1dd521598a9263b747e62abba654029`. Baza Windows: `c29b166bc4a79d03c012293ed7f6c83cffb3e9c6`.
+Kod aplikacji: `38d8c828b1dd521598a9263b747e62abba654029`. Baza Windows: artefakt Actions z runu `40008774472`, źródło `c29b166bc4a79d03c012293ed7f6c83cffb3e9c6`. Wpisy bazowe notices.txt/sw.js skorygowano według oryginalnego manifestu zweryfikowanego przez koordynatora; patrz BASELINE-CORRECTION.md.
 
 ## Co poprawiono
 
@@ -39,7 +39,7 @@ Rollback lokalny: zamknąć aplikację/serwer, przywrócić index.html oraz sw.j
 
 Build/TypeScript PASS; 26 testów logiki i aktualizatora PASS. `QA-browser.json`: Chromium Linux, 19 rzeczywistych tłumaczeń (w tym wszystkie 6 kierunków offline), trzy pełne kontrolowane audio EN→NL, Stop/brak spóźnionych wyników, odmowa mikrofonu, brak głosu/fallback, 0 obcych żądań i nieobsłużonych błędów. Audio to native getUserMedia z fikcyjnym urządzeniem oraz kontrolowany WAV przez WebAudio MediaStream, następnie rzeczywiste VAD/Whisper/MT. To nie test fizycznego mikrofonu ani odsłuchu. Czasy audio ready/resultAfterPlay: 4954/7612 ms, 2157/7388 ms, 2041/11278 ms. Tekst ASR: The blue bicycle is next to the house.
 
-`QA-csp.json`: styled dev/preview i egzekwowanie CSP PASS. Brak zmian CSP/ochrony. `QA-update.json`: odtworzono stary błąd na kopii pełnej paczki, nałożono aktualizację, przełączono istniejący SW, rzeczywisty MT PASS bez ponownego pobierania wag; ręczne Odczytaj przy braku głosu daje czytelny komunikat. To lokalny Linux Chromium, nie potwierdzenie zaktualizowanego Windows.
+`QA-csp.json`: styled dev/preview i egzekwowanie CSP PASS. Brak zmian CSP/ochrony. `QA-update.json`: odtworzono stary błąd na kopii lokalnej paczki 6532e640 (zgodny kod aplikacji; różne notices.txt i klucz SW), nałożono aktualizację, przełączono istniejący SW, rzeczywisty MT PASS bez ponownego pobierania wag; ręczne Odczytaj przy braku głosu daje czytelny komunikat. To lokalny Linux Chromium, nie potwierdzenie zaktualizowanego Windows.
 
 Raporty browser/CSP mają sourceDirty=true: w workspace pozostały wcześniejsze nieopublikowane zmiany skryptów diagnostyki FTPS. Nie biorą one udziału w buildzie. Odczyt porównawczy potwierdził zgodność wszystkich 14 plików runtime/index/config z kodem SHA 38d8c828. Późniejszy komit dostawy dodaje tylko gotowe pliki, aktualizator, jego testy i raporty.
 

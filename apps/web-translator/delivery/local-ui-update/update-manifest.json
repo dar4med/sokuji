@@ -260,8 +260,8 @@
       "sha256": "e502daddf85dc5ab91338cf2d90b237306ff482cc89aafa0c300094e96c3d489"
     },
     "notices.txt": {
-      "bytes": 450325,
-      "sha256": "fe5ad0cd437239601e278732db6497e067786f67129a59c0fa1856f2cddea9c2"
+      "bytes": 448544,
+      "sha256": "4db9869166bcab6406f70376f6e3d33434fb3e4ea8c3a0c76792709f1f5c1bbc"
     },
     "runtime/ort-wasm-simd-threaded.mjs": {
       "bytes": 20856,
@@ -273,7 +273,7 @@
     },
     "sw.js": {
       "bytes": 2839,
-      "sha256": "f3e388828a491e999e9c47e91ac3e370b0475fc3868b9ed0e279e566af293bb9"
+      "sha256": "5316760ba31e7998457869eadf94262204725e1da0f954d339237721dc57ccf9"
     },
     "vad/silero_vad_v5.onnx": {
       "bytes": 2327524,
@@ -312,5 +312,11 @@
     "assets/capture-B0Bee-Xt.js",
     "assets/index-BF7y0ORU.js",
     "assets/inference.worker-BTlV6rec.js"
-  ]
+  ],
+  "baseArtifact": {
+    "sourceSha": "c29b166bc4a79d03c012293ed7f6c83cffb3e9c6",
+    "runId": "40008774472",
+    "deploymentZipSha256": "0a5d697ef65cbeb42d281f42d9820957dd052df802697e74011f0d4cd62857c8",
+    "verification": "Coordinator verified original 73 manifest entries; other 68 baseFiles match. Only notices.txt and sw.js differ from the local 6532e640 archive."
+  }
 }
