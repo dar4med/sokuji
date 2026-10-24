@@ -216,6 +216,8 @@ class Provision:
         except Exception as error:
             self.evidence.update(errorType=type(error).__name__)
             if isinstance(error,t.DeploymentError): self.evidence['reason'] = str(error)
+            if isinstance(error,connection.ftplib.Error) and re.match(r'^\d{3}',str(error)):
+                self.evidence['ftpResponseCode'] = str(error)[:3]
             if self.owned_active:
                 try:
                     try:
@@ -229,6 +231,12 @@ class Provision:
             return self.evidence
         finally:
             self.client.close()
+
+
+def emit_evidence(result):
+    text = json.dumps(result,sort_keys=True)
+    print(text)
+    print('::notice title=Protection-only bootstrap::' + text.replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
 
 
 def main():
@@ -245,9 +253,7 @@ def main():
     require(auth[1] != password, 'HTTP password must differ from FTP')
     private = make_password_file(*auth)
     result = Provision(auth, private, lambda:t.connect_ftps(user,password,client_factory=ProtectionFTPS)).execute()
-    text = json.dumps(result,sort_keys=True)
-    print(text)
-    print('::notice title=Protection-only bootstrap::' + text.replace('%','%25').replace('\r','%0D').replace('\n','%0A'))
+    emit_evidence(result)
     raise SystemExit(0 if result['ready'] else 1)
 
 
@@ -255,8 +261,11 @@ if __name__ == '__main__':
     try:
         main()
     except t.DeploymentError as error:
-        print(json.dumps({'operation':'provision-protection','ready':False,'error':str(error),'applicationTransferred':False}))
+        emit_evidence({'operation':'provision-protection','ready':False,'error':str(error),'applicationTransferred':False})
         raise SystemExit(1)
     except Exception as error:
-        print(json.dumps({'operation':'provision-protection','ready':False,'errorType':type(error).__name__,'applicationTransferred':False}))
+        result = {'operation':'provision-protection','ready':False,'errorType':type(error).__name__,'applicationTransferred':False}
+        if isinstance(error,connection.ftplib.Error) and re.match(r'^\d{3}',str(error)):
+            result['ftpResponseCode'] = str(error)[:3]
+        emit_evidence(result)
         raise SystemExit(1)
