@@ -25,7 +25,7 @@ class FakeFTP:
         self.events.append(('MLSD',path))
         if path == '/':
             names = [n for n in self.files if n.startswith('/')]
-            return [(n[1:], {'type':'file', **({} if self.missing_mode else {'unix.mode':self.modes.get(n,'0600')})}) for n in names]
+            return [(n[1:], {'type':'file','size':str(len(self.files[n])), **({} if self.missing_mode else {'unix.mode':self.modes.get(n,'0600')})}) for n in names]
         return [(n, {'type':'file','size':str(len(v))}) for n,v in self.files.items() if not n.startswith('/')]
     def storbinary(self,command,source):
         verb,name=command.split(' ',1);self.events.append((verb,name));data=source.read()
@@ -49,9 +49,12 @@ class ProvisionTests(unittest.TestCase):
     def setUp(self):
         blocker=patch('socket.create_connection',side_effect=AssertionError('No real network in tests'))
         blocker.start();self.addCleanup(blocker.stop)
-        self.ftp=FakeFTP();self.provision=p.Provision(AUTH,PRIVATE,lambda:self.ftp,self.fetch)
+        self.ftp=FakeFTP();self.provision=p.Provision(AUTH,PRIVATE,self.connector,self.fetch)
         self.final_status=None;self.redirect=False;self.bad_csp=False;self.maintenance_works=True
         self.calls=[]
+    def connector(self):
+        self.ftp.cwd_value='/'
+        return self.ftp
     def fetch(self,name,auth=None,expected=None):
         self.calls.append((name,auth==AUTH))
         active=self.ftp.files.get('.htaccess',b'')

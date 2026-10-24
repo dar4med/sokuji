@@ -49,7 +49,7 @@ class ProtectionFTPS(t.VerifiedFTPS):
         if verb == 'RNTO': require(arg == '.htaccess', 'Rename target must be child .htaccess')
         if verb == 'SITE': require(arg == 'CHMOD 600 ' + HASH_REMOTE, 'Only private hash mode 0600 may be changed')
         if verb == 'STAT': require(arg == HASH_REMOTE, 'Only owned private-file mode may be inspected')
-        if verb == 'OPTS': require(arg == 'MLST type;size;unix.mode;', 'Only private-file metadata facts may be requested')
+        if verb == 'OPTS': require(arg in ['MLST type;size;unix.mode;','MLST type;size;'], 'Only bounded metadata facts may be requested')
         super().putcmd(line)
 
 
@@ -103,18 +103,37 @@ class Provision:
     def facts(self, root=False, mode=False):
         self.pwd()
         # Root names exist only transiently in memory; never print/save a listing.
-        listing = self.client.mlsd('/' if root else '', facts=['type','size','unix.mode']) if mode else self.client.mlsd('/' if root else '')
+        # OPTS MLST is session state. Always select facts explicitly, including
+        # normal reads after the optional unix.mode request.
+        listing = self.client.mlsd('/' if root else '', facts=['type','size','unix.mode'] if mode else ['type','size'])
         return {n:f for n,f in listing if n not in ['.','..']}
 
-    def read(self, name, expected):
+    def fingerprint(self, name, limit):
         facts = self.facts(root=name == HASH_REMOTE).get(name[1:] if name == HASH_REMOTE else name, {})
         require(regular(facts), 'Read refuses nonregular protection file or symlink')
+        if facts.get('size','').isdigit():
+            require(int(facts['size']) <= limit, 'Protection metadata exceeds read bound')
         self.pwd(); digest = hashlib.sha256(); size = 0
         def consume(chunk):
             nonlocal size
-            size += len(chunk); require(size <= len(expected), 'Protection length exceeds bound'); digest.update(chunk)
-        self.client.retrbinary('RETR ' + name, consume)
-        require(size == len(expected) and digest.hexdigest() == hashlib.sha256(expected).hexdigest(), 'Protection TLS SHA/length mismatch')
+            size += len(chunk)
+            # Ordinary mismatches are checked AFTER retrbinary consumes 226.
+            # If a peer violates a hard bound, discard the entire connection.
+            if size > max(limit,65536):
+                self.client.close()
+                raise t.DeploymentError('Protection hard read bound exceeded; connection discarded')
+            digest.update(chunk)
+        try:
+            self.client.retrbinary('RETR ' + name, consume)
+        except Exception:
+            self.client.close()  # Never reuse a possibly desynchronized channel.
+            raise
+        require(size <= limit, 'Protection length exceeds bound')
+        return size,digest.hexdigest()
+
+    def read(self, name, expected):
+        size,digest = self.fingerprint(name,len(expected))
+        require(size == len(expected) and digest == hashlib.sha256(expected).hexdigest(), 'Protection TLS SHA/length mismatch')
 
     def store(self, name, data, append=False):
         self.pwd(); self.client.storbinary(('APPE ' if append else 'STOR ') + name, io.BytesIO(data))
@@ -123,14 +142,8 @@ class Provision:
     def install(self, content, first=False):
         if not first:
             # Never replace an operator's concurrent configuration change.
-            require(regular(self.facts().get('.htaccess',{})), 'Child configuration is not a regular owned file')
-            self.pwd()
-            digest, size = hashlib.sha256(), 0
-            def consume(chunk):
-                nonlocal size
-                size += len(chunk); require(size <= max(len(self.deny),len(self.final)), 'Child config exceeds owned bound'); digest.update(chunk)
-            self.client.retrbinary('RETR .htaccess', consume)
-            require(any(size == len(c) and digest.hexdigest() == hashlib.sha256(c).hexdigest() for c in [self.deny,self.final]),
+            size,digest = self.fingerprint('.htaccess',max(len(self.deny),len(self.final)))
+            require(any(size == len(c) and digest == hashlib.sha256(c).hexdigest() for c in [self.deny,self.final]),
                     'Child configuration is no longer owned by this run')
         temporary = '.htaccess-provision-' + secrets.token_hex(16)
         require(temporary not in self.facts(), 'Protection temporary already exists')
@@ -220,14 +233,22 @@ class Provision:
                 self.evidence['ftpResponseCode'] = str(error)[:3]
             if self.owned_active:
                 try:
+                    # Recovery always gets a fresh authenticated control/data
+                    # session; never depend on the failed transfer's reply queue.
+                    self.client.close()
+                    self.client = self.connector()
+                    require(self.client.pwd() == '/', 'Recovery root mismatch')
+                    self.client.cwd(t.TARGET); self.pwd()
                     try:
                         self.read('.htaccess', self.deny)
                     except Exception:
                         self.install(self.deny)
                     for name in PROBES: self.status(name,403)
                     self.evidence['rollbackDenyVerified'] = True
-                except Exception:
+                except Exception as rollback_error:
                     self.evidence['rollbackDenyVerified'] = False
+                    self.evidence['rollbackErrorType'] = type(rollback_error).__name__
+                    if isinstance(rollback_error,t.DeploymentError):self.evidence['rollbackReason']=str(rollback_error)
             return self.evidence
         finally:
             self.client.close()

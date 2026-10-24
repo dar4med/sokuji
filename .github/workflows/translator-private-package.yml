@@ -9,7 +9,7 @@ on:
       mode:
         description: Build and anonymous preflight, or explicitly approved first deployment
         type: choice
-        options: [build-preflight, connection-preflight, provision-protection, deploy]
+        options: [build-preflight, connection-preflight, provision-protection, inspect-recover-protection, deploy]
         default: build-preflight
       approve_deployment:
         description: Future owner approval of first payload transfer (protection must already work)
@@ -31,6 +31,14 @@ on:
         description: Previously verified successful read-only connection run ID
         type: string
         default: ''
+      approve_inspection:
+        description: Approve bounded read-only inspection of existing owned protection and HTTP states
+        type: boolean
+        default: false
+      approve_recovery:
+        description: Additionally approve known-hash-only child protection recovery and static control file
+        type: boolean
+        default: false
       approval_sha:
         description: Exact reviewed 40-character source SHA; required for connection, protection or deploy
         type: string
@@ -135,6 +143,56 @@ jobs:
           TRANSLATOR_BASIC_USERNAME: ${{ secrets.TRANSLATOR_BASIC_USERNAME }}
           TRANSLATOR_BASIC_PASSWORD: ${{ secrets.TRANSLATOR_BASIC_PASSWORD }}
         run: python3 scripts/provision-protection.py --execute
+
+  inspect-recover-protection:
+    if: >-
+      github.repository == 'dar4med/sokuji' &&
+      github.ref == 'refs/heads/feature/voice-translator-mvp' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.mode == 'inspect-recover-protection'
+    environment: translator-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: apps/web-translator
+        shell: bash
+    steps:
+      - name: Validate exact reviewed inspection and optional recovery
+        working-directory: ${{ github.workspace }}
+        env:
+          INSPECTION_APPROVED: ${{ inputs.approve_inspection }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          assert os.environ['INSPECTION_APPROVED'] == 'true', 'Explicit inspection approval required'
+          assert os.environ['APPROVAL_SHA'] == os.environ['GITHUB_SHA'], 'Exact reviewed SHA required'
+          PY
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: 3.12.14
+      - name: Offline existing-state and FTP reply-queue regression
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Inspect existing protection; write only when separately approved
+        env:
+          INSPECTION_APPROVED: ${{ inputs.approve_inspection }}
+          RECOVERY_APPROVED: ${{ inputs.approve_recovery }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+          FTPS_USERNAME: ${{ secrets.FTPS_USERNAME }}
+          FTPS_PASSWORD: ${{ secrets.FTPS_PASSWORD }}
+          TRANSLATOR_BASIC_USERNAME: ${{ secrets.TRANSLATOR_BASIC_USERNAME }}
+          TRANSLATOR_BASIC_PASSWORD: ${{ secrets.TRANSLATOR_BASIC_PASSWORD }}
+        run: |
+          if [ "$RECOVERY_APPROVED" = true ]; then
+            python3 scripts/recover-protection.py --execute --recover
+          else
+            python3 scripts/recover-protection.py --execute
+          fi
 
   package:
     if: >-

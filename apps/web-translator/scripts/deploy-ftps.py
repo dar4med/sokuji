@@ -23,6 +23,8 @@ TARGET = '/public_html/translator-test'
 WEB_HOST = 'ai.lekarz.nl'
 WEB_PREFIX = '/translator-test/'
 MARKER = '.deployment-in-progress'
+PROTECTION_PROBE = '__translator_protection_probe__.txt'
+PROTECTION_PROBE_BYTES = b'Med Partners private protection check. No application installed.\n'
 MAINTENANCE = '''# BEGIN TRANSLATOR DEPLOYMENT GUARD
 ErrorDocument 503 "Translator deployment locked"
 RewriteEngine On
@@ -238,11 +240,14 @@ class Deployment:
             entries = {name: facts for name, facts in self.client.mlsd()
                        if not (name == '.' and facts.get('type') == 'cdir')
                        and not (name == '..' and facts.get('type') == 'pdir')}
-            require('.htaccess' in entries and set(entries) <= {'.htaccess','icon.svg',MARKER} and
+            require('.htaccess' in entries and set(entries) <= {'.htaccess','icon.svg',MARKER,PROTECTION_PROBE} and
                     all(f.get('type') == 'file' and not any('slink' in k.lower() or 'symlink' in str(v).lower() for k,v in f.items()) for f in entries.values()),
                     'First deployment requires only regular protection files and optional icon; existing payload/links require manual recovery')
             if MARKER in entries:
                 require(self.read_remote(MARKER) == b'', 'Existing nonempty maintenance lock requires manual recovery')
+            if PROTECTION_PROBE in entries:
+                body = PROTECTION_PROBE_BYTES
+                self.read_remote(PROTECTION_PROBE, {'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest()})
             self.verify_guard()
             if 'icon.svg' in entries:
                 self.read_remote('icon.svg', self.payload['icon.svg'])

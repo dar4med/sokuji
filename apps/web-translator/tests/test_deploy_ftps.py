@@ -175,6 +175,17 @@ class DeploymentTests(unittest.TestCase):
         self.ftp.entries[d.MARKER] = {'type':'file', 'size':'0'}
         self.ftp.files[d.MARKER] = b''
         self.assertTrue(self.deployment().execute(CSP)['verified'])
+    def test_only_exact_owned_protection_probe_is_accepted(self):
+        self.ftp.entries[d.PROTECTION_PROBE]={'type':'file'}
+        self.ftp.files[d.PROTECTION_PROBE]=b'operator file'
+        with self.assertRaises(d.DeploymentError):self.deployment().execute(CSP)
+        self.assertEqual(self.payload_writes(),[])
+    def test_exact_control_probe_is_preserved_by_future_first_deploy(self):
+        self.ftp.entries[d.PROTECTION_PROBE]={'type':'file'}
+        self.ftp.files[d.PROTECTION_PROBE]=d.PROTECTION_PROBE_BYTES
+        self.assertTrue(self.deployment().execute(CSP)['verified'])
+        self.assertEqual(self.ftp.files[d.PROTECTION_PROBE],d.PROTECTION_PROBE_BYTES)
+        self.assertFalse(any(e[0]=='RENAME' and e[-1]==d.PROTECTION_PROBE for e in self.ftp.events))
 
     def test_symlink_attribute_on_allowed_file_is_rejected(self):
         self.ftp.entries['.htaccess']['unix.slink'] = '/outside'
