@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "platform": "Linux Chromium, not physical Windows",
+  "installation": {
+    "updated": [
+      "assets/capture-Bh2ZntkC.js",
+      "assets/index-CJ_k8XCq.js",
+      "assets/inference.worker-DK3oltoU.js",
+      "index.html",
+      "sw.js"
+    ],
+    "sourceSha": "38d8c828b1dd521598a9263b747e62abba654029",
+    "backup": "/tmp/translator-ui-backup-VmJ4mO",
+    "modelsDownloaded": 0
+  },
+  "oldSelectorBugReproduced": true,
+  "newSelectorEnabledAfterTranslation": true,
+  "serviceWorkerUpdated": true,
+  "modelRequestsAfterUpdate": 0,
+  "manualReplayNoVoiceFallback": true,
+  "pageErrors": []
+}

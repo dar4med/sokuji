@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0d7468" />
+    <meta
+      name="description"
+      content="Prywatny, lokalny tłumacz rozmów po polsku, niderlandzku i angielsku. Prototyp Stichting Med Partners."
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-8ETRuPlZnyc1UJX1rEAR/ES+8g5olPD/IELK8jsuTMU='; worker-src 'self' blob:; connect-src 'self' blob:; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
+    <script>// Embedded before all relative assets. Its exact hash is allowed by the CSP.
+(() => {
+  const address = new URL(location.href);
+  if (!document.querySelector("base")) {
+    // A preview proxy may serve /preview/5180 without the canonical trailing slash.
+    // Relative assets otherwise resolve to /preview/assets instead of /preview/5180/assets.
+    const directory = !address.pathname.endsWith("/") &&
+      !address.pathname.split("/").pop().includes(".");
+    if (directory) address.pathname += "/";
+    const base = document.createElement("base");
+    base.href = new URL(".", address).href;
+    document.head.append(base);
+    // Service workers also need the page to be inside their directory scope.
+    if (directory) location.replace(address.href);
+  }
+
+  document.documentElement.dataset.startup = "loading";
+  let failure = "";
+  const show = () => {
+    if (!failure) return;
+    const status = document.getElementById("status");
+    const error = document.getElementById("error");
+    const retry = document.getElementById("retry-startup");
+    if (!status || !error || !retry) return;
+    status.textContent = "Nie udało się uruchomić aplikacji.";
+    error.textContent = failure;
+    error.hidden = false;
+    retry.hidden = false;
+  };
+  const fail = (text) => {
+    if (document.documentElement.dataset.startup !== "loading") return;
+    failure = text;
+    document.documentElement.dataset.startup = "error";
+    clearTimeout(timer);
+    show();
+  };
+  const timer = setTimeout(() => fail(
+    "Uruchamianie trwa zbyt długo. Sprawdź połączenie i załaduj stronę ponownie. W podglądzie sprawdź, czy serwer aplikacji działa na porcie 5180.",
+  ), 20000);
+  window.addEventListener("app-startup-complete", () => clearTimeout(timer));
+  window.addEventListener("error", (event) => {
+    const target = event.target;
+    if (target instanceof HTMLScriptElement ||
+        (target instanceof HTMLLinkElement && target.rel === "stylesheet")) {
+      fail("Nie pobrano plików JavaScript lub CSS aplikacji. Sprawdź adres podglądu i połączenie, a następnie załaduj stronę ponownie.");
+    } else if (event instanceof ErrorEvent) {
+      fail("Wystąpił błąd podczas uruchamiania aplikacji. Załaduj stronę ponownie. Szczegóły są dostępne w konsoli przeglądarki.");
+    }
+  }, true);
+  // DOMContentLoaded may itself be waiting for a stalled module download.
+  document.addEventListener("click", (event) => {
+    if (event.target instanceof Element && event.target.closest("#retry-startup"))
+      location.reload();
+  });
+  document.addEventListener("DOMContentLoaded", show);
+})();
+</script>
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <title>Rozmowa · Med Partners</title>
+    <script type="module" crossorigin src="./assets/index-CJ_k8XCq.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-6Mmpehg4.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="brand">
+        <a href="./" aria-label="Rozmowa — strona główna"
+          ><span class="brand-mark" aria-hidden="true">m<span>+</span></span
+          ><span
+            >med partners<span class="brand-sub"
+              >STICHTING · DLA LUDZI</span
+            ></span
+          ></a
+        ><span class="prototype">PROTOTYP</span>
+      </header>
+      <section class="intro">
+        <p class="eyebrow">TRZY JĘZYKI. JEDNA ROZMOWA.</p>
+        <h1>Bliżej siebie.<br /><span>Bez bariery języka.</span></h1>
+        <p>
+          Mów naturalnie. Czytaj i słuchaj tłumaczenia.<br />Twoja rozmowa
+          pozostaje na Twoim urządzeniu.
+        </p>
+      </section>
+      <section class="conversation-card" aria-label="Ustawienia rozmowy">
+        <div class="card-heading">
+          <h2>Porozmawiajmy</h2>
+          <span class="local-badge"><span></span> Lokalnie i prywatnie</span>
+        </div>
+        <div class="languages">
+          <label
+            >Język pierwszej osoby<select id="language-a">
+              <option value="pl">Polski</option>
+              <option value="nl">Niderlandzki</option>
+              <option value="en">Angielski</option>
+            </select></label
+          ><span class="pair-symbol" aria-hidden="true">↔</span
+          ><label
+            >Język drugiej osoby<select id="language-b">
+              <option value="nl">Niderlandzki</option>
+              <option value="pl">Polski</option>
+              <option value="en">Angielski</option>
+            </select></label
+          >
+        </div>
+        <fieldset class="speaker">
+          <legend>Kto teraz mówi lub pisze?</legend>
+          <div>
+            <button id="source-a" type="button" aria-pressed="true">
+              Polski</button
+            ><button id="source-b" type="button" aria-pressed="false">
+              Niderlandzki
+            </button>
+          </div>
+        </fieldset>
+        <p id="direction-info" class="turn-hint" aria-live="polite">Teraz: Polski → Niderlandzki</p>
+        <p class="turn-hint">
+          Wybierz dowolne dwa języki powyżej, także Angielski (EN).
+          Przyciskami wybierz język osoby, która mówi lub pisze.
+          Zmiana pary języków automatycznie zatrzymuje mikrofon.
+          Nie musisz przytrzymywać przycisku.
+          Zacznij mówić dopiero po komunikacie „Słucham”.
+        </p>
+        <button id="start" class="primary" type="button" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="9" y="2" width="6" height="12" rx="3" />
+            <path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8" /></svg
+          ><span>Rozpocznij rozmowę</span>
+        </button>
+        <div id="status" class="status" role="status" aria-live="polite">
+          Sprawdzam dostępne pakiety…
+        </div>
+        <progress
+          id="progress"
+          max="100"
+          value="0"
+          hidden
+          aria-label="Przygotowanie pakietu językowego"
+        ></progress>
+        <p id="download-info" class="download-info"></p>
+        <p id="error" class="message error" role="alert" hidden></p>
+        <button id="retry-startup" type="button" class="secondary" hidden>Załaduj stronę ponownie</button>
+        <noscript>Włącz JavaScript, aby korzystać z lokalnego tłumacza.</noscript>
+        <p id="microphone-info" class="message warning" hidden></p>
+        <p id="warning" class="message warning" role="status" hidden></p>
+        <details class="text-mode">
+          <summary>Wpisz wiadomość zamiast mówić</summary>
+          <label class="sr-only" for="typed">Wiadomość do przetłumaczenia</label
+          ><textarea
+            id="typed"
+            rows="2"
+            maxlength="600"
+            placeholder="Wpisz krótką wiadomość…"
+          ></textarea
+          ><button id="send" type="button" class="secondary" disabled>
+            Przetłumacz lokalnie →
+          </button>
+        </details>
+      </section>
+      <section class="history" aria-label="Przebieg rozmowy">
+        <div class="history-heading">
+          <h2>Wasza rozmowa</h2>
+          <button id="clear" type="button" class="quiet">
+            Wyczyść historię
+          </button>
+        </div>
+        <div id="entries" aria-live="polite">
+          <div id="empty" class="empty">
+            <span aria-hidden="true">“</span>
+            <p>Tu pojawi się Wasza rozmowa.</p>
+            <small>Tekst oryginalny i tłumaczenie, jedno pod drugim.</small>
+          </div>
+        </div>
+      </section>
+      <aside class="notice">
+        <strong>Pomoc w rozmowie, nie zastępstwo tłumacza.</strong>
+        <p>
+          Tłumaczenia automatyczne mogą zawierać błędy. W sprawach medycznych,
+          prawnych i wymagających precyzji korzystaj z profesjonalnego tłumacza.
+        </p>
+      </aside>
+      <footer>
+        <p>Stichting Med Partners · Technologia, która zbliża.</p>
+        <details>
+          <summary>Prywatność i pakiety</summary>
+          <p>
+            Bez kont, reklam i analityki. Audio oraz tekst są przetwarzane
+            lokalnie. Nagrania nie są zapisywane; historia pozostaje tylko w
+            pamięci tej karty. Modele pobierasz z tego samego serwera co
+            aplikację — serwer widzi standardowe metadane pobrania, nie treść
+            rozmowy.
+          </p>
+          <p>
+            Odczyt korzysta wyłącznie z głosów oznaczonych przez system jako
+            lokalne. Głos może wymagać wcześniejszego zainstalowania w
+            ustawieniach systemu tego urządzenia. Sprawdź odczyt również bez Internetu.
+          </p>
+          <button id="delete-models" class="quiet" type="button">
+            Usuń pobrane modele z tego urządzenia
+          </button>
+          <p id="device-info"></p>
+          <a href="./notices.txt">Licencje bibliotek i modeli</a>
+        </details>
+      </footer>
+    </main>
+  </body>
+</html>

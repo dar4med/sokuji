@@ -1,0 +1,240 @@
+{
+  "startedAt": "2026-10-24T07:38:08.144Z",
+  "sourceSha": "38d8c828b1dd521598a9263b747e62abba654029",
+  "sourceDirty": true,
+  "node": "v24.19.0",
+  "engine": "Real ONNX models / WASM / Chromium",
+  "translations": [
+    {
+      "from": "en",
+      "to": "nl",
+      "input": "The blue bicycle is next to the house.",
+      "output": "De blauwe fiets ligt naast het huis.",
+      "wallMs": 20987,
+      "offline": false
+    },
+    {
+      "from": "nl",
+      "to": "en",
+      "input": "De blauwe fiets staat naast het huis.",
+      "output": "The blue bike is next to the house.",
+      "wallMs": 5475,
+      "offline": false
+    },
+    {
+      "from": "pl",
+      "to": "en",
+      "input": "Niebieski rower stoi obok domu.",
+      "output": "The blue bike is right next to the house.",
+      "wallMs": 16557,
+      "offline": false
+    },
+    {
+      "from": "en",
+      "to": "pl",
+      "input": "The blue bicycle is next to the house.",
+      "output": "Niebieski rower jest obok domu.",
+      "wallMs": 2560,
+      "offline": false
+    },
+    {
+      "from": "pl",
+      "to": "nl",
+      "input": "Niebieski rower stoi obok domu.",
+      "output": "De blauwe fiets ligt naast het huis.",
+      "wallMs": 4619,
+      "offline": false
+    },
+    {
+      "from": "nl",
+      "to": "pl",
+      "input": "De blauwe fiets staat naast het huis.",
+      "output": "Niebieski rower jest obok domu.",
+      "wallMs": 4688,
+      "offline": false
+    },
+    {
+      "from": "en",
+      "to": "nl",
+      "input": "The blue bicycle is next to the house.",
+      "output": "De blauwe fiets ligt naast het huis.",
+      "wallMs": 2485,
+      "offline": false
+    },
+    {
+      "from": "nl",
+      "to": "en",
+      "input": "De blauwe fiets staat naast het huis.",
+      "output": "The blue bike is next to the house.",
+      "wallMs": 2795,
+      "offline": false
+    },
+    {
+      "from": "pl",
+      "to": "en",
+      "input": "Niebieski rower stoi obok domu.",
+      "output": "The blue bike is right next to the house.",
+      "wallMs": 2541,
+      "offline": false
+    },
+    {
+      "from": "en",
+      "to": "pl",
+      "input": "The blue bicycle is next to the house.",
+      "output": "Niebieski rower jest obok domu.",
+      "wallMs": 2508,
+      "offline": false
+    },
+    {
+      "from": "pl",
+      "to": "nl",
+      "input": "Niebieski rower stoi obok domu.",
+      "output": "De blauwe fiets ligt naast het huis.",
+      "wallMs": 4688,
+      "offline": false
+    },
+    {
+      "from": "nl",
+      "to": "pl",
+      "input": "De blauwe fiets staat naast het huis.",
+      "output": "Niebieski rower jest obok domu.",
+      "wallMs": 5702,
+      "offline": false
+    },
+    {
+      "from": "en",
+      "to": "nl",
+      "input": "The blue bicycle is next to the house.",
+      "output": "De blauwe fiets ligt naast het huis.",
+      "wallMs": 2423,
+      "offline": false
+    },
+    {
+      "from": "en",
+      "to": "nl",
+      "input": "The blue bicycle is next to the house.",
+      "output": "De blauwe fiets ligt naast het huis.",
+      "wallMs": 2404,
+      "offline": true
+    },
+    {
+      "from": "nl",
+      "to": "en",
+      "input": "De blauwe fiets staat naast het huis.",
+      "output": "The blue bike is next to the house.",
+      "wallMs": 2506,
+      "offline": true
+    },
+    {
+      "from": "pl",
+      "to": "en",
+      "input": "Niebieski rower stoi obok domu.",
+      "output": "The blue bike is right next to the house.",
+      "wallMs": 2705,
+      "offline": true
+    },
+    {
+      "from": "en",
+      "to": "pl",
+      "input": "The blue bicycle is next to the house.",
+      "output": "Niebieski rower jest obok domu.",
+      "wallMs": 2476,
+      "offline": true
+    },
+    {
+      "from": "pl",
+      "to": "nl",
+      "input": "Niebieski rower stoi obok domu.",
+      "output": "De blauwe fiets ligt naast het huis.",
+      "wallMs": 4630,
+      "offline": true
+    },
+    {
+      "from": "nl",
+      "to": "pl",
+      "input": "De blauwe fiets staat naast het huis.",
+      "output": "Niebieski rower jest obok domu.",
+      "wallMs": 4858,
+      "offline": true
+    }
+  ],
+  "audioRuns": [
+    {
+      "run": 1,
+      "readyMs": 4954,
+      "resultAfterPlayMs": 7612,
+      "totalMs": 12569,
+      "transcript": "The blue bicycle is next to the house.",
+      "translation": "De blauwe fiets ligt naast het huis.",
+      "timing": "ASR 2.5 s · tłumaczenie 1.8 s",
+      "fixture": {
+        "nativeCalls": 1,
+        "playedAt": 98975.32499999553,
+        "duration": 4.61498866213152,
+        "phaseAtPlay": "listening",
+        "trackEnabled": true,
+        "contextState": "running"
+      }
+    },
+    {
+      "run": 2,
+      "readyMs": 2157,
+      "resultAfterPlayMs": 7388,
+      "totalMs": 9548,
+      "transcript": "The blue bicycle is next to the house.",
+      "translation": "De blauwe fiets ligt naast het huis.",
+      "timing": "ASR 2.7 s · tłumaczenie 1.4 s",
+      "fixture": {
+        "nativeCalls": 2,
+        "playedAt": 108841.87999999523,
+        "duration": 4.61498866213152,
+        "phaseAtPlay": "listening",
+        "trackEnabled": true,
+        "contextState": "running"
+      }
+    },
+    {
+      "run": 3,
+      "readyMs": 2041,
+      "resultAfterPlayMs": 11278,
+      "totalMs": 13321,
+      "transcript": "The blue bicycle is next to the house.",
+      "translation": "De blauwe fiets ligt naast het huis.",
+      "timing": "ASR 5.6 s · tłumaczenie 2.3 s",
+      "fixture": {
+        "nativeCalls": 3,
+        "playedAt": 118357.04499999434,
+        "duration": 4.61498866213152,
+        "phaseAtPlay": "listening",
+        "trackEnabled": true,
+        "contextState": "running"
+      }
+    }
+  ],
+  "tts": "NIEPRZETESTOWANE — brak potwierdzonego odsłuchu lokalnego głosu",
+  "checks": [
+    "All six real translation routes produced the expected object, including both English pivots.",
+    "Repeated translation reuses verified CacheStorage model files.",
+    "Three consecutive readiness-synchronized audio runs recognize the entire sentence; native capture released after Stop.",
+    "All six directions remain selectable after typed translations without Stop; one click switches text mode to microphone.",
+    "Changing the language pair while listening stops native capture and VAD without manual Stop.",
+    "Stop prevents later audio completions from adding conversation rows.",
+    "Offline reload and all six real translation routes use the saved application and models.",
+    "Local session history can be erased.",
+    "Denied microphone permission produces a visible recoverable error.",
+    "Zero requests to external origins; zero uncaught page errors."
+  ],
+  "externalRequests": [],
+  "pageErrors": [],
+  "voices": [],
+  "browser": "154.0.8037.57",
+  "modelBytes": 514438880,
+  "noLocalVoiceCheck": {
+    "warning": "Brak lokalnego głosu: Niderlandzki. Tekst działa. Dodaj bezpłatny głos w ustawieniach systemu tego urządzenia (Windows, Android lub iPhone), a potem otwórz przeglądarkę ponownie. Nie używamy zastępczego głosu chmurowego.",
+    "textPreserved": true,
+    "textInputEnabled": true,
+    "audibleTTS": "NIEPRZETESTOWANE"
+  },
+  "passed": true,
+  "completedAt": "2026-10-24T07:40:52.680Z"
+}
