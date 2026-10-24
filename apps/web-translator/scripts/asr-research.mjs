@@ -11,8 +11,12 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const research = process.env.ASR_RESEARCH_DIR || '/workspace/artifacts/asr-pl-nl-research';
 const fixtures = JSON.parse(await readFile(path.join(research, 'fixtures.json')));
 const tiny = JSON.parse(await readFile(path.join(root, 'models.lock.json'))).models.find(model => model.id === 'asr');
-const baseManifest = JSON.parse(await readFile(path.join(research, 'base/RESEARCH-MANIFEST.json')));
-const baseModel = { ...tiny, repo: baseManifest.repo, revision: baseManifest.revision, files: baseManifest.files };
+const variants = [['tiny', tiny, path.join(root, 'public/models/asr')]];
+if (process.env.ASR_RESEARCH_MODELS !== 'tiny') {
+  const baseManifest = JSON.parse(await readFile(path.join(research, 'base/RESEARCH-MANIFEST.json')));
+  const baseModel = { ...tiny, repo: baseManifest.repo, revision: baseManifest.revision, files: baseManifest.files };
+  variants.push(['base', baseModel, path.join(research, 'base')]);
+}
 let modelRoot = path.join(root, 'public/models/asr');
 const original = await readFile(path.join(root, 'delivery/local-ui-update/payload/assets/inference.worker-DK3oltoU.js'), 'utf8');
 assert.equal(original.split('max_new_tokens:128').length, 2);
@@ -48,7 +52,7 @@ function wer(reference, output) {
   return { wordErrors: prev[b.length], referenceWords: a.length, wer: prev[b.length] / a.length };
 }
 try {
-  for (const [name, catalog, folder] of [['tiny', tiny, path.join(root, 'public/models/asr')], ['base', baseModel, path.join(research, 'base')]]) {
+  for (const [name, catalog, folder] of variants) {
     modelRoot = folder;
     for (const file of catalog.files) {
       const data = await readFile(path.join(folder, file.path));
@@ -78,7 +82,7 @@ try {
         return window.call('recognize', { audio, source: fixture.lang, qaTokenLimit: tokens });
       }, { fixture, tokens });
       const result = { model: name, id: fixture.id, duration: fixture.duration, generationLimit: tokens,
-        reference: fixture.reference, text: output.text, ms: output.ms, ...wer(fixture.reference, output.text || ''),
+        reference: fixture.reference, text: output.text, warning: output.warning ?? null, ms: output.ms, ...wer(fixture.reference, output.text || ''),
         synthetic: true, viaVAD: false, sampleRate: 16000, forcedLanguage: fixture.lang };
       results.push(result); console.log(JSON.stringify(result));
       await writeFile(path.join(research, 'RESULTS.json'), JSON.stringify({ results, externalRequests: external, physicalAndroid: false }, null, 2));
