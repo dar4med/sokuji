@@ -8,7 +8,7 @@ app_file: translator-test/index.html
 custom_headers:
   cross-origin-opener-policy: same-origin
   cross-origin-embedder-policy: require-corp
-  cross-origin-resource-policy: same-origin
+  cross-origin-resource-policy: cross-origin
 ---
 
 Private test of the existing local PL/NL/EN translator. Set **Private** visibility

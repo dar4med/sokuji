@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "baseline": {
+    "ok": false,
+    "error": "no available backend found. ERR: [wasm] TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:46267/runtime/ort-wasm-simd-threaded.mjs",
+    "isolated": false
+  },
+  "baselineMjs": 1,
+  "baselineWasm": 0,
+  "patched": {
+    "ok": true,
+    "result": {
+      "text": "De blauwe fiets ligt naast het huis."
+    },
+    "isolated": false
+  },
+  "patchedMjs": 1,
+  "patchedWasm": 1,
+  "strictWorkerCsp": {
+    "ok": false,
+    "error": "HF ORT: import zweryfikowanego MJS z blob nie powiódł się. Sprawdź CSP workera; polityki nie zmieniono.",
+    "isolated": false
+  },
+  "corruptMjs": {
+    "ok": false,
+    "error": "HF ORT: niezgodny rozmiar lub SHA-256 MJS.",
+    "isolated": false
+  },
+  "source": "One assignment changed in the precompiled worker; existing EN→NL files loaded from local disk and SHA-256 verified",
+  "externalRequests": []
+}
