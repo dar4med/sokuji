@@ -9,7 +9,7 @@ on:
       mode:
         description: Build and anonymous preflight, or explicitly approved first deployment
         type: choice
-        options: [build-preflight, connection-preflight, provision-protection, inspect-recover-protection, deploy]
+        options: [build-preflight, connection-preflight, provision-protection, inspect-recover-protection, test-relative-auth, deploy]
         default: build-preflight
       approve_deployment:
         description: Future owner approval of first payload transfer (protection must already work)
@@ -20,7 +20,7 @@ on:
         type: boolean
         default: false
       approve_protection:
-        description: Approve only dedicated protection files, never application payload
+        description: Approve selected protection-only operation, never application payload
         type: boolean
         default: false
       operator_mapping_confirmed:
@@ -193,6 +193,50 @@ jobs:
           else
             python3 scripts/recover-protection.py --execute
           fi
+
+  test-relative-auth:
+    if: >-
+      github.repository == 'dar4med/sokuji' &&
+      github.ref == 'refs/heads/feature/voice-translator-mvp' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.mode == 'test-relative-auth'
+    environment: translator-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: apps/web-translator
+        shell: bash
+    steps:
+      - name: Validate separately reviewed same-directory protection experiment
+        working-directory: ${{ github.workspace }}
+        env:
+          PROTECTION_APPROVED: ${{ inputs.approve_protection }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          assert os.environ['PROTECTION_APPROVED'] == 'true', 'Relative AuthUserFile experiment approval required'
+          assert os.environ['APPROVAL_SHA'] == os.environ['GITHUB_SHA'], 'Exact reviewed SHA required'
+          PY
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: 3.12.14
+      - name: Offline relative auth ordering, non-disclosure and rollback tests
+        run: python3 -m unittest discover -s tests -p 'test_relative_auth.py' -v
+      - name: Protection-only relative AuthUserFile test, no application or external file access
+        env:
+          PROTECTION_APPROVED: ${{ inputs.approve_protection }}
+          APPROVAL_SHA: ${{ inputs.approval_sha }}
+          FTPS_USERNAME: ${{ secrets.FTPS_USERNAME }}
+          FTPS_PASSWORD: ${{ secrets.FTPS_PASSWORD }}
+          TRANSLATOR_BASIC_USERNAME: ${{ secrets.TRANSLATOR_BASIC_USERNAME }}
+          TRANSLATOR_BASIC_PASSWORD: ${{ secrets.TRANSLATOR_BASIC_PASSWORD }}
+        run: python3 scripts/test-relative-auth.py --execute
 
   package:
     if: >-
